@@ -2,7 +2,6 @@ package mod.ckenja.cyninja.client;
 
 import bagu_chan.bagus_lib.api.client.IRootModel;
 import bagu_chan.bagus_lib.client.event.BagusModelEvent;
-import com.mojang.math.Axis;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
@@ -15,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -95,13 +93,13 @@ public class ClientEvents {
     @SubscribeEvent
     public static void rotation(BagusModelEvent.Scale bagusModelEvent) {
         Entity entity = bagusModelEvent.getEntity();
-        if (entity instanceof LivingEntity livingEntity) {
+        /*if (entity instanceof LivingEntity livingEntity) {
             NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
             if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_RUN.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(livingEntity.getDirection().toYRot()));
             }
-        }
+        }*/
     }
 }

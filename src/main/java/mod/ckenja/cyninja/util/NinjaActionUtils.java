@@ -38,7 +38,7 @@ public class NinjaActionUtils {
         }
 
         //slide to looking way
-        livingEntity.moveRelative(0.1F, new Vec3(0, 0, NinjaActions.SLIDE.get().getMoveSpeed()));
+        livingEntity.moveRelative(0.2F, new Vec3(0, 0, NinjaActions.SLIDE.get().getMoveSpeed()));
         livingEntity.hasImpulse = true;
     }
 

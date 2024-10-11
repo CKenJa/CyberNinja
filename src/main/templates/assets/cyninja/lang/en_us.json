@@ -1,4 +1,7 @@
 {
+  "item.cyninja.ninja_helmet": "Ninja Helmet",
   "item.cyninja.ninja_chestplate": "Ninja ChestPlate",
+  "item.cyninja.ninja_leggings": "Ninja Leggings",
+  "item.cyninja.ninja_boots": "Ninja Boots",
   "itemGroup.cyninja": "Cyninja"
 }

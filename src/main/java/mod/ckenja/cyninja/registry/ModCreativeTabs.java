@@ -19,7 +19,10 @@ public class ModCreativeTabs {
             .icon(() -> ModItems.NINJA_CHESTPLATE.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.acceptAll(Stream.of(
-                        ModItems.NINJA_CHESTPLATE
+                        ModItems.NINJA_HELMET,
+                        ModItems.NINJA_CHESTPLATE,
+                        ModItems.NINJA_LEGGINGS,
+                        ModItems.NINJA_BOOTS
                 ).map(sup -> {
                     return sup.get().getDefaultInstance();
                 }).toList());

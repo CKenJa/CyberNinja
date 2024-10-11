@@ -51,13 +51,14 @@ public class NinjaActionUtils {
     }
 
     public static boolean isWearingNinja(LivingEntity livingEntity) {
+        int i = 0;
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
             if (!(itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
-                return false;
+                i++;
             }
         }
 
-        return true;
+        return i >= 4;
     }
 
     public static boolean isWearingNinjaForWolf(Mob livingEntity) {

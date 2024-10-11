@@ -11,6 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 
 import java.util.Optional;
 
@@ -72,6 +73,15 @@ public record NinjaActionData(int actionTick, Holder<NinjaAction> ninjaActionHol
         if (this.isActionDo() && !this.isActionStop()) {
             this.actionTick(user);
             this.actionHold(user);
+        }
+
+    }
+
+    public void pretick(LivingEntity user) {
+        if (this.isActionDo() && !this.isActionStop()) {
+            user.setSprinting(false);
+            user.setShiftKeyDown(false);
+            user.setPose(Pose.STANDING);
         }
 
     }

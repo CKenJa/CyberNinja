@@ -26,11 +26,12 @@ public class CommonEvents {
     }
 
     @SubscribeEvent
-    public static void tickEvent(EntityTickEvent.Post event) {
+    public static void tickEvent(EntityTickEvent.Pre event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             //basic action handle
             NinjaActionData actionData = NinjaActionUtils.getActionData(livingEntity);
             if (actionData != null) {
+                actionData.pretick(livingEntity);
                 actionData.tick(livingEntity);
                 if (!actionData.ninjaActionHolder().value().isLoop()) {
                     if (!actionData.isActionStop()) {

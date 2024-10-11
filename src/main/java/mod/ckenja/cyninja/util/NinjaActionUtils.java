@@ -35,10 +35,12 @@ public class NinjaActionUtils {
                         break;
                     }
                 }
-            } else if (livingEntity.verticalCollision || !livingEntity.onGround()) {
-                setAction(livingEntity, NinjaActions.NONE);
             }
         }
+        if (livingEntity.verticalCollision || !livingEntity.onGround()) {
+            setAction(livingEntity, NinjaActions.NONE);
+        }
+
         //slide to looking way
         livingEntity.moveRelative(0.1F, new Vec3(0, 0, NinjaActions.SLIDE.get().getMoveSpeed()));
         livingEntity.hasImpulse = true;

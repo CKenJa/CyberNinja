@@ -16,6 +16,7 @@ public class NinjaAction {
     private int endTick;
     private float moveSpeed;
     private boolean loop;
+    private boolean canJump;
 
     // Next input acceptance period *ms
     public int timeout;
@@ -39,6 +40,7 @@ public class NinjaAction {
         this.moveSpeed = builder.moveSpeed;
         this.timeout = builder.timeout;
         this.loop = builder.loop;
+        this.canJump = builder.canJump;
         this.next = builder.next;
         this.hitBox = builder.hitBox;
         this.nextOfTimeout = builder.nextOfTimeout;
@@ -76,6 +78,10 @@ public class NinjaAction {
         return priority;
     }
 
+    public boolean isCanJump() {
+        return canJump;
+    }
+
     public Optional<EntityDimensions> getHitBox() {
         return hitBox;
     }
@@ -103,6 +109,7 @@ public class NinjaAction {
 
     public static class Builder {
         private int priority;
+        private boolean canJump;
         private int startTick;
         private int endTick;
         private float moveSpeed;
@@ -131,6 +138,7 @@ public class NinjaAction {
             };
             this.hitEffect = (a, b) -> {
             };
+            this.canJump = false;
         }
 
         public static Builder newInstance() {
@@ -195,6 +203,10 @@ public class NinjaAction {
         public Builder setHitBox(EntityDimensions hitBox) {
             this.hitBox = Optional.of(hitBox);
             return this;
+        }
+
+        public void setCanJump(boolean canJump) {
+            this.canJump = canJump;
         }
     }
 }

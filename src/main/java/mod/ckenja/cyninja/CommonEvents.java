@@ -66,7 +66,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onHurt(LivingIncomingDamageEvent event) {
         NinjaActionAttachment ninjaActionAttachment = event.getEntity().getData(ModAttachments.NINJA_ACTION);
-        if (ninjaActionAttachment != null && event.getSource().isDirect()) {
+        if (ninjaActionAttachment != null && event.getSource().isDirect() && event.getSource().getDirectEntity() != null) {
             event.setAmount(event.getAmount() * (1.0F - ninjaActionAttachment.getNinjaAction().value().getReduceDamage()));
             if (ninjaActionAttachment.getNinjaAction().value().getReduceDamage() >= 1.0F) {
                 event.setCanceled(true);

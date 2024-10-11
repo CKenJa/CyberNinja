@@ -29,7 +29,10 @@ public class NinjaActions {
         }
 
         return null;
-    }).setReduceDamage(0.5F).setReduceKnockback(1.0F).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
+    }).setNeedCondition(livingEntity -> {
+        return livingEntity.onGround() && livingEntity.isSprinting() && NinjaActionUtils.getAction(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value();
+    }).setReduceDamage(1.0F).setReduceKnockback(1.0F).setCanJump(false).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
+
 
     private static Registry<NinjaAction> registry;
 

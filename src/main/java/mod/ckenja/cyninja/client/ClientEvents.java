@@ -8,6 +8,7 @@ import mod.ckenja.cyninja.client.animation.PlayerAnimations;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
+import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
@@ -23,20 +24,31 @@ import net.neoforged.neoforge.network.PacketDistributor;
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
 public class ClientEvents {
+    public static NinjaInput ninjaInput = NinjaInput.NONE;
 
     @SubscribeEvent
     public static void onKeyPush(InputEvent.Key event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue() && player.isSprinting()) {
-                if (player.onGround() && NinjaActionUtils.getAction(player).getNinjaAction().value() == NinjaActions.NONE.value()) {
-                    PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.SLIDE));
-                    NinjaActionUtils.setActionData(player, NinjaActions.SLIDE);
-                }
+            if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
+                ninjaInput = NinjaInput.SNEAK;
             }
+
+            if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
+                ninjaInput = NinjaInput.JUMP;
+            }
+
+            Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
+                return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
+            }).forEach(ninjaActionEntry -> {
+                if (ninjaActionEntry.getKey().value().getNeedCondition().apply(player)) {
+                    PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaActionEntry.getKey()));
+                    NinjaActionUtils.setActionData(player, ninjaActionEntry.getKey());
+                }
+            });
+
         }
     }
-
     @SubscribeEvent
     public static void animationInitEvent(BagusModelEvent.Init bagusModelEvent) {
         IRootModel rootModel = bagusModelEvent.getRootModel();

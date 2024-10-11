@@ -25,6 +25,7 @@ public class NinjaAction {
 
     private Function<LivingEntity, Holder<NinjaAction>> next;
     private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
+    private Function<LivingEntity, Boolean> needCondition;
 
     private Consumer<LivingEntity> holdAction;
 
@@ -45,10 +46,11 @@ public class NinjaAction {
         this.timeout = builder.timeout;
         this.loop = builder.loop;
         this.canJump = builder.canJump;
+
         this.next = builder.next;
         this.hitBox = builder.hitBox;
         this.nextOfTimeout = builder.nextOfTimeout;
-
+        this.needCondition = builder.needCondition;
         this.holdAction = builder.holdAction;
 
         this.tickAction = builder.tickAction;
@@ -107,6 +109,10 @@ public class NinjaAction {
         return nextOfTimeout;
     }
 
+    public Function<LivingEntity, Boolean> getNeedCondition() {
+        return needCondition;
+    }
+
     public void holdAction(LivingEntity user) {
         holdAction.accept(user);
     }
@@ -131,7 +137,7 @@ public class NinjaAction {
         private float reduceKnockback;
         private Function<LivingEntity, Holder<NinjaAction>> next;
         private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
-
+        private Function<LivingEntity, Boolean> needCondition;
 
         private Consumer<LivingEntity> holdAction;
         private Consumer<LivingEntity> tickAction;
@@ -146,6 +152,7 @@ public class NinjaAction {
             this.loop = false;
             this.next = entity -> null;
             this.nextOfTimeout = entity -> NinjaActions.NONE;
+            this.needCondition = entity -> true;
             this.tickAction = (livingEntity -> {
 
             });
@@ -235,8 +242,15 @@ public class NinjaAction {
             return this;
         }
 
-        public void setCanJump(boolean canJump) {
+        public Builder setCanJump(boolean canJump) {
             this.canJump = canJump;
+            return this;
         }
+
+        public Builder setNeedCondition(Function<LivingEntity, Boolean> needCondition) {
+            this.needCondition = needCondition;
+            return this;
+        }
+
     }
 }

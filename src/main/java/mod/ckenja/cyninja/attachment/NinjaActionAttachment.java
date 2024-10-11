@@ -101,11 +101,12 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void pretick(LivingEntity user) {
         if (this.isActionDo() && !this.isActionStop()) {
-            user.setSprinting(false);
-            user.setShiftKeyDown(false);
+            if (!this.ninjaAction.value().isCanJump()) {
+                user.setSprinting(false);
+                user.setShiftKeyDown(false);
+            }
             user.setPose(Pose.STANDING);
         }
-
     }
 
 

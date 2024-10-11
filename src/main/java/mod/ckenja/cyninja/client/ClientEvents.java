@@ -31,6 +31,7 @@ public class ClientEvents {
             if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue() && player.isSprinting()) {
                 if (player.onGround() && NinjaActionUtils.getAction(player).getNinjaAction().value() == NinjaActions.NONE.value()) {
                     PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.SLIDE));
+                    NinjaActionUtils.setActionData(player, NinjaActions.SLIDE);
                 }
             }
         }

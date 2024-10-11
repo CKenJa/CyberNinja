@@ -18,15 +18,10 @@ import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
-    private int stopTick;
     private int actionTick;
 
     public int getActionTick() {
         return actionTick;
-    }
-
-    public int getStopTick() {
-        return stopTick;
     }
 
 

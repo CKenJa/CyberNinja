@@ -6,12 +6,14 @@ import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
+import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -20,6 +22,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
@@ -38,14 +44,13 @@ public class ClientEvents {
                 ninjaInput = NinjaInput.JUMP;
             }
 
-            Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
+            Optional<Holder<NinjaAction>> ninjaActionHolder = Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
                 return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
-            }).forEach(ninjaActionEntry -> {
-                if (ninjaActionEntry.getKey().value().getNeedCondition().apply(player)) {
-                    PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaActionEntry.getKey()));
-                    NinjaActionUtils.setActionData(player, ninjaActionEntry.getKey());
+            }).min(Comparator.comparingInt((entry) -> entry.getKey().value().getPriority())).map(Map.Entry::getKey);
+            if (ninjaActionHolder.isPresent() && ninjaActionHolder.get().value().getNeedCondition().apply(player)) {
+                PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaActionHolder.get()));
+                NinjaActionUtils.setActionData(player, ninjaActionHolder.get());
                 }
-            });
 
         }
     }

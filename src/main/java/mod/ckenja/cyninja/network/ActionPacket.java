@@ -3,7 +3,7 @@ package mod.ckenja.cyninja.network;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.ninja_skill.NinjaAction;
 import mod.ckenja.cyninja.registry.NinjaActions;
-import mod.ckenja.cyninja.util.NinjaAttackUtils;
+import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -51,7 +51,7 @@ public class ActionPacket implements CustomPacketPayload, IPayloadHandler<Action
             Player player = context.player();
             Optional<Holder.Reference<NinjaAction>> ninjaAction = NinjaActions.getRegistry().getHolder(message.actionHolder);
             if (player instanceof ServerPlayer serverPlayer) {
-                ninjaAction.ifPresent(ninjaActionReference -> NinjaAttackUtils.setAction(serverPlayer, ninjaActionReference));
+                ninjaAction.ifPresent(ninjaActionReference -> NinjaActionUtils.setAction(serverPlayer, ninjaActionReference));
             }
         });
     }

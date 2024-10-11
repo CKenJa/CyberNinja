@@ -28,6 +28,6 @@ public class Cyninja
 
     public void setupPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0.0").optional();
-        registrar.playToServer(ActionPacket.TYPE, ActionPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
+        registrar.playBidirectional(ActionPacket.TYPE, ActionPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
     }
 }

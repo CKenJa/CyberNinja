@@ -40,6 +40,7 @@ public class NinjaAction {
         this.timeout = builder.timeout;
         this.loop = builder.loop;
         this.next = builder.next;
+        this.hitBox = builder.hitBox;
         this.nextOfTimeout = builder.nextOfTimeout;
 
         this.holdAction = builder.holdAction;
@@ -122,6 +123,7 @@ public class NinjaAction {
             this.moveSpeed = 0F;
             this.loop = false;
             this.next = entity -> NinjaActions.NONE;
+            this.nextOfTimeout = entity -> NinjaActions.NONE;
             this.tickAction = (livingEntity -> {
 
             });

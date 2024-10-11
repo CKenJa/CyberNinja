@@ -2,7 +2,7 @@ package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.ninja_skill.NinjaAction;
-import mod.ckenja.cyninja.util.NinjaAttackUtils;
+import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +23,7 @@ public class NinjaActions {
     public static final DeferredRegister<NinjaAction> NINJA_ACTIONS = DeferredRegister.create(NINJA_ACTIONS_REGISTRY, Cyninja.MODID);
     public static final DeferredHolder<NinjaAction, NinjaAction> NONE = NINJA_ACTIONS.register("none", () -> new NinjaAction(NinjaAction.Builder.newInstance().loop()));
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> new NinjaAction(NinjaAction.Builder.newInstance().startAndEnd(1, 40).speed(1.0F).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaAttackUtils::checkSlideAttack)));
+    public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> new NinjaAction(NinjaAction.Builder.newInstance().startAndEnd(2, 17).speed(1.5F).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
 
     private static Registry<NinjaAction> registry;
 

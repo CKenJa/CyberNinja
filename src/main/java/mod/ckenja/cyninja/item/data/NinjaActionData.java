@@ -73,13 +73,7 @@ public record NinjaActionData(int actionTick, Holder<NinjaAction> ninjaActionHol
             this.actionTick(user);
             this.actionHold(user);
         }
-        if (!this.ninjaActionHolder.value().isLoop()) {
-            if (!this.isActionStop()) {
-                this.setActionTick(this.actionTick + 1);
-            } else {
-                this.setAction(this.ninjaActionHolder.value().getNextOfTimeout().apply(user));
-            }
-        }
+
     }
 
 

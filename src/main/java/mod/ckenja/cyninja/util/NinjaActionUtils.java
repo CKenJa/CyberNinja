@@ -11,11 +11,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class NinjaAttackUtils {
+public class NinjaActionUtils {
 
     public static void checkSlideAttack(LivingEntity livingEntity) {
         if (!livingEntity.level().isClientSide()) {
@@ -34,11 +35,13 @@ public class NinjaAttackUtils {
                         break;
                     }
                 }
-            } else if (livingEntity.horizontalCollision) {
+            } else if (livingEntity.verticalCollision || !livingEntity.onGround()) {
                 setAction(livingEntity, NinjaActions.NONE);
             }
         }
-        livingEntity.zza = NinjaActions.SLIDE.get().getMoveSpeed();
+        //slide to looking way
+        livingEntity.moveRelative(0.1F, new Vec3(0, 0, NinjaActions.SLIDE.get().getMoveSpeed()));
+        livingEntity.hasImpulse = true;
     }
 
     public static void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
@@ -46,6 +49,17 @@ public class NinjaAttackUtils {
             ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
             if (stack.getItem() instanceof NinjaArmorItem armorItem) {
                 stack.set(ModDataComponents.NINJA_ACTION_DATA, new NinjaActionData(0, ninjaAction));
+                livingEntity.refreshDimensions();
+            }
+        }
+    }
+
+    public static void setActionData(LivingEntity livingEntity, NinjaActionData ninjaAction) {
+        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+            ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
+            if (stack.getItem() instanceof NinjaArmorItem armorItem) {
+                stack.set(ModDataComponents.NINJA_ACTION_DATA, ninjaAction);
+                livingEntity.refreshDimensions();
             }
         }
     }
@@ -55,7 +69,18 @@ public class NinjaAttackUtils {
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
             if (stack.getItem() instanceof NinjaArmorItem armorItem) {
-                return stack.getOrDefault(ModDataComponents.NINJA_ACTION_DATA, new NinjaActionData(0, NinjaActions.NONE)).ninjaActionHolder();
+                return stack.get(ModDataComponents.NINJA_ACTION_DATA).ninjaActionHolder();
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static NinjaActionData getActionData(LivingEntity livingEntity) {
+        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+            ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
+            if (stack.getItem() instanceof NinjaArmorItem armorItem) {
+                return stack.get(ModDataComponents.NINJA_ACTION_DATA);
             }
         }
         return null;

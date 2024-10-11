@@ -26,7 +26,7 @@ public class ModArmorMaterials {
         p_323378_.put(ArmorItem.Type.CHESTPLATE, 7);
         p_323378_.put(ArmorItem.Type.HELMET, 3);
         p_323378_.put(ArmorItem.Type.BODY, 6);
-    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 1.0F, 0.01F, () -> Ingredient.of(Items.PHANTOM_MEMBRANE));
+    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 1.0F, 0.05F, () -> Ingredient.of(Items.PHANTOM_MEMBRANE));
 
     private static Holder<ArmorMaterial> register(
             String name,

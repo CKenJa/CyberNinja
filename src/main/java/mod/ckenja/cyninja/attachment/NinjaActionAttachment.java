@@ -29,9 +29,10 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return ninjaAction;
     }
 
-    public void setNinjaAction(Holder<NinjaAction> ninjaAction) {
+    public void setNinjaAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
+        livingEntity.refreshDimensions();
     }
 
     public void sync(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
@@ -41,6 +42,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (!livingEntity.level().isClientSide()) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(livingEntity, new SetActionToClientPacket(livingEntity, ninjaAction));
         }
+        livingEntity.refreshDimensions();
     }
 
     public boolean isActionStop() {

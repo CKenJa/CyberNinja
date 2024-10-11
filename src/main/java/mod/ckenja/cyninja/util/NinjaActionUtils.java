@@ -43,7 +43,7 @@ public class NinjaActionUtils {
 
 
     public static void setActionData(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).setNinjaAction(ninjaAction);
+        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).setNinjaAction(livingEntity, ninjaAction);
     }
 
     public static NinjaActionAttachment getAction(LivingEntity livingEntity) {

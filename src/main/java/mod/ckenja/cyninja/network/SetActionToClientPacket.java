@@ -62,7 +62,7 @@ public class SetActionToClientPacket implements CustomPacketPayload, IPayloadHan
                 NinjaActionAttachment attachment = player.getData(ModAttachments.NINJA_ACTION);
                 Optional<Holder.Reference<NinjaAction>> holder = NinjaActions.getRegistry().getHolder(resourceLocation);
                 if (holder.isPresent()) {
-                    attachment.setNinjaAction(holder.get());
+                    attachment.setNinjaAction(player, holder.get());
                 }
             }
         });

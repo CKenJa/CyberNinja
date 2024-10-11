@@ -51,7 +51,7 @@ public class ActionPacket implements CustomPacketPayload, IPayloadHandler<Action
             Player player = context.player();
             Optional<Holder.Reference<NinjaAction>> ninjaAction = NinjaActions.getRegistry().getHolder(message.actionHolder);
             if (player instanceof ServerPlayer serverPlayer) {
-                ninjaAction.ifPresent(ninjaActionReference -> NinjaActionUtils.setAction(serverPlayer, ninjaActionReference));
+                ninjaAction.ifPresent(ninjaActionReference -> NinjaActionUtils.setActionData(serverPlayer, ninjaActionReference));
             }
         });
     }

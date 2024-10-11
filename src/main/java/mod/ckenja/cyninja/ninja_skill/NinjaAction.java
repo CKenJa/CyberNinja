@@ -129,7 +129,7 @@ public class NinjaAction {
             this.timeout = 0;
             this.moveSpeed = 0F;
             this.loop = false;
-            this.next = entity -> NinjaActions.NONE;
+            this.next = entity -> null;
             this.nextOfTimeout = entity -> NinjaActions.NONE;
             this.tickAction = (livingEntity -> {
 

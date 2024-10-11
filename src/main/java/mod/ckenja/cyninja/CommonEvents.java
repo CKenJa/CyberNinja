@@ -44,10 +44,16 @@ public class CommonEvents {
             if (actionData != null) {
                 actionData.tick(livingEntity);
                 if (!actionData.ninjaActionHolder().value().isLoop()) {
-                    if (!actionData.isActionStop()) {
+                    if (!actionData.isActionStop() && !actionData.stop()) {
                         NinjaActionUtils.setActionData(livingEntity, actionData.setActionTick(actionData.actionTick() + 1));
-                    } else {
+                    } else if (!actionData.stop()) {
                         NinjaActionUtils.setActionData(livingEntity, actionData.setAction(actionData.ninjaActionHolder().value().getNextOfTimeout().apply(livingEntity)));
+                    }
+                }
+                if (actionData.isActionDo() && !actionData.isActionStop()) {
+                    Holder<NinjaAction> ninjaAction = actionData.ninjaActionHolder().value().getNext().apply(livingEntity);
+                    if (ninjaAction != null) {
+                        NinjaActionUtils.setActionData(livingEntity, ninjaAction);
                     }
                 }
             }

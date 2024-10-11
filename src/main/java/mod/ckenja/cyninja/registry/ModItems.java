@@ -11,5 +11,5 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Cyninja.MODID);
 
-    public static final DeferredItem<Item> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).component(ModDataComponents.NINJA_ACTION_DATA, new NinjaActionData(0, NinjaActions.NONE)).durability(ArmorItem.Type.CHESTPLATE.getDurability(18))));
+    public static final DeferredItem<Item> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).component(ModDataComponents.NINJA_ACTION_DATA, new NinjaActionData(0, false, NinjaActions.NONE)).durability(ArmorItem.Type.CHESTPLATE.getDurability(18))));
 }

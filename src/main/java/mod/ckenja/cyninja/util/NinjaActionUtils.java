@@ -24,21 +24,17 @@ public class NinjaActionUtils {
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
                     if (entity.isAttackable()) {
-                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK), 4F);
+                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK), 6F);
                         if (entity instanceof LivingEntity target) {
                             double d0 = livingEntity.getX() - target.getX();
                             double d1 = livingEntity.getZ() - target.getZ();
-                            target.knockback(0.6F, d0, d1);
+                            target.knockback(0.8F, d0, d1);
                         }
-                        livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().scale(-0.2));
                         livingEntity.hasImpulse = true;
                         break;
                     }
                 }
             }
-        }
-        if (livingEntity.verticalCollision || !livingEntity.onGround()) {
-            setAction(livingEntity, NinjaActions.NONE);
         }
 
         //slide to looking way
@@ -46,14 +42,12 @@ public class NinjaActionUtils {
         livingEntity.hasImpulse = true;
     }
 
-    public static void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
-            if (stack.getItem() instanceof NinjaArmorItem armorItem) {
-                stack.set(ModDataComponents.NINJA_ACTION_DATA, new NinjaActionData(0, ninjaAction));
-                livingEntity.refreshDimensions();
-            }
-        }
+    public static void setActionData(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+        setActionData(livingEntity, new NinjaActionData(0, false, ninjaAction));
+    }
+
+    public static void setActionDataStop(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+        setActionData(livingEntity, new NinjaActionData(0, true, ninjaAction));
     }
 
     public static void setActionData(LivingEntity livingEntity, NinjaActionData ninjaAction) {

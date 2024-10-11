@@ -53,7 +53,7 @@ public class NinjaActionUtils {
     public static boolean isWearingNinja(LivingEntity livingEntity) {
         int i = 0;
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
-            if (!(itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
+            if ((itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
                 i++;
             }
         }

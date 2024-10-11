@@ -188,8 +188,9 @@ public class NinjaAction {
             return this;
         }
 
-        public void setReduceKnockback(float reduceKnockback) {
+        public Builder setReduceKnockback(float reduceKnockback) {
             this.reduceKnockback = reduceKnockback;
+            return this;
         }
 
         //loop action

@@ -41,6 +41,7 @@ public class NinjaAction {
         this.endTick = builder.endTick;
         this.moveSpeed = builder.moveSpeed;
         this.reduceDamage = builder.reduceDamage;
+        this.reduceKnockback = builder.reduceKnockback;
         this.timeout = builder.timeout;
         this.loop = builder.loop;
         this.canJump = builder.canJump;

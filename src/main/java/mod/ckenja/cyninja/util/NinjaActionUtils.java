@@ -23,6 +23,13 @@ import java.util.List;
 
 public class NinjaActionUtils {
 
+    public static void tickWallRun(LivingEntity livingEntity) {
+        livingEntity.calculateEntityAnimation(true);
+        Vec3 vec3 = livingEntity.getDeltaMovement();
+        livingEntity.setDeltaMovement(vec3.x, 0.4, vec3.z);
+        livingEntity.hasImpulse = true;
+    }
+
     public static void checkSlideAttack(LivingEntity livingEntity) {
         if (!livingEntity.level().isClientSide()) {
             List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox());
@@ -71,11 +78,15 @@ public class NinjaActionUtils {
     }
 
 
-    public static void setActionData(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+    public static void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         livingEntity.getData(ModAttachments.NINJA_ACTION.get()).setNinjaAction(livingEntity, ninjaAction);
     }
 
-    public static NinjaActionAttachment getAction(LivingEntity livingEntity) {
+    public static void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).sync(livingEntity, ninjaAction);
+    }
+
+    public static NinjaActionAttachment getActionData(LivingEntity livingEntity) {
         return livingEntity.getData(ModAttachments.NINJA_ACTION.get());
     }
 

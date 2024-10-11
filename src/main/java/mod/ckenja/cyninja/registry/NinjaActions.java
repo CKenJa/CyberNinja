@@ -30,9 +30,8 @@ public class NinjaActions {
 
         return null;
     }).setNeedCondition(livingEntity -> {
-        return livingEntity.onGround() && livingEntity.isSprinting() && NinjaActionUtils.getAction(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value();
+        return livingEntity.onGround() && livingEntity.isSprinting() && NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value();
     }).setReduceDamage(1.0F).setReduceKnockback(1.0F).setCanJump(false).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
-
 
     private static Registry<NinjaAction> registry;
 

@@ -160,7 +160,7 @@ public class NinjaAction {
             };
             this.hitEffect = (a, b) -> {
             };
-            this.canJump = false;
+            this.canJump = true;
         }
 
         public static Builder newInstance() {

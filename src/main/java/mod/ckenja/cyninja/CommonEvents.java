@@ -20,7 +20,7 @@ public class CommonEvents {
     public static void scaleEvent(EntityEvent.Size event) {
         //If Player's inventory is null. don't check
         if (event.getEntity() instanceof Player player && player.getInventory() != null) {
-            NinjaActionAttachment ninjaAction = NinjaActionUtils.getAction(player);
+            NinjaActionAttachment ninjaAction = NinjaActionUtils.getActionData(player);
             if (ninjaAction != null && ninjaAction.getNinjaAction().value() != NinjaActions.NONE.value() && ninjaAction.getNinjaAction().value().getHitBox().isPresent()) {
                 event.setNewSize(ninjaAction.getNinjaAction().value().getHitBox().get());
             }
@@ -31,7 +31,7 @@ public class CommonEvents {
     public static void tickEvent(EntityTickEvent.Pre event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             //basic action handle
-            NinjaActionAttachment actionData = NinjaActionUtils.getAction(livingEntity);
+            NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
             if (actionData != null) {
                 actionData.pretick(livingEntity);
             }
@@ -42,7 +42,7 @@ public class CommonEvents {
     public static void tickEvent(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             //basic action handle
-            NinjaActionAttachment actionData = NinjaActionUtils.getAction(livingEntity);
+            NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
             if (actionData != null) {
                 if (!NinjaActionUtils.isWearingNinja(livingEntity)) {
                     actionData.setNinjaAction(livingEntity, NinjaActions.NONE);

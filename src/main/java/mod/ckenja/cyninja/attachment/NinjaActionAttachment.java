@@ -19,6 +19,7 @@ import java.util.Optional;
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
+    private int climbableTick;
 
     public int getActionTick() {
         return actionTick;
@@ -27,6 +28,19 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public Holder<NinjaAction> getNinjaAction() {
         return ninjaAction;
+    }
+
+    public void setClimbableTick(int climbableTick) {
+        this.climbableTick = climbableTick;
+    }
+
+    public int getClimbableTick() {
+        return climbableTick;
+    }
+
+
+    public boolean isClimbable() {
+        return climbableTick <= 10;
     }
 
     public void setNinjaAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
@@ -80,7 +94,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void tick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (this.isActionDo() && !this.isActionStop() || this.getNinjaAction().value().isLoop()) {
             this.actionTick(user);
             this.actionHold(user);
         }
@@ -88,19 +102,19 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
-                NinjaActionUtils.setActionData(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
+                NinjaActionUtils.setAction(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
             }
         }
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (this.isActionDo() && !this.isActionStop() && !this.getNinjaAction().value().isLoop() || this.getNinjaAction().value().isLoop()) {
             Holder<NinjaAction> ninjaAction = this.getNinjaAction().value().getNext().apply(user);
             if (ninjaAction != null) {
-                NinjaActionUtils.setActionData(user, ninjaAction);
+                NinjaActionUtils.setAction(user, ninjaAction);
             }
         }
     }
 
     public void pretick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (this.isActionDo() && !this.isActionStop() || this.getNinjaAction().value().isLoop()) {
             if (!this.ninjaAction.value().isCanJump()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
@@ -136,4 +150,5 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         }
 
     }
+
 }

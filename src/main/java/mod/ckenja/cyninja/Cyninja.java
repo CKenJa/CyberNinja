@@ -41,6 +41,7 @@ public class Cyninja
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             NINJA_ACTION_MAP.put(NinjaActions.SLIDE, NinjaInput.SNEAK);
+            NINJA_ACTION_MAP.put(NinjaActions.WALL_RUN, NinjaInput.SPRINT);
         });
     }
 

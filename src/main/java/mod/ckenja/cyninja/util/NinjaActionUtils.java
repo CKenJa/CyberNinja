@@ -23,7 +23,7 @@ public class NinjaActionUtils {
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
                     if (entity.isAttackable()) {
-                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK), 6F);
+                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK, livingEntity), 6F);
                         if (entity instanceof LivingEntity target) {
                             double d0 = livingEntity.getX() - target.getX();
                             double d1 = livingEntity.getZ() - target.getZ();

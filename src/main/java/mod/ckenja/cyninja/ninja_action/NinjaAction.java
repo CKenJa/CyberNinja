@@ -177,8 +177,9 @@ public class NinjaAction {
         }
 
         //set reduce damage percent when action
-        public void setReduceDamage(float reduceDamage) {
+        public Builder setReduceDamage(float reduceDamage) {
             this.reduceDamage = reduceDamage;
+            return this;
         }
 
         //loop action

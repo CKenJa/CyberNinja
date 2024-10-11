@@ -23,10 +23,10 @@ public class ModArmorMaterials {
     public static final Holder<ArmorMaterial> NINJA = register("ninja", Util.make(new EnumMap<>(ArmorItem.Type.class), p_323378_ -> {
         p_323378_.put(ArmorItem.Type.BOOTS, 3);
         p_323378_.put(ArmorItem.Type.LEGGINGS, 5);
-        p_323378_.put(ArmorItem.Type.CHESTPLATE, 6);
-        p_323378_.put(ArmorItem.Type.HELMET, 2);
+        p_323378_.put(ArmorItem.Type.CHESTPLATE, 7);
+        p_323378_.put(ArmorItem.Type.HELMET, 3);
         p_323378_.put(ArmorItem.Type.BODY, 6);
-    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.5F, 0.0F, () -> Ingredient.of(Items.PHANTOM_MEMBRANE));
+    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 1.0F, 0.01F, () -> Ingredient.of(Items.PHANTOM_MEMBRANE));
 
     private static Holder<ArmorMaterial> register(
             String name,

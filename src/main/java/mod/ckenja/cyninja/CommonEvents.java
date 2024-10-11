@@ -10,6 +10,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber(modid = Cyninja.MODID)
@@ -47,6 +48,17 @@ public class CommonEvents {
                 } else {
                     actionData.tick(livingEntity);
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onKnockBack(LivingKnockBackEvent event) {
+        NinjaActionAttachment ninjaActionAttachment = event.getEntity().getData(ModAttachments.NINJA_ACTION);
+        if (ninjaActionAttachment != null) {
+            event.setStrength(event.getStrength() * (1.0F - ninjaActionAttachment.getNinjaAction().value().getReduceDamage()));
+            if (ninjaActionAttachment.getNinjaAction().value().getReduceDamage() >= 1.0F) {
+                event.setCanceled(true);
             }
         }
     }

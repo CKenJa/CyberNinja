@@ -82,12 +82,12 @@ public class ClientEvents {
                     rootModel.animateWalkBagu(PlayerAnimations.slide, f5, 1.0F, 2.0F, 2.5F);
                 }
 
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_RUN.value()) {
+                /*if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_RUN.value()) {
                     rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
                     float f4 = livingEntity.walkAnimation.speed(bagusModelEvent.getPartialTick());
                     float f5 = livingEntity.walkAnimation.position(bagusModelEvent.getPartialTick());
                     rootModel.animateWalkBagu(PlayerAnimations.wall_run, f5, 1.0F, 2.0F, 2.5F);
-                }
+                }*/
             }
         }
     }

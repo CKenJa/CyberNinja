@@ -16,6 +16,7 @@ public class NinjaAction {
     private int endTick;
     private float moveSpeed;
     private float reduceDamage;
+    private float reduceKnockback;
     private boolean loop;
     private boolean canJump;
 
@@ -76,6 +77,10 @@ public class NinjaAction {
         return reduceDamage;
     }
 
+    public float getReduceKnockback() {
+        return reduceKnockback;
+    }
+
     public int getTimeout() {
         return timeout;
     }
@@ -122,6 +127,7 @@ public class NinjaAction {
         private boolean loop;
         private int timeout;
         private float reduceDamage;
+        private float reduceKnockback;
         private Function<LivingEntity, Holder<NinjaAction>> next;
         private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
 
@@ -180,6 +186,10 @@ public class NinjaAction {
         public Builder setReduceDamage(float reduceDamage) {
             this.reduceDamage = reduceDamage;
             return this;
+        }
+
+        public void setReduceKnockback(float reduceKnockback) {
+            this.reduceKnockback = reduceKnockback;
         }
 
         //loop action

@@ -56,8 +56,8 @@ public class CommonEvents {
     public static void onKnockBack(LivingKnockBackEvent event) {
         NinjaActionAttachment ninjaActionAttachment = event.getEntity().getData(ModAttachments.NINJA_ACTION);
         if (ninjaActionAttachment != null) {
-            event.setStrength(event.getStrength() * (1.0F - ninjaActionAttachment.getNinjaAction().value().getReduceDamage()));
-            if (ninjaActionAttachment.getNinjaAction().value().getReduceDamage() >= 1.0F) {
+            event.setStrength(event.getStrength() * (1.0F - ninjaActionAttachment.getNinjaAction().value().getReduceKnockback()));
+            if (ninjaActionAttachment.getNinjaAction().value().getReduceKnockback() >= 1.0F) {
                 event.setCanceled(true);
             }
         }
@@ -66,7 +66,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onHurt(LivingIncomingDamageEvent event) {
         NinjaActionAttachment ninjaActionAttachment = event.getEntity().getData(ModAttachments.NINJA_ACTION);
-        if (ninjaActionAttachment != null) {
+        if (ninjaActionAttachment != null && event.getSource().isDirect()) {
             event.setAmount(event.getAmount() * (1.0F - ninjaActionAttachment.getNinjaAction().value().getReduceDamage()));
             if (ninjaActionAttachment.getNinjaAction().value().getReduceDamage() >= 1.0F) {
                 event.setCanceled(true);

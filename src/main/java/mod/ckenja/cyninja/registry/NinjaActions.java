@@ -29,7 +29,7 @@ public class NinjaActions {
         }
 
         return null;
-    }).setReduceDamage(0.5F).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
+    }).setReduceDamage(0.5F).setReduceDamage(1.0F).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
 
     private static Registry<NinjaAction> registry;
 

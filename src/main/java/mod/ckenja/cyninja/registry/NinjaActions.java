@@ -1,7 +1,7 @@
 package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.ninja_skill.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;

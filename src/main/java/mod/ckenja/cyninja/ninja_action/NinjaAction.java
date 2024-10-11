@@ -1,4 +1,4 @@
-package mod.ckenja.cyninja.ninja_skill;
+package mod.ckenja.cyninja.ninja_action;
 
 import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.Holder;
@@ -15,6 +15,7 @@ public class NinjaAction {
     private int startTick;
     private int endTick;
     private float moveSpeed;
+    private float reduceDamage;
     private boolean loop;
     private boolean canJump;
 
@@ -38,6 +39,7 @@ public class NinjaAction {
         this.startTick = builder.startTick;
         this.endTick = builder.endTick;
         this.moveSpeed = builder.moveSpeed;
+        this.reduceDamage = builder.reduceDamage;
         this.timeout = builder.timeout;
         this.loop = builder.loop;
         this.canJump = builder.canJump;
@@ -68,6 +70,10 @@ public class NinjaAction {
 
     public float getMoveSpeed() {
         return moveSpeed;
+    }
+
+    public float getReduceDamage() {
+        return reduceDamage;
     }
 
     public int getTimeout() {
@@ -115,6 +121,7 @@ public class NinjaAction {
         private float moveSpeed;
         private boolean loop;
         private int timeout;
+        private float reduceDamage;
         private Function<LivingEntity, Holder<NinjaAction>> next;
         private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
 
@@ -128,6 +135,7 @@ public class NinjaAction {
             this.priority = 1000;
             this.timeout = 0;
             this.moveSpeed = 0F;
+            this.reduceDamage = 0.0F;
             this.loop = false;
             this.next = entity -> null;
             this.nextOfTimeout = entity -> NinjaActions.NONE;
@@ -149,22 +157,31 @@ public class NinjaAction {
             return new NinjaAction(this);
         }
 
+        //This is set start action and stop action
         public Builder startAndEnd(int start, int end) {
             this.startTick = start;
             this.endTick = end;
             return this;
         }
 
+        //set priority that Which one is used first
         public Builder priority(int priority) {
             this.priority = priority;
             return this;
         }
 
+        //this method set Straight-line speed
         public Builder speed(float speed) {
             this.moveSpeed = speed;
             return this;
         }
 
+        //set reduce damage percent when action
+        public void setReduceDamage(float reduceDamage) {
+            this.reduceDamage = reduceDamage;
+        }
+
+        //loop action
         public Builder loop() {
             this.loop = true;
             return this;

@@ -1,7 +1,8 @@
 package mod.ckenja.cyninja;
 
 import com.mojang.logging.LogUtils;
-import mod.ckenja.cyninja.network.ActionPacket;
+import mod.ckenja.cyninja.network.SetActionToClientPacket;
+import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.registry.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -21,6 +22,7 @@ public class Cyninja
         NinjaActions.NINJA_ACTIONS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
+        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         modEventBus.addListener(this::setupPackets);
@@ -28,6 +30,7 @@ public class Cyninja
 
     public void setupPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0.0").optional();
-        registrar.playBidirectional(ActionPacket.TYPE, ActionPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
+        registrar.playBidirectional(SetActionToServerPacket.TYPE, SetActionToServerPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
+        registrar.playBidirectional(SetActionToClientPacket.TYPE, SetActionToClientPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
     }
 }

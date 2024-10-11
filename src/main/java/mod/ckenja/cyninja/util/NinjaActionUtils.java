@@ -1,19 +1,18 @@
 package mod.ckenja.cyninja.util;
 
+import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
-import mod.ckenja.cyninja.item.data.NinjaActionData;
-import mod.ckenja.cyninja.ninja_skill.NinjaAction;
-import mod.ckenja.cyninja.registry.ModDataComponents;
+import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class NinjaActionUtils {
@@ -42,43 +41,31 @@ public class NinjaActionUtils {
         livingEntity.hasImpulse = true;
     }
 
+
     public static void setActionData(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        setActionData(livingEntity, new NinjaActionData(0, false, ninjaAction));
+        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).setNinjaAction(ninjaAction);
     }
 
-    public static void setActionDataStop(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        setActionData(livingEntity, new NinjaActionData(0, true, ninjaAction));
+    public static NinjaActionAttachment getAction(LivingEntity livingEntity) {
+        return livingEntity.getData(ModAttachments.NINJA_ACTION.get());
     }
 
-    public static void setActionData(LivingEntity livingEntity, NinjaActionData ninjaAction) {
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
-            if (stack.getItem() instanceof NinjaArmorItem armorItem) {
-                stack.set(ModDataComponents.NINJA_ACTION_DATA, ninjaAction);
-                livingEntity.refreshDimensions();
+    public static boolean isWearingNinja(LivingEntity livingEntity) {
+        for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
+            if (!(itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
+                return false;
             }
         }
+
+        return true;
     }
 
-    @Nullable
-    public static Holder<NinjaAction> getAction(LivingEntity livingEntity) {
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
-            if (stack.getItem() instanceof NinjaArmorItem armorItem) {
-                return stack.get(ModDataComponents.NINJA_ACTION_DATA).ninjaActionHolder();
-            }
+    public static boolean isWearingNinjaForWolf(Mob livingEntity) {
+        if (!(livingEntity.getBodyArmorItem().getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
+            return false;
         }
-        return null;
-    }
 
-    @Nullable
-    public static NinjaActionData getActionData(LivingEntity livingEntity) {
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            ItemStack stack = livingEntity.getItemBySlot(equipmentSlot);
-            if (stack.getItem() instanceof NinjaArmorItem armorItem) {
-                return stack.get(ModDataComponents.NINJA_ACTION_DATA);
-            }
-        }
-        return null;
+
+        return true;
     }
 }

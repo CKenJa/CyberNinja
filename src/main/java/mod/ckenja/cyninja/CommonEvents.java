@@ -4,6 +4,7 @@ import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -66,7 +67,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onHurt(LivingIncomingDamageEvent event) {
         NinjaActionAttachment ninjaActionAttachment = event.getEntity().getData(ModAttachments.NINJA_ACTION);
-        if (ninjaActionAttachment != null && event.getSource().isDirect() && event.getSource().getDirectEntity() != null) {
+        if (ninjaActionAttachment != null && event.getSource().isDirect() && event.getSource().getDirectEntity() != null && !event.getSource().is(DamageTypeTags.IS_EXPLOSION)) {
             event.setAmount(event.getAmount() * (1.0F - ninjaActionAttachment.getNinjaAction().value().getReduceDamage()));
             if (ninjaActionAttachment.getNinjaAction().value().getReduceDamage() >= 1.0F) {
                 event.setCanceled(true);

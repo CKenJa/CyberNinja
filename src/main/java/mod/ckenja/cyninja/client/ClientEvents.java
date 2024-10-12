@@ -47,22 +47,21 @@ public class ClientEvents {
         }
 
 
-            if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
-                ninjaInput = NinjaInput.SPRINT;
-            }
-
-            Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
-                return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
-            }).forEach(holderNinjaInputEntry -> {
-                if (holderNinjaInputEntry.getKey().value().getNeedCondition().apply(player)) {
-                    PacketDistributor.sendToServer(new SetActionToServerPacket(holderNinjaInputEntry.getKey()));
-                    NinjaActionUtils.setAction(player, holderNinjaInputEntry.getKey());
-                    return;
-                }
-            });
-
-
+        if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
+            ninjaInput = NinjaInput.SPRINT;
         }
+
+        Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
+            return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
+        }).forEach(holderNinjaInputEntry -> {
+            if (holderNinjaInputEntry.getKey().value().getNeedCondition().apply(player)) {
+                PacketDistributor.sendToServer(new SetActionToServerPacket(holderNinjaInputEntry.getKey()));
+                NinjaActionUtils.setAction(player, holderNinjaInputEntry.getKey());
+                return;
+            }
+        });
+
+
     }
 
     @SubscribeEvent

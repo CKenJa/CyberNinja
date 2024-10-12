@@ -9,6 +9,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -51,7 +52,8 @@ public class NinjaActions {
         return NinjaActions.AIR_JUMP_FINISH;
     }).setNeedCondition(livingEntity -> {
         NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-        return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value();
+        return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                && (!(livingEntity instanceof Player player) || player.getAbilities().flying);
     }).addTickAction(NinjaActionUtils::tickAirJump).addStartAction(livingEntity -> {
         if (!livingEntity.level().isClientSide()) {
             AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
@@ -61,6 +63,10 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance().loop().next(livingEntity -> {
         if (livingEntity.onGround()) {
+            return NONE;
+        }
+
+        if (livingEntity instanceof Player player && player.getAbilities().flying) {
             return NONE;
         }
 

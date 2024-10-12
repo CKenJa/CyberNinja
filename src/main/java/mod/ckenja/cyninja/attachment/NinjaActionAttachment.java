@@ -44,13 +44,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setNinjaAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+        this.ninjaAction.value().stopAction(livingEntity);
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
         livingEntity.refreshDimensions();
     }
 
     public void sync(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-
+        this.ninjaAction.value().stopAction(livingEntity);
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
         if (!livingEntity.level().isClientSide()) {
@@ -98,6 +99,10 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             this.actionTick(user);
             this.actionHold(user);
         }
+        if (this.getActionTick() == 0) {
+            this.ninjaAction.value().startAction(user);
+        }
+
         if (!this.getNinjaAction().value().isLoop()) {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);

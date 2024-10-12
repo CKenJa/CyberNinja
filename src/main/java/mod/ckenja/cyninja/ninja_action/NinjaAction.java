@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.ninja_action;
 
 import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -32,7 +33,8 @@ public class NinjaAction {
     private Consumer<LivingEntity> tickAction;
 
     private BiConsumer<LivingEntity, LivingEntity> hitEffect;
-
+    private Consumer<LivingEntity> startAction;
+    private Consumer<LivingEntity> stopAction;
     private int priority;
 
     private Optional<EntityDimensions> hitBox = Optional.empty();
@@ -54,6 +56,8 @@ public class NinjaAction {
         this.holdAction = builder.holdAction;
 
         this.tickAction = builder.tickAction;
+        this.startAction = builder.startAction;
+        this.stopAction = builder.stopAction;
 
         this.hitEffect = builder.hitEffect;
 
@@ -121,6 +125,14 @@ public class NinjaAction {
         tickAction.accept(user);
     }
 
+    public void startAction(LivingEntity user) {
+        startAction.accept(user);
+    }
+
+    public void stopAction(LivingEntity user) {
+        stopAction.accept(user);
+    }
+
     public void hitEffect(LivingEntity target, LivingEntity attacker) {
         hitEffect.accept(target, attacker);
     }
@@ -139,9 +151,12 @@ public class NinjaAction {
         private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
         private Function<LivingEntity, Boolean> needCondition;
 
+        private Consumer<LivingEntity> startAction;
+        private Consumer<LivingEntity> stopAction;
         private Consumer<LivingEntity> holdAction;
         private Consumer<LivingEntity> tickAction;
         private BiConsumer<LivingEntity, LivingEntity> hitEffect;
+        private Optional<ResourceLocation> animationID;
         private Optional<EntityDimensions> hitBox = Optional.empty();
 
         private Builder() {
@@ -158,8 +173,15 @@ public class NinjaAction {
             });
             this.holdAction = (a) -> {
             };
+            this.startAction = (livingEntity -> {
+
+            });
+            this.stopAction = (livingEntity -> {
+
+            });
             this.hitEffect = (a, b) -> {
             };
+            this.animationID = Optional.empty();
             this.canJump = true;
         }
 
@@ -229,6 +251,16 @@ public class NinjaAction {
 
         public Builder addTickAction(Consumer<LivingEntity> tickAction) {
             this.tickAction = this.tickAction.andThen(tickAction);
+            return this;
+        }
+
+        public Builder addStartAction(Consumer<LivingEntity> startAction) {
+            this.startAction = this.startAction.andThen(startAction);
+            return this;
+        }
+
+        public Builder addStopAction(Consumer<LivingEntity> stopAction) {
+            this.stopAction = this.stopAction.andThen(stopAction);
             return this;
         }
 

@@ -16,50 +16,56 @@ import mod.ckenja.cyninja.util.VectorUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.apache.commons.compress.utils.Lists;
 import org.joml.Vector3f;
 
+import java.util.List;
 import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
 public class ClientEvents {
-    public static NinjaInput ninjaInput = NinjaInput.NONE;
-
     @SubscribeEvent
-    public static void onKeyPush(InputEvent.Key event) {
+    public static void onKeyPush(ClientTickEvent.Pre event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
-            ninjaInput = NinjaInput.SNEAK;
+        List<NinjaInput> list = Lists.newArrayList();
+        if (Minecraft.getInstance().options.keyShift.isDown()) {
+            list.add(NinjaInput.SNEAK);
         }
 
-        if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
-            ninjaInput = NinjaInput.JUMP;
+        if (Minecraft.getInstance().options.keyJump.isDown()) {
+            list.add(NinjaInput.JUMP);
         }
 
 
-        if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
-            ninjaInput = NinjaInput.SPRINT;
+        if (Minecraft.getInstance().options.keySprint.isDown()) {
+            list.add(NinjaInput.SPRINT);
         }
 
-        Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
-            return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
-        }).forEach(holderNinjaInputEntry -> {
-            if (holderNinjaInputEntry.getKey().value().getNeedCondition().apply(player)) {
-                PacketDistributor.sendToServer(new SetActionToServerPacket(holderNinjaInputEntry.getKey()));
-                NinjaActionUtils.setAction(player, holderNinjaInputEntry.getKey());
-                return;
-            }
-        });
+        final boolean[] flag = {false};
+        for (NinjaInput ninjaInput : list) {
+            Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
+                return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
+            }).forEach(holderNinjaInputEntry -> {
+                if (holderNinjaInputEntry.getKey().value().getNeedCondition().apply(player) && !flag[0]) {
+                    ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.getKey().value());
+                    PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
+                    NinjaActionUtils.setAction(player, holderNinjaInputEntry.getKey());
+                    flag[0] = true;
+                }
+            });
+        }
 
 
     }
@@ -82,10 +88,10 @@ public class ClientEvents {
                 if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SLIDE.value()) {
                     Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
                     Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");
-                    Optional<ModelPart> right_leg = rootModel.getBetterAnyDescendantWithName("right_leg");
-                    Optional<ModelPart> left_leg = rootModel.getBetterAnyDescendantWithName("left_leg");
-                    Optional<ModelPart> right_pants = rootModel.getBetterAnyDescendantWithName("right_pants");
-                    Optional<ModelPart> left_pants = rootModel.getBetterAnyDescendantWithName("left_pants");
+                    Optional<ModelPart> right_arm = rootModel.getBetterAnyDescendantWithName("right_arm");
+                    Optional<ModelPart> left_arm = rootModel.getBetterAnyDescendantWithName("left_arm");
+                    Optional<ModelPart> right_sleeve = rootModel.getBetterAnyDescendantWithName("right_sleeve");
+                    Optional<ModelPart> left_sleeve = rootModel.getBetterAnyDescendantWithName("left_sleeve");
 
                     Vector3f headVec = new Vector3f();
                     Vector3f rightVec = new Vector3f();
@@ -95,31 +101,31 @@ public class ClientEvents {
                     if (headPart.isPresent()) {
                         headVec = VectorUtil.movePartToVec(headPart.get());
                     }
-                    if (right_leg.isPresent()) {
-                        rightVec = VectorUtil.movePartToVec(right_leg.get());
+                    if (right_arm.isPresent()) {
+                        rightVec = VectorUtil.movePartToVec(right_arm.get());
                     }
-                    if (left_leg.isPresent()) {
-                        leftVec = VectorUtil.movePartToVec(left_leg.get());
+                    if (left_arm.isPresent()) {
+                        leftVec = VectorUtil.movePartToVec(left_arm.get());
                     }
 
                     rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
                     if (headPart.isPresent()) {
                         VectorUtil.moveVecToPart(headVec, headPart.get());
                     }
-                    if (right_leg.isPresent()) {
-                        VectorUtil.moveVecToPart(rightVec, right_leg.get());
+                    if (right_arm.isPresent()) {
+                        VectorUtil.moveVecToPart(rightVec, right_arm.get());
                     }
-                    if (left_leg.isPresent()) {
-                        VectorUtil.moveVecToPart(leftVec, left_leg.get());
+                    if (left_arm.isPresent()) {
+                        VectorUtil.moveVecToPart(leftVec, left_arm.get());
                     }
                     if (hatPart.isPresent()) {
                         VectorUtil.moveVecToPart(headVec, hatPart.get());
                     }
-                    if (right_pants.isPresent()) {
-                        VectorUtil.moveVecToPart(rightVec, right_pants.get());
+                    if (right_sleeve.isPresent()) {
+                        VectorUtil.moveVecToPart(rightVec, right_sleeve.get());
                     }
-                    if (left_pants.isPresent()) {
-                        VectorUtil.moveVecToPart(leftVec, left_pants.get());
+                    if (left_sleeve.isPresent()) {
+                        VectorUtil.moveVecToPart(leftVec, left_sleeve.get());
                     }
                     float f4 = livingEntity.walkAnimation.speed(bagusModelEvent.getPartialTick());
                     float f5 = livingEntity.walkAnimation.position(bagusModelEvent.getPartialTick());

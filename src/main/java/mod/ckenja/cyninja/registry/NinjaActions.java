@@ -5,6 +5,7 @@ import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
+import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -43,7 +44,7 @@ public class NinjaActions {
                     .setCanJump(false)
                     .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
                     .addTickAction(NinjaActionUtils::checkSlideAttack)
-            )
+            ).setInput(NinjaInput.SNEAK)
     );
 
 
@@ -57,7 +58,7 @@ public class NinjaActions {
         NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
 
         return !livingEntity.onGround() && !livingEntity.isInWater() && attachment.getNinjaAction().value() == NinjaActions.NONE.value();
-    })));
+    })).setInput(NinjaInput.JUMP));
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance().startAndEnd(0, 1).nextOfTimeout(livingEntity -> {
         return NinjaActions.AIR_JUMP_FINISH;
@@ -69,7 +70,7 @@ public class NinjaActions {
         if (!livingEntity.level().isClientSide()) {
             AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
         }
-    })));
+    })).setInput(NinjaInput.JUMP));
 
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance().loop().next(livingEntity -> {

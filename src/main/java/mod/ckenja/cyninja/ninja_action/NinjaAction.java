@@ -1,6 +1,8 @@
 package mod.ckenja.cyninja.ninja_action;
 
+import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
@@ -131,6 +133,11 @@ public class NinjaAction {
 
     public void stopAction(LivingEntity user) {
         stopAction.accept(user);
+    }
+
+    public NinjaAction setInput(NinjaInput ninjaInput) {
+        Cyninja.NINJA_ACTION_MAP.put(Holder.direct(this), ninjaInput);
+        return this;
     }
 
     public void hitEffect(LivingEntity target, LivingEntity attacker) {
@@ -283,6 +290,5 @@ public class NinjaAction {
             this.needCondition = needCondition;
             return this;
         }
-
     }
 }

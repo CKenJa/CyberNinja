@@ -35,29 +35,32 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onKeyPush(InputEvent.Key event) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
-                ninjaInput = NinjaInput.SNEAK;
-            }
-
-            if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
-                ninjaInput = NinjaInput.JUMP;
-            }
-
-            if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
-                ninjaInput = NinjaInput.JUMP;
-            }
-
-            Optional<Holder<NinjaAction>> ninjaActionHolder = Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
-                return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
-            }).min(Comparator.comparingInt((entry) -> entry.getKey().value().getPriority())).map(Map.Entry::getKey);
-            if (ninjaActionHolder.isPresent() && ninjaActionHolder.get().value().getNeedCondition().apply(player)) {
-                PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaActionHolder.get()));
-                NinjaActionUtils.setAction(player, ninjaActionHolder.get());
-            }
-
+        if (player == null)
+            return;
+        if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
+            ninjaInput = NinjaInput.SNEAK;
         }
+
+        if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
+            ninjaInput = NinjaInput.JUMP;
+        }
+
+        if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
+            ninjaInput = NinjaInput.SPRINT;
+        }
+
+        Optional<Holder<NinjaAction>> ninjaActionHolder = Cyninja.NINJA_ACTION_MAP.entrySet().stream()
+                .filter(ninjaActionEntry -> ninjaActionEntry.getValue().name().equals(ninjaInput.name()))
+                .min(Comparator.comparingInt((entry) -> entry.getKey().value().getPriority()))
+                .map(Map.Entry::getKey);
+        ninjaActionHolder.ifPresent(ninjaAction -> {
+            if (ninjaAction.value().getNeedCondition().apply(player)) {
+                PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
+                NinjaActionUtils.setAction(player, ninjaAction);
+            }
+        });
     }
+
     @SubscribeEvent
     public static void animationInitEvent(BagusModelEvent.Init bagusModelEvent) {
         IRootModel rootModel = bagusModelEvent.getRootModel();

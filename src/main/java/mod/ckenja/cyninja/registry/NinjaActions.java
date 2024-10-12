@@ -23,15 +23,25 @@ public class NinjaActions {
     public static final DeferredRegister<NinjaAction> NINJA_ACTIONS = DeferredRegister.create(NINJA_ACTIONS_REGISTRY, Cyninja.MODID);
     public static final DeferredHolder<NinjaAction, NinjaAction> NONE = NINJA_ACTIONS.register("none", () -> new NinjaAction(NinjaAction.Builder.newInstance().loop()));
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> new NinjaAction(NinjaAction.Builder.newInstance().startAndEnd(2, 17).speed(1.5F).next(livingEntity -> {
-        if (!livingEntity.onGround() || livingEntity.horizontalCollision) {
-            return NONE;
-        }
-
-        return null;
-    }).setNeedCondition(livingEntity -> {
-        return livingEntity.onGround() && livingEntity.isSprinting() && NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value();
-    }).setReduceDamage(1.0F).setReduceKnockback(1.0F).setCanJump(false).setHitBox(EntityDimensions.scalable(0.6F, 0.6F)).addTickAction(NinjaActionUtils::checkSlideAttack)));
+    public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () ->
+            new NinjaAction(NinjaAction.Builder.newInstance()
+                    .startAndEnd(2, 17)
+                    .speed(1.5F)
+                    .next(livingEntity -> {
+                        if (!livingEntity.onGround() || livingEntity.horizontalCollision) {
+                            return NONE;
+                        }
+                        return null;
+                    })
+                    .setNeedCondition(livingEntity -> livingEntity.onGround() && livingEntity.isSprinting() &&
+                            NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value())
+                    .setReduceDamage(1.0F)
+                    .setReduceKnockback(1.0F)
+                    .setCanJump(false)
+                    .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
+                    .addTickAction(NinjaActionUtils::checkSlideAttack)
+            )
+    );
 
     private static Registry<NinjaAction> registry;
 

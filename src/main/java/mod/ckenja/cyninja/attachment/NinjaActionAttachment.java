@@ -71,41 +71,49 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         this.actionTick = actionTick;
     }
 
+    public boolean isActionActive(){
+        return isActionDo() && !isActionStop();
+    }
+
+    public boolean isActionLoop(){
+        return this.getNinjaAction().value().isLoop();
+    }
+    
     public float movementSpeed() {
-        return this.isActionDo() && !this.isActionStop() ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
+        return isActionActive() ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
     }
 
     public void actionTick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (isActionActive()) {
             this.ninjaAction.value().tickAction(user);
         }
     }
 
     public void actionHold(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (isActionActive()) {
             this.ninjaAction.value().holdAction(user);
         }
     }
 
     public void actionHold(LivingEntity target, LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (isActionActive()) {
             this.ninjaAction.value().hitEffect(target, user);
         }
     }
 
     public void tick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop() || this.getNinjaAction().value().isLoop()) {
+        if (isActionActive() || isActionLoop()) {
             this.actionTick(user);
             this.actionHold(user);
         }
-        if (!this.getNinjaAction().value().isLoop()) {
+        if (!isActionLoop()) {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
                 NinjaActionUtils.setAction(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
             }
         }
-        if (this.isActionDo() && !this.isActionStop() && !this.getNinjaAction().value().isLoop() || this.getNinjaAction().value().isLoop()) {
+        if (isActionActive() && !isActionLoop() || isActionLoop()) {
             Holder<NinjaAction> ninjaAction = this.getNinjaAction().value().getNext().apply(user);
             if (ninjaAction != null) {
                 NinjaActionUtils.setAction(user, ninjaAction);
@@ -114,7 +122,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void pretick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop() || this.getNinjaAction().value().isLoop()) {
+        if (isActionActive() || isActionLoop()) {
             if (!this.ninjaAction.value().isCanJump()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
@@ -125,7 +133,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
 
     public Optional<EntityDimensions> hitBox() {
-        return this.isActionDo() && !this.isActionStop() ? this.ninjaAction.value().getHitBox() : Optional.empty();
+        return isActionActive() ? this.ninjaAction.value().getHitBox() : Optional.empty();
     }
 
     @Override

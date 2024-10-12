@@ -53,7 +53,7 @@ public class NinjaActions {
     }).setNeedCondition(livingEntity -> {
         NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
         return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
-                && (!(livingEntity instanceof Player player) || player.getAbilities().flying);
+                && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }).addTickAction(NinjaActionUtils::tickAirJump).addStartAction(livingEntity -> {
         if (!livingEntity.level().isClientSide()) {
             AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);

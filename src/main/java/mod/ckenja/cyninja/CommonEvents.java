@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -24,6 +25,13 @@ public class CommonEvents {
             if (ninjaAction != null && ninjaAction.getNinjaAction().value() != NinjaActions.NONE.value() && ninjaAction.getNinjaAction().value().getHitBox().isPresent()) {
                 event.setNewSize(ninjaAction.getNinjaAction().value().getHitBox().get());
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void fallEvent(LivingFallEvent event) {
+        if (NinjaActionUtils.isWearingNinja(event.getEntity())) {
+            event.setDistance(event.getDistance() - 4);
         }
     }
 

@@ -4,12 +4,11 @@ import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.action.NinjaAction;
 import mod.ckenja.cyninja.registry.*;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Holder;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -22,12 +21,12 @@ import java.util.Map;
 public class Cyninja
 {
     public static final String MODID = "cyninja";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public static final Map<Holder<NinjaAction>, NinjaInput> NINJA_ACTION_MAP = Maps.newHashMap();
 
-    public Cyninja(IEventBus modEventBus, ModContainer modContainer)
+    public Cyninja(IEventBus modEventBus)
     {
-        NinjaActions.NINJA_ACTIONS.register(modEventBus);
+        ModActions.NINJA_ACTIONS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
@@ -40,7 +39,7 @@ public class Cyninja
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            NINJA_ACTION_MAP.put(NinjaActions.SLIDE, NinjaInput.SNEAK);
+            NINJA_ACTION_MAP.put(ModActions.SLIDE, NinjaInput.SNEAK);
         });
     }
 

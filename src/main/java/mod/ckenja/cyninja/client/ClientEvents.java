@@ -3,11 +3,11 @@ package mod.ckenja.cyninja.client;
 import bagu_chan.bagus_lib.api.client.IRootModel;
 import bagu_chan.bagus_lib.client.event.BagusModelEvent;
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.action.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
-import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.action.NinjaAction;
+import mod.ckenja.cyninja.registry.ModActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
@@ -35,29 +35,33 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onKeyPush(InputEvent.Key event) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
-                ninjaInput = NinjaInput.SNEAK;
-            }
-
-            if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
-                ninjaInput = NinjaInput.JUMP;
-            }
-
-            if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
-                ninjaInput = NinjaInput.JUMP;
-            }
-
-            Optional<Holder<NinjaAction>> ninjaActionHolder = Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
-                return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
-            }).min(Comparator.comparingInt((entry) -> entry.getKey().value().getPriority())).map(Map.Entry::getKey);
-            if (ninjaActionHolder.isPresent() && ninjaActionHolder.get().value().getNeedCondition().apply(player)) {
-                PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaActionHolder.get()));
-                NinjaActionUtils.setAction(player, ninjaActionHolder.get());
-            }
-
+        if (player == null)
+            return;
+        if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
+            ninjaInput = NinjaInput.SNEAK;
         }
+
+        if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
+            ninjaInput = NinjaInput.JUMP;
+        }
+
+        if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
+            ninjaInput = NinjaInput.SPRINT;
+        }
+
+        Optional<Holder<NinjaAction>> ninjaActionHolder = Cyninja.NINJA_ACTION_MAP.entrySet().stream()
+                .filter(ninjaActionEntry -> ninjaActionEntry.getValue().name().equals(ninjaInput.name()))
+                .min(Comparator.comparingInt(entry -> entry.getKey().value().getPriority()))
+                .map(Map.Entry::getKey);
+
+        ninjaActionHolder.ifPresent(holder -> {
+            if (holder.value().getNeedCondition().apply(player)) {
+                PacketDistributor.sendToServer(new SetActionToServerPacket(holder));
+                NinjaActionUtils.setAction(player, holder);
+            }
+        });
     }
+
     @SubscribeEvent
     public static void animationInitEvent(BagusModelEvent.Init bagusModelEvent) {
         IRootModel rootModel = bagusModelEvent.getRootModel();
@@ -73,7 +77,7 @@ public class ClientEvents {
         if (entity instanceof LivingEntity livingEntity) {
             if (bagusModelEvent.isSupportedAnimateModel()) {
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SLIDE.value()) {
+                if (actionHolder != null && actionHolder.getNinjaAction().value() == ModActions.SLIDE.value()) {
                     rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
                     float f4 = livingEntity.walkAnimation.speed(bagusModelEvent.getPartialTick());
                     float f5 = livingEntity.walkAnimation.position(bagusModelEvent.getPartialTick());

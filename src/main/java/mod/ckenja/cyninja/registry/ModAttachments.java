@@ -1,7 +1,7 @@
 package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.action.NinjaActionAttachment;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;

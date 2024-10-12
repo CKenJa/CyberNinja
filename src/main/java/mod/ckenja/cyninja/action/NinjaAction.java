@@ -1,6 +1,6 @@
-package mod.ckenja.cyninja.ninja_action;
+package mod.ckenja.cyninja.action;
 
-import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.registry.ModActions;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
@@ -151,7 +151,7 @@ public class NinjaAction {
             this.reduceDamage = 0.0F;
             this.loop = false;
             this.next = entity -> null;
-            this.nextOfTimeout = entity -> NinjaActions.NONE;
+            this.nextOfTimeout = entity -> ModActions.NONE;
             this.needCondition = entity -> true;
             this.tickAction = (livingEntity -> {
 

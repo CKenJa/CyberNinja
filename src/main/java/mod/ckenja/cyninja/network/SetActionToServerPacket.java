@@ -1,8 +1,8 @@
 package mod.ckenja.cyninja.network;
 
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
-import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.action.NinjaAction;
+import mod.ckenja.cyninja.registry.ModActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
@@ -49,7 +49,7 @@ public class SetActionToServerPacket implements CustomPacketPayload, IPayloadHan
     public void handle(SetActionToServerPacket message, IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
-            Optional<Holder.Reference<NinjaAction>> ninjaAction = NinjaActions.getRegistry().getHolder(message.actionHolder);
+            Optional<Holder.Reference<NinjaAction>> ninjaAction = ModActions.getRegistry().getHolder(message.actionHolder);
             if (player instanceof ServerPlayer serverPlayer) {
                 ninjaAction.ifPresent(ninjaActionReference -> NinjaActionUtils.setAction(serverPlayer, ninjaActionReference));
             }

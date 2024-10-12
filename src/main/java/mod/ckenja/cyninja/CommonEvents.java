@@ -1,8 +1,8 @@
 package mod.ckenja.cyninja;
 
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.action.NinjaActionAttachment;
+import mod.ckenja.cyninja.registry.ModActions;
 import mod.ckenja.cyninja.registry.ModAttachments;
-import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,7 +21,7 @@ public class CommonEvents {
         //If Player's inventory is null. don't check
         if (event.getEntity() instanceof Player player && player.getInventory() != null) {
             NinjaActionAttachment ninjaAction = NinjaActionUtils.getActionData(player);
-            if (ninjaAction != null && ninjaAction.getNinjaAction().value() != NinjaActions.NONE.value() && ninjaAction.getNinjaAction().value().getHitBox().isPresent()) {
+            if (ninjaAction != null && ninjaAction.getNinjaAction().value() != ModActions.NONE.value() && ninjaAction.getNinjaAction().value().getHitBox().isPresent()) {
                 event.setNewSize(ninjaAction.getNinjaAction().value().getHitBox().get());
             }
         }
@@ -45,7 +45,7 @@ public class CommonEvents {
             NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
             if (actionData != null) {
                 if (!NinjaActionUtils.isWearingNinja(livingEntity)) {
-                    actionData.setNinjaAction(livingEntity, NinjaActions.NONE);
+                    actionData.setNinjaAction(livingEntity, ModActions.NONE);
                 } else {
                     actionData.tick(livingEntity);
                 }

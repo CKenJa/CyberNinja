@@ -1,10 +1,10 @@
 package mod.ckenja.cyninja.util;
 
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.action.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.action.NinjaAction;
+import mod.ckenja.cyninja.registry.ModActions;
 import mod.ckenja.cyninja.registry.ModAttachments;
-import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -52,7 +52,7 @@ public class NinjaActionUtils {
         }
 
         //slide to looking way
-        livingEntity.moveRelative(0.2F, new Vec3(0, 0, NinjaActions.SLIDE.get().getMoveSpeed()));
+        livingEntity.moveRelative(0.2F, new Vec3(0, 0, ModActions.SLIDE.get().getMoveSpeed()));
         livingEntity.hasImpulse = true;
     }
 
@@ -105,7 +105,6 @@ public class NinjaActionUtils {
         if (!(livingEntity.getBodyArmorItem().getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
             return false;
         }
-
 
         return true;
     }

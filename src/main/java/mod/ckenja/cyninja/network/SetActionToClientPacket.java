@@ -1,10 +1,10 @@
 package mod.ckenja.cyninja.network;
 
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.action.NinjaActionAttachment;
+import mod.ckenja.cyninja.action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
-import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.registry.ModActions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
@@ -60,7 +60,7 @@ public class SetActionToClientPacket implements CustomPacketPayload, IPayloadHan
             Entity entity = Minecraft.getInstance().player.level().getEntity(message.entityId);
             if (entity != null && entity instanceof Player player) {
                 NinjaActionAttachment attachment = player.getData(ModAttachments.NINJA_ACTION);
-                Optional<Holder.Reference<NinjaAction>> holder = NinjaActions.getRegistry().getHolder(resourceLocation);
+                Optional<Holder.Reference<NinjaAction>> holder = ModActions.getRegistry().getHolder(resourceLocation);
                 if (holder.isPresent()) {
                     attachment.setNinjaAction(player, holder.get());
                 }

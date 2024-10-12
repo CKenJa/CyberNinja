@@ -1,8 +1,7 @@
-package mod.ckenja.cyninja.attachment;
+package mod.ckenja.cyninja.action;
 
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
-import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.registry.ModActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -17,7 +16,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
-    private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
+    private Holder<NinjaAction> ninjaAction = ModActions.NONE;
     private int actionTick;
     private int climbableTick;
 
@@ -50,7 +49,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void sync(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
         if (!livingEntity.level().isClientSide()) {
@@ -67,45 +65,56 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return this.actionTick >= this.ninjaAction.value().getStartTick();
     }
 
+    public boolean isActionActive(){
+        return this.isActionDo() && !this.isActionStop();
+    }
+
+    public boolean isActionLoop(){
+        return this.getNinjaAction().value().isLoop();
+    }
+
     public void setActionTick(int actionTick) {
         this.actionTick = actionTick;
     }
 
     public float movementSpeed() {
-        return this.isActionDo() && !this.isActionStop() ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
+        return isActionActive() ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
     }
 
     public void actionTick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (isActionActive()) {
             this.ninjaAction.value().tickAction(user);
         }
     }
 
     public void actionHold(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (isActionActive()) {
             this.ninjaAction.value().holdAction(user);
         }
     }
 
     public void actionHold(LivingEntity target, LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop()) {
+        if (isActionActive()) {
             this.ninjaAction.value().hitEffect(target, user);
         }
     }
 
+    //アクションのtick処理をした後、効果時間の処理をし、終了条件を調べる
     public void tick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop() || this.getNinjaAction().value().isLoop()) {
+        if (isActionActive() || isActionLoop()) {
             this.actionTick(user);
             this.actionHold(user);
         }
-        if (!this.getNinjaAction().value().isLoop()) {
+
+        if (!isActionLoop()) {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
                 NinjaActionUtils.setAction(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
             }
         }
-        if (this.isActionDo() && !this.isActionStop() && !this.getNinjaAction().value().isLoop() || this.getNinjaAction().value().isLoop()) {
+
+        if (isActionActive() || isActionLoop()) {
             Holder<NinjaAction> ninjaAction = this.getNinjaAction().value().getNext().apply(user);
             if (ninjaAction != null) {
                 NinjaActionUtils.setAction(user, ninjaAction);
@@ -114,7 +123,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void pretick(LivingEntity user) {
-        if (this.isActionDo() && !this.isActionStop() || this.getNinjaAction().value().isLoop()) {
+        if (isActionActive() || isActionLoop()) {
             if (!this.ninjaAction.value().isCanJump()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
@@ -123,15 +132,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         }
     }
 
-
     public Optional<EntityDimensions> hitBox() {
-        return this.isActionDo() && !this.isActionStop() ? this.ninjaAction.value().getHitBox() : Optional.empty();
+        return isActionActive() ? this.ninjaAction.value().getHitBox() : Optional.empty();
     }
 
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
-        ResourceLocation resourceLocation = NinjaActions.getRegistry().getKey(this.ninjaAction.value());
+        ResourceLocation resourceLocation = ModActions.getRegistry().getKey(this.ninjaAction.value());
         if (resourceLocation != null) {
             nbt.putString("NinjaAction", resourceLocation.toString());
         }
@@ -140,10 +148,9 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-
         if (nbt.contains("NinjaAction")) {
             String s = nbt.getString("NinjaAction");
-            Optional<Holder.Reference<NinjaAction>> action = NinjaActions.getRegistry().getHolder(ResourceLocation.parse(s));
+            Optional<Holder.Reference<NinjaAction>> action = ModActions.getRegistry().getHolder(ResourceLocation.parse(s));
             if (action.isPresent()) {
                 this.ninjaAction = action.get();
             }

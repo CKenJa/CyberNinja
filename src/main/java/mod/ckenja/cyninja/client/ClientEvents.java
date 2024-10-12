@@ -36,14 +36,16 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onKeyPush(InputEvent.Key event) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
-                ninjaInput = NinjaInput.SNEAK;
-            }
+        if (player == null)
+            return;
+        if (event.getKey() == Minecraft.getInstance().options.keyShift.getKey().getValue()) {
+            ninjaInput = NinjaInput.SNEAK;
+        }
 
-            if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
-                ninjaInput = NinjaInput.JUMP;
-            }
+        if (event.getKey() == Minecraft.getInstance().options.keyJump.getKey().getValue()) {
+            ninjaInput = NinjaInput.JUMP;
+        }
+
 
             if (event.getKey() == Minecraft.getInstance().options.keySprint.getKey().getValue()) {
                 ninjaInput = NinjaInput.SPRINT;
@@ -62,6 +64,7 @@ public class ClientEvents {
 
         }
     }
+
     @SubscribeEvent
     public static void animationInitEvent(BagusModelEvent.Init bagusModelEvent) {
         IRootModel rootModel = bagusModelEvent.getRootModel();

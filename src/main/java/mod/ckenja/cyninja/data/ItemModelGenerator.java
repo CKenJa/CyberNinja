@@ -27,6 +27,7 @@ public class ItemModelGenerator extends ItemModelProvider {
     @Override
     protected void registerModels() {
         this.singleTexTool(ModItems.SHURIKEN);
+        this.singleTexTool(ModItems.CYBER_TRIM_SMITHING_TEMPLATE);
     }
 
     private ItemModelBuilder tool(String name, ResourceLocation... layers) {

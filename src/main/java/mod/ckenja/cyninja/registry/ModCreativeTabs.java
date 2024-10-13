@@ -23,6 +23,7 @@ public class ModCreativeTabs {
                         ModItems.NINJA_CHESTPLATE,
                         ModItems.NINJA_LEGGINGS,
                         ModItems.NINJA_BOOTS,
+                        ModItems.CYBER_TRIM_SMITHING_TEMPLATE,
                         ModItems.SHURIKEN
                 ).map(sup -> {
                     return sup.get().getDefaultInstance();

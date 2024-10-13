@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing_trim",
+  "addition": {
+    "tag": "minecraft:trim_materials"
+  },
+  "base": {
+    "item": "cyninja:ninja_chestplate"
+  },
+  "template": {
+    "item": "cyninja:cyber_trim_smithing_template"
+  }
+}

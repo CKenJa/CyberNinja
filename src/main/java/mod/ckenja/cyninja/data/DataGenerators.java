@@ -28,5 +28,6 @@ public class DataGenerators {
         BlockTagsProvider blocktags = new BlockTagGenerator(packOutput, lookupProvider, existingFileHelper);
         generator.addProvider(event.includeServer(), blocktags);
         generator.addProvider(event.includeServer(), new ItemTagGenerator(packOutput, lookupProvider, blocktags.contentsGetter(), existingFileHelper));
+        generator.addProvider(event.includeServer(), new CraftingGenerator(packOutput, lookupProvider));
     }
 }

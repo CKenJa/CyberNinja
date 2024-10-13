@@ -1,8 +1,10 @@
 package mod.ckenja.cyninja.data;
 
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.registry.ModTrimPatterns;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 
@@ -11,7 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class RegistryDataGenerator extends DatapackBuiltinEntriesProvider {
 
-    public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder();
+    public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
+            .add(Registries.TRIM_PATTERN, ModTrimPatterns::bootstrap);
 
 
     public RegistryDataGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {

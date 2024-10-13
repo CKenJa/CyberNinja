@@ -61,7 +61,6 @@ public class ClientEvents {
                     if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
                         ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
                         PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
-                        NinjaActionUtils.setAction(player, holderNinjaInputEntry);
                         flag[0] = true;
                     }
                 });

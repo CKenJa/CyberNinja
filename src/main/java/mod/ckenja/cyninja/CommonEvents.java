@@ -41,9 +41,8 @@ public class CommonEvents {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             //basic action handle
             NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
-            if (actionData != null) {
-                actionData.pretick(livingEntity);
-            }
+            actionData.pretick(livingEntity);
+
         }
     }
 

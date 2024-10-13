@@ -39,6 +39,7 @@ public class NinjaActions {
                     .setReduceDamage(1.0F)
                     .setReduceKnockback(1.0F)
                     .setCanJump(false)
+                    .setNoBob(true)
                     .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
                     .addTickAction(NinjaActionUtils::checkSlideAttack)
                     .next(livingEntity -> {

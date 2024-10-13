@@ -51,7 +51,7 @@ public class SetActionToServerPacket implements CustomPacketPayload, IPayloadHan
             Player player = context.player();
             Optional<Holder.Reference<NinjaAction>> ninjaAction = NinjaActions.getRegistry().getHolder(message.actionHolder);
             if (player instanceof ServerPlayer serverPlayer) {
-                ninjaAction.ifPresent(ninjaActionReference -> NinjaActionUtils.setAction(serverPlayer, ninjaActionReference));
+                ninjaAction.ifPresent(ninjaActionReference -> NinjaActionUtils.syncAction(serverPlayer, ninjaActionReference));
             }
         });
     }

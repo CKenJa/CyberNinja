@@ -110,9 +110,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (isActionActive() || isActionLoop()) {
             this.actionTick(user);
             this.actionHold(user);
-            if (user instanceof Player player && this.ninjaAction.value().isNoBob()) {
-                player.bob = 0.0F;
-            }
         }
         if (!isActionLoop()) {
 
@@ -140,6 +137,12 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 user.setShiftKeyDown(false);
             }
             user.setPose(Pose.STANDING);
+        }
+
+
+        if (user instanceof Player player && this.ninjaAction.value().isNoBob()) {
+            player.bob = 0.0F;
+            player.oBob = 0.0F;
         }
     }
 

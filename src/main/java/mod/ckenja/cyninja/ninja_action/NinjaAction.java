@@ -56,7 +56,7 @@ public class NinjaAction {
         this.timeout = builder.timeout;
         this.loop = builder.loop;
         this.canJump = builder.canJump;
-        this.noBob = noBob;
+        this.noBob = builder.noBob;
 
         this.next = builder.next;
         this.hitBox = builder.hitBox;

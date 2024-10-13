@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -40,6 +42,8 @@ public class NinjaAction {
     private int priority;
 
     private Optional<EntityDimensions> hitBox = Optional.empty();
+
+    private List<NinjaInput> inputList= new ArrayList<>();
 
     public NinjaAction(Builder builder) {
         this.startTick = builder.startTick;
@@ -136,12 +140,17 @@ public class NinjaAction {
     }
 
     public NinjaAction setInput(NinjaInput ninjaInput) {
-        Cyninja.NINJA_ACTION_MAP.put(Holder.direct(this), ninjaInput);
+        Cyninja.NINJA_ACTION_MAP.add(Holder.direct(this));
+        inputList.add(ninjaInput);
         return this;
     }
 
     public void hitEffect(LivingEntity target, LivingEntity attacker) {
         hitEffect.accept(target, attacker);
+    }
+
+    public List<NinjaInput> getInputList() {
+        return inputList;
     }
 
     public static class Builder {

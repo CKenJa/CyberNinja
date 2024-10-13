@@ -54,20 +54,16 @@ public class ClientEvents {
         }
 
         final boolean[] flag = {false};
-        for (NinjaInput ninjaInput : list) {
-            Cyninja.NINJA_ACTION_MAP.entrySet().stream().filter(ninjaActionEntry -> {
-                return ninjaActionEntry.getValue().name().equals(ninjaInput.name());
-            }).forEach(holderNinjaInputEntry -> {
-                if (holderNinjaInputEntry.getKey().value().getNeedCondition().apply(player) && !flag[0]) {
-                    ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.getKey().value());
-                    PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
-                    NinjaActionUtils.setAction(player, holderNinjaInputEntry.getKey());
-                    flag[0] = true;
-                }
-            });
-        }
-
-
+        Cyninja.NINJA_ACTION_MAP.stream()
+                .filter(ninjaActionEntry -> list.containsAll(ninjaActionEntry.value().getInputList()))
+                .forEach(holderNinjaInputEntry -> {
+                    if (holderNinjaInputEntry.value().getNeedCondition().apply(player) && !flag[0]) {
+                        ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
+                        PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
+                        NinjaActionUtils.setAction(player, holderNinjaInputEntry);
+                        flag[0] = true;
+                    }
+                });
     }
 
     @SubscribeEvent

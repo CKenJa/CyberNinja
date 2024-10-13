@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES_REGISTRY = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, Cyninja.MODID);
 
-    public static final Supplier<EntityType<ThrownItemEntity>> THROWN_ITEM = ENTITIES_REGISTRY.register("thrown_item", () -> EntityType.Builder.<ThrownItemEntity>of(ThrownItemEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).build(prefix("thrown_item")));
+    public static final Supplier<EntityType<ThrownItemEntity>> THROWN_ITEM = ENTITIES_REGISTRY.register("thrown_item", () -> EntityType.Builder.<ThrownItemEntity>of(ThrownItemEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).clientTrackingRange(8).setUpdateInterval(20).build(prefix("thrown_item")));
 
     private static String prefix(String path) {
         return Cyninja.MODID + "." + path;

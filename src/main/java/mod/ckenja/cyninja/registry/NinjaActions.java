@@ -4,6 +4,7 @@ import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.util.EquipmentRequest;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Registry;
@@ -29,66 +30,77 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () ->
             new NinjaAction(NinjaAction.Builder.newInstance()
+                    .addNeedCondition(livingEntity -> livingEntity.onGround() &&
+                            NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value())
+                    .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
+                    .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
                     .startAndEnd(2, 17)
                     .speed(1.5F)
+                    .setReduceDamage(1.0F)
+                    .setReduceKnockback(1.0F)
+                    .setCanJump(false)
+                    .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
+                    .addTickAction(NinjaActionUtils::checkSlideAttack)
                     .next(livingEntity -> {
                         if (!livingEntity.onGround() || livingEntity.horizontalCollision) {
                             return NONE;
                         }
                         return null;
                     })
-                    .setNeedCondition(livingEntity -> livingEntity.onGround() && livingEntity.isSprinting() &&
-                            NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value())
-                    .setReduceDamage(1.0F)
-                    .setReduceKnockback(1.0F)
-                    .setCanJump(false)
-                    .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
-                    .addTickAction(NinjaActionUtils::checkSlideAttack)
-            ).setInput(NinjaInput.SNEAK)
+            )
     );
 
+    public static final DeferredHolder<NinjaAction, NinjaAction> JUMP = NINJA_ACTIONS.register("jump", () ->
+            new NinjaAction(NinjaAction.Builder.newInstance()
+                    .setInput(NinjaInput.JUMP)
+                    .startAndEnd(0, 10000)
+                    .next(livingEntity -> {
+                        if (livingEntity.onGround()) {
+                            return NONE;
+                        }
+                        return null;
+                    })
+                    .addNeedCondition(livingEntity -> {
+                        NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
+                        return !livingEntity.onGround() &&
+                                !livingEntity.isInWater() &&
+                                attachment.getNinjaAction().value() == NinjaActions.NONE.value();
+                    })
+            )
+    );
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> JUMP = NINJA_ACTIONS.register("jump", () -> new NinjaAction(NinjaAction.Builder.newInstance().startAndEnd(0, 10000).next(livingEntity -> {
-        if (livingEntity.onGround()) {
-            return NONE;
-        }
-
-        return null;
-    }).setNeedCondition(livingEntity -> {
-        NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-
-        return !livingEntity.onGround() && !livingEntity.isInWater() && attachment.getNinjaAction().value() == NinjaActions.NONE.value();
-    })).setInput(NinjaInput.JUMP));
-
-    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance().startAndEnd(0, 1).nextOfTimeout(livingEntity -> {
-        return NinjaActions.AIR_JUMP_FINISH;
-    }).setNeedCondition(livingEntity -> {
-        NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-        return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
-                && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
-    }).addTickAction(NinjaActionUtils::tickAirJump).addStartAction(livingEntity -> {
-        if (!livingEntity.level().isClientSide()) {
-            AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
-        }
-    })).setInput(NinjaInput.JUMP));
+    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+            .setInput(NinjaInput.JUMP)
+            .startAndEnd(0, 1)
+            .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
+            .addNeedCondition(livingEntity -> {
+                NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
+                return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+            })
+            .addTickAction(NinjaActionUtils::tickAirJump).addStartAction(livingEntity -> {
+                if (!livingEntity.level().isClientSide()) {
+                    AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
+                }
+            })
+    ));
 
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance().loop().next(livingEntity -> {
-        if (livingEntity.onGround()) {
-            return NONE;
-        }
-
-        if (livingEntity instanceof Player player && player.getAbilities().flying) {
-            return NONE;
-        }
-
-        return null;
-    }).addStopAction(livingEntity -> {
-        if (!livingEntity.level().isClientSide()) {
-            AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_JUMP);
-        }
-    })));
-
+    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+            .loop()
+            .next(livingEntity -> {
+                if (livingEntity.onGround())
+                    return NONE;
+                if (livingEntity instanceof Player player && player.getAbilities().flying)
+                    return NONE;
+                return null;
+            })
+            .addStopAction(livingEntity -> {
+                if (!livingEntity.level().isClientSide()) {
+                    AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_JUMP);
+                }
+            })
+    ));
 
     private static Registry<NinjaAction> registry;
 

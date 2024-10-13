@@ -25,45 +25,47 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.apache.commons.compress.utils.Lists;
 import org.joml.Vector3f;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+
+import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
-    public static void onKeyPush(ClientTickEvent.Pre event) {
+    public static void triggerNinjaActions(ClientTickEvent.Pre event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        List<NinjaInput> list = Lists.newArrayList();
+        HashSet<NinjaInput> inputs = new HashSet<>();
         if (Minecraft.getInstance().options.keyShift.isDown()) {
-            list.add(NinjaInput.SNEAK);
+            inputs.add(NinjaInput.SNEAK);
         }
 
         if (Minecraft.getInstance().options.keyJump.isDown()) {
-            list.add(NinjaInput.JUMP);
+            inputs.add(NinjaInput.JUMP);
         }
 
 
         if (Minecraft.getInstance().options.keySprint.isDown()) {
-            list.add(NinjaInput.SPRINT);
+            inputs.add(NinjaInput.SPRINT);
         }
 
         final boolean[] flag = {false};
         Cyninja.NINJA_ACTION_MAP.stream()
-                .filter(ninjaActionEntry -> list.containsAll(ninjaActionEntry.value().getInputList()))
+                .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputList()))
                 .forEach(holderNinjaInputEntry -> {
-                    if (holderNinjaInputEntry.value().getNeedCondition().apply(player) && !flag[0]) {
+                    if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
                         ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
                         PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
                         NinjaActionUtils.setAction(player, holderNinjaInputEntry);
                         flag[0] = true;
                     }
                 });
+        player.getData(NINJA_ACTION).inputs = inputs;
     }
 
     @SubscribeEvent

@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
+import mod.ckenja.cyninja.item.ShurikenItem;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -14,4 +15,5 @@ public class ModItems {
     public static final DeferredItem<Item> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).durability(ArmorItem.Type.CHESTPLATE.getDurability(18))));
     public static final DeferredItem<Item> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(18))));
     public static final DeferredItem<Item> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(18))));
+    public static final DeferredItem<Item> SHURIKEN = ITEMS.register("shuriken", () -> new ShurikenItem((new Item.Properties())));
 }

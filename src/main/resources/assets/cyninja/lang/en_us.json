@@ -3,5 +3,7 @@
   "item.cyninja.ninja_chestplate": "Ninja ChestPlate",
   "item.cyninja.ninja_leggings": "Ninja Leggings",
   "item.cyninja.ninja_boots": "Ninja Boots",
+  "item.cyninja.shuriken": "Shuriken",
+  "entity.cyninja.thrown_item": "Thrown Item",
   "itemGroup.cyninja": "Cyninja"
 }

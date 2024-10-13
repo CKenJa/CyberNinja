@@ -15,14 +15,14 @@ import net.minecraft.world.entity.Pose;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
     private int climbableTick;
-    public HashSet<NinjaInput> inputs;
+    public EnumSet<NinjaInput> inputs;
 
     public int getActionTick() {
         return actionTick;

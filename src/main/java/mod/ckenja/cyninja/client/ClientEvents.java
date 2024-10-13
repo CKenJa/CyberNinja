@@ -27,7 +27,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Optional;
 
 import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
@@ -40,7 +40,7 @@ public class ClientEvents {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        HashSet<NinjaInput> inputs = new HashSet<>();
+        EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
         if (Minecraft.getInstance().options.keyShift.isDown()) {
             inputs.add(NinjaInput.SNEAK);
         }
@@ -56,7 +56,7 @@ public class ClientEvents {
 
         final boolean[] flag = {false};
         Cyninja.NINJA_ACTION_MAP.stream()
-                .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputList()))
+                .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputs()))
                 .forEach(holderNinjaInputEntry -> {
                     if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
                         ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());

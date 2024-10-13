@@ -8,7 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -43,7 +44,7 @@ public class NinjaAction {
 
     private Optional<EntityDimensions> hitBox;
 
-    private List<NinjaInput> inputList;
+    private EnumSet<NinjaInput> inputs;
 
     public NinjaAction(Builder builder) {
         this.startTick = builder.startTick;
@@ -61,8 +62,8 @@ public class NinjaAction {
         this.needCondition = builder.needCondition;
         this.holdAction = builder.holdAction;
 
-        this.inputList = builder.inputList;
-        if(inputList != null)
+        this.inputs = builder.inputs;
+        if(inputs != null)
             Cyninja.NINJA_ACTION_MAP.add(Holder.direct(this));
 
         this.tickAction = builder.tickAction;
@@ -147,12 +148,12 @@ public class NinjaAction {
         hitEffect.accept(target, attacker);
     }
 
-    public List<NinjaInput> getInputList() {
-        return inputList;
+    public EnumSet<NinjaInput> getInputs() {
+        return inputs;
     }
 
     public static class Builder {
-        public List<NinjaInput> inputList;
+        public EnumSet<NinjaInput> inputs;
         private int priority;
         private boolean canJump;
         private int startTick;
@@ -300,7 +301,7 @@ public class NinjaAction {
         }
 
         public Builder setInput(NinjaInput... ninjaInputs) {
-            inputList = List.of(ninjaInputs);
+            inputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
             return this;
         }
     }

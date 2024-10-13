@@ -16,13 +16,14 @@ public class ModCreativeTabs {
     public static final Supplier<CreativeModeTab> CYBER_NINJA = CREATIVE_MODE_TABS.register("cyber_ninja", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .title(Component.translatable("itemGroup." + Cyninja.MODID + ".main_tab"))
-            .icon(() -> ModItems.NINJA_CHESTPLATE.get().getDefaultInstance())
+            .icon(() -> ModItems.SHURIKEN.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.acceptAll(Stream.of(
                         ModItems.NINJA_HELMET,
                         ModItems.NINJA_CHESTPLATE,
                         ModItems.NINJA_LEGGINGS,
-                        ModItems.NINJA_BOOTS
+                        ModItems.NINJA_BOOTS,
+                        ModItems.SHURIKEN
                 ).map(sup -> {
                     return sup.get().getDefaultInstance();
                 }).toList());

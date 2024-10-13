@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -109,6 +110,9 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (isActionActive() || isActionLoop()) {
             this.actionTick(user);
             this.actionHold(user);
+            if (user instanceof Player player && this.ninjaAction.value().isNoBob()) {
+                player.bob = 0.0F;
+            }
         }
         if (!isActionLoop()) {
 

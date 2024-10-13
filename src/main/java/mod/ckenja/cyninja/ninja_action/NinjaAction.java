@@ -25,6 +25,7 @@ public class NinjaAction {
     private float reduceKnockback;
     private boolean loop;
     private boolean canJump;
+    private boolean noBob;
 
     // Next input acceptance period *ms
     public int timeout;
@@ -55,6 +56,7 @@ public class NinjaAction {
         this.timeout = builder.timeout;
         this.loop = builder.loop;
         this.canJump = builder.canJump;
+        this.noBob = noBob;
 
         this.next = builder.next;
         this.hitBox = builder.hitBox;
@@ -152,10 +154,15 @@ public class NinjaAction {
         return inputs;
     }
 
+    public boolean isNoBob() {
+        return noBob;
+    }
+
     public static class Builder {
         public EnumSet<NinjaInput> inputs;
         private int priority;
         private boolean canJump;
+        private boolean noBob;
         private int startTick;
         private int endTick;
         private float moveSpeed;
@@ -199,6 +206,7 @@ public class NinjaAction {
             };
             this.animationID = Optional.empty();
             this.canJump = true;
+            this.noBob = false;
         }
 
         public static Builder newInstance() {
@@ -302,6 +310,11 @@ public class NinjaAction {
 
         public Builder setInput(NinjaInput... ninjaInputs) {
             inputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
+            return this;
+        }
+
+        public Builder setNoBob(boolean noBob) {
+            this.noBob = noBob;
             return this;
         }
     }

@@ -28,6 +28,7 @@ public class CommonEvents {
         }
     }
 
+
     @SubscribeEvent
     public static void fallEvent(LivingFallEvent event) {
         if (NinjaActionUtils.isWearingNinja(event.getEntity())) {

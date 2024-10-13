@@ -8,10 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class NinjaAction {
 
@@ -28,7 +31,7 @@ public class NinjaAction {
 
     private Function<LivingEntity, Holder<NinjaAction>> next;
     private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
-    private Function<LivingEntity, Boolean> needCondition;
+    private Predicate<LivingEntity> needCondition;
 
     private Consumer<LivingEntity> holdAction;
 
@@ -39,7 +42,9 @@ public class NinjaAction {
     private Consumer<LivingEntity> stopAction;
     private int priority;
 
-    private Optional<EntityDimensions> hitBox = Optional.empty();
+    private Optional<EntityDimensions> hitBox;
+
+    private EnumSet<NinjaInput> inputs;
 
     public NinjaAction(Builder builder) {
         this.startTick = builder.startTick;
@@ -56,6 +61,10 @@ public class NinjaAction {
         this.nextOfTimeout = builder.nextOfTimeout;
         this.needCondition = builder.needCondition;
         this.holdAction = builder.holdAction;
+
+        this.inputs = builder.inputs;
+        if(inputs != null)
+            Cyninja.NINJA_ACTION_MAP.add(Holder.direct(this));
 
         this.tickAction = builder.tickAction;
         this.startAction = builder.startAction;
@@ -115,7 +124,7 @@ public class NinjaAction {
         return nextOfTimeout;
     }
 
-    public Function<LivingEntity, Boolean> getNeedCondition() {
+    public Predicate<LivingEntity> getNeedCondition() {
         return needCondition;
     }
 
@@ -135,16 +144,16 @@ public class NinjaAction {
         stopAction.accept(user);
     }
 
-    public NinjaAction setInput(NinjaInput ninjaInput) {
-        Cyninja.NINJA_ACTION_MAP.put(Holder.direct(this), ninjaInput);
-        return this;
-    }
-
     public void hitEffect(LivingEntity target, LivingEntity attacker) {
         hitEffect.accept(target, attacker);
     }
 
+    public EnumSet<NinjaInput> getInputs() {
+        return inputs;
+    }
+
     public static class Builder {
+        public EnumSet<NinjaInput> inputs;
         private int priority;
         private boolean canJump;
         private int startTick;
@@ -156,7 +165,7 @@ public class NinjaAction {
         private float reduceKnockback;
         private Function<LivingEntity, Holder<NinjaAction>> next;
         private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
-        private Function<LivingEntity, Boolean> needCondition;
+        private Predicate<LivingEntity> needCondition;
 
         private Consumer<LivingEntity> startAction;
         private Consumer<LivingEntity> stopAction;
@@ -286,8 +295,13 @@ public class NinjaAction {
             return this;
         }
 
-        public Builder setNeedCondition(Function<LivingEntity, Boolean> needCondition) {
-            this.needCondition = needCondition;
+        public Builder addNeedCondition(Predicate<LivingEntity> needCondition) {
+            this.needCondition = this.needCondition.and(needCondition);
+            return this;
+        }
+
+        public Builder setInput(NinjaInput... ninjaInputs) {
+            inputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
             return this;
         }
     }

@@ -4,6 +4,7 @@ import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
+import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -14,12 +15,14 @@ import net.minecraft.world.entity.Pose;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.EnumSet;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
     private int climbableTick;
+    public EnumSet<NinjaInput> inputs;
 
     public int getActionTick() {
         return actionTick;
@@ -163,5 +166,4 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         }
 
     }
-
 }

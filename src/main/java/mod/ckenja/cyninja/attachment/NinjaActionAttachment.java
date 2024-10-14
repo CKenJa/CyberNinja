@@ -23,6 +23,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
     private int inFluidTick;
+    private int airTick;
     public EnumSet<NinjaInput> inputs;
 
     public int getActionTick() {
@@ -34,17 +35,12 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return ninjaAction;
     }
 
-    public void setInFluidTick(int inFluidTick) {
-        this.inFluidTick = inFluidTick;
-    }
-
-    public int getInFluidTick() {
-        return inFluidTick;
-    }
-
-
     public boolean wasInFluid() {
         return inFluidTick > 0;
+    }
+
+    public boolean isFullAir() {
+        return airTick <= 0;
     }
 
     public void setNinjaAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
@@ -140,7 +136,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             }
         }
 
-
+        if (user.isInFluidType()) {
+            this.airTick = 3;
+        } else {
+            if (user.onGround()) {
+                this.airTick = 3;
+            } else {
+                if (this.airTick > 0) {
+                    this.airTick--;
+                }
+            }
+        }
     }
 
     public void pretick(LivingEntity user) {

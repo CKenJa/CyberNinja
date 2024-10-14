@@ -24,10 +24,11 @@ public class ModCreativeTabs {
                         ModItems.NINJA_LEGGINGS,
                         ModItems.NINJA_BOOTS,
                         ModItems.CYBER_TRIM_SMITHING_TEMPLATE,
-                        ModItems.SHURIKEN
-                ).map(sup -> {
-                    return sup.get().getDefaultInstance();
-                }).toList());
+                        ModItems.SHURIKEN,
+                        ModItems.KATANA
+                ).map(sup ->
+                        sup.get().getDefaultInstance()).toList()
+                );
             }).build());
 
 }

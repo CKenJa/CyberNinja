@@ -10,12 +10,12 @@ import org.joml.Vector3f;
 public class VectorUtil {
     public static void moveToLookingWay(LivingEntity livingEntity, float speed, Holder<NinjaAction> ninjaActionHolder) {
         livingEntity.moveRelative(speed, new Vec3(0, 0, ninjaActionHolder.value().getMoveSpeed()));
-
+        livingEntity.hasImpulse = true;
     }
 
     public static void moveToLookingWay(LivingEntity livingEntity, float speed) {
         livingEntity.moveRelative(speed, new Vec3(0, 0, 1.0F));
-
+        livingEntity.hasImpulse = true;
     }
 
     public static Vector3f movePartToVec(ModelPart part) {

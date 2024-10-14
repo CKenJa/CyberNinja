@@ -17,7 +17,9 @@ import mod.ckenja.cyninja.util.client.ActionAnimationUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -80,8 +82,8 @@ public class ClientEvents {
     public static void animationPostEvent(BagusModelEvent.PostAnimate bagusModelEvent) {
         Entity entity = bagusModelEvent.getEntity();
         IRootModel rootModel = bagusModelEvent.getRootModel();
-
-        ActionAnimationUtil.animationWalkWithHandHeadRotation(bagusModelEvent, NinjaActions.SLIDE, 1.0F, 2.5F);
+        ActionAnimationUtil.animationWalkWithHeadRotation(bagusModelEvent, PlayerAnimations.wall_run, NinjaActions.WALL_SLIDE, 1.0F, 2.5F);
+        ActionAnimationUtil.animationWalkWithHandHeadRotation(bagusModelEvent, PlayerAnimations.slide, NinjaActions.SLIDE, 1.0F, 2.5F);
         ActionAnimationUtil.animationWithHandHeadRotation(bagusModelEvent, PlayerAnimations.jump, ModAnimations.AIR_JUMP);
 
 
@@ -112,6 +114,20 @@ public class ClientEvents {
             NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
             if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.AIR_ROCKET.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot()));
+            }
+
+            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_SLIDE.value()) {
+                float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
+                Direction direction = livingEntity.getMotionDirection();
+                for (int i = 0; i < Direction.Plane.HORIZONTAL.length(); i++) {
+                    direction = direction.getClockWise();
+                    if (!livingEntity.level().noBlockCollision(livingEntity, livingEntity.getBoundingBox().move(direction.step().mul(0.01F)))) {
+                        break;
+                    }
+                }
+
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(direction.toYRot()));
             }
         }
     }

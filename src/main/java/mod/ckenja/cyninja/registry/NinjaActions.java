@@ -56,7 +56,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () ->
             new NinjaAction(NinjaAction.Builder.newInstance()
                     .addNeedCondition(livingEntity -> !livingEntity.onGround() && livingEntity.horizontalCollision &&
-                            !livingEntity.isInFluidType())
+                            !livingEntity.isInFluidType() && livingEntity.getDeltaMovement().y < 0.0F)
                     .loop()
                     .startAndEnd(0, 1)
                     .setNoBob(true)
@@ -110,7 +110,8 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
-            .startAndEnd(0, 20)
+            .startAndEnd(0, 8)
+            .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
                 return !livingEntity.onGround() &&

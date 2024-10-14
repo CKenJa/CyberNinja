@@ -58,9 +58,9 @@ public class NinjaActionUtils {
     }
 
     public static void tickAirRocket(LivingEntity livingEntity) {
-
+        Vec3 vec32 = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
-        livingEntity.setDeltaMovement(look.x * 0.5F, look.y * 0.5F, look.z * 0.5F);
+        livingEntity.setDeltaMovement(vec32.x + look.x * 0.08F, vec32.y + look.y * 0.08F + livingEntity.getGravity() * 1.01F, vec32.z + look.z * 0.08F);
         livingEntity.resetFallDistance();
         livingEntity.hasImpulse = true;
         livingEntity.playSound(SoundEvents.WIND_CHARGE_BURST.value());

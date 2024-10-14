@@ -6,7 +6,6 @@ import bagu_chan.bagus_lib.client.event.BagusModelEvent;
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import bagu_chan.bagus_lib.util.client.VectorUtil;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
-import mod.ckenja.cyninja.client.animation.PlayerAnimations;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.client.animation.AnimationDefinition;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 public class ActionAnimationUtil {
 
-    public static void animationWalkWithHandHeadRotation(BagusModelEvent.PostAnimate event, Holder<NinjaAction> ninjaActions, float scale, float speed) {
+    public static void animationWalkWithHeadRotation(BagusModelEvent.PostAnimate event, AnimationDefinition animationDefinition, Holder<NinjaAction> ninjaActions, float scale, float speed) {
         Entity entity = event.getEntity();
         IRootModel rootModel = event.getRootModel();
         if (entity instanceof LivingEntity livingEntity) {
@@ -29,9 +28,47 @@ public class ActionAnimationUtil {
                 BaguAnimationController animationController = AnimationUtil.getAnimationController(event.getEntity());
 
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions) {
+                if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions.value()) {
 
-                    if (animationController != null) {
+                    Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
+                    Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");
+
+                    Vector3f headVec = new Vector3f();
+                    Vector3f rightVec = new Vector3f();
+                    Vector3f leftVec = new Vector3f();
+
+
+                    if (headPart.isPresent()) {
+                        headVec = VectorUtil.movePartToVec(headPart.get());
+                    }
+
+
+                    rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
+                    if (headPart.isPresent()) {
+                        VectorUtil.moveVecToPart(headVec, headPart.get());
+                    }
+
+                    if (hatPart.isPresent()) {
+                        VectorUtil.moveVecToPart(headVec, hatPart.get());
+                    }
+                    float f5 = livingEntity.walkAnimation.position(event.getPartialTick());
+                    rootModel.animateWalkBagu(animationDefinition, f5, scale, speed, 2.5F);
+                }
+            }
+        }
+    }
+
+
+    public static void animationWalkWithHandHeadRotation(BagusModelEvent.PostAnimate event, AnimationDefinition animationDefinition, Holder<NinjaAction> ninjaActions, float scale, float speed) {
+        Entity entity = event.getEntity();
+        IRootModel rootModel = event.getRootModel();
+        if (entity instanceof LivingEntity livingEntity) {
+            if (event.isSupportedAnimateModel()) {
+                BaguAnimationController animationController = AnimationUtil.getAnimationController(event.getEntity());
+
+                NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
+                if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions.value()) {
+
                         Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
                         Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");
                         Optional<ModelPart> right_arm = rootModel.getBetterAnyDescendantWithName("right_arm");
@@ -74,8 +111,7 @@ public class ActionAnimationUtil {
                             VectorUtil.moveVecToPart(leftVec, left_sleeve.get());
                         }
                         float f5 = livingEntity.walkAnimation.position(event.getPartialTick());
-                        rootModel.animateWalkBagu(PlayerAnimations.slide, f5, scale, speed, 2.5F);
-                    }
+                    rootModel.animateWalkBagu(animationDefinition, f5, scale, speed, 2.5F);
                 }
             }
         }

@@ -43,7 +43,7 @@ public class NinjaActionUtils {
         livingEntity.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
 
         if (!livingEntity.level().isClientSide()) {
-            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox().inflate(2.0F).move(look.reverse().scale(2.0F)));
+            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
                     if (entity.isAttackable()) {

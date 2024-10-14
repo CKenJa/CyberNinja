@@ -22,7 +22,7 @@ import java.util.Optional;
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
-    private int climbableTick;
+    private int inFluidTick;
     public EnumSet<NinjaInput> inputs;
 
     public int getActionTick() {
@@ -34,17 +34,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return ninjaAction;
     }
 
-    public void setClimbableTick(int climbableTick) {
-        this.climbableTick = climbableTick;
+    public void setInFluidTick(int inFluidTick) {
+        this.inFluidTick = inFluidTick;
     }
 
-    public int getClimbableTick() {
-        return climbableTick;
+    public int getInFluidTick() {
+        return inFluidTick;
     }
 
 
-    public boolean isClimbable() {
-        return climbableTick <= 10;
+    public boolean wasInFluid() {
+        return inFluidTick > 0;
     }
 
     public void setNinjaAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
@@ -128,6 +128,19 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 NinjaActionUtils.setAction(user, ninjaAction);
             }
         }
+        if (user.isInFluidType()) {
+            this.inFluidTick = 5;
+        } else {
+            if (user.onGround()) {
+                this.inFluidTick = 0;
+            }
+
+            if (this.inFluidTick > 0) {
+                this.inFluidTick--;
+            }
+        }
+
+
     }
 
     public void pretick(LivingEntity user) {

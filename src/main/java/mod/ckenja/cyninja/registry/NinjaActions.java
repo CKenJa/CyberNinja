@@ -32,6 +32,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () ->
             new NinjaAction(NinjaAction.Builder.newInstance()
                     .addNeedCondition(livingEntity -> livingEntity.onGround() &&
+                            !livingEntity.isInFluidType() &&
                             NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value())
                     .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
                     .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
@@ -57,7 +58,7 @@ public class NinjaActions {
                     .setInput(NinjaInput.JUMP)
                     .startAndEnd(0, 10000)
                     .next(livingEntity -> {
-                        if (livingEntity.onGround()) {
+                        if (livingEntity.onGround() || livingEntity.isInFluidType()) {
                             return NONE;
                         }
                         return null;
@@ -65,7 +66,7 @@ public class NinjaActions {
                     .addNeedCondition(livingEntity -> {
                         NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
                         return !livingEntity.onGround() &&
-                                !livingEntity.isInWater() &&
+                                !livingEntity.isInFluidType() &&
                                 attachment.getNinjaAction().value() == NinjaActions.NONE.value();
                     })
             )
@@ -77,7 +78,8 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                return !livingEntity.onGround() &&
+                        !attachment.wasInFluid() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
@@ -94,7 +96,8 @@ public class NinjaActions {
             .startAndEnd(0, 20)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                return !livingEntity.onGround() &&
+                        !attachment.wasInFluid() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
@@ -118,7 +121,8 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                return !livingEntity.onGround() &&
+                        !attachment.wasInFluid() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addTickAction(NinjaActionUtils::tickAirJump).addStartAction(livingEntity -> {
@@ -132,8 +136,9 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .loop()
             .next(livingEntity -> {
-                if (livingEntity.onGround())
+                if (livingEntity.onGround() || livingEntity.isInFluidType()) {
                     return NONE;
+                }
                 if (livingEntity instanceof Player player && player.getAbilities().flying)
                     return NONE;
                 return null;

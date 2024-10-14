@@ -10,6 +10,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -36,13 +37,13 @@ public class NinjaActionUtils {
     public static void tickHeavyAirJump(LivingEntity livingEntity) {
         Vec3 vec3 = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
-        Vec3 look2 = livingEntity.getViewVector(1.0F);
-        livingEntity.setDeltaMovement(vec3.x + look.x * 0.1F, 0.6F, vec3.z + look.x * 0.1F);
+        livingEntity.setDeltaMovement(vec3.x + look.x * 0.6F, 0.6F, vec3.z + look.z * 0.6F);
         livingEntity.resetFallDistance();
         livingEntity.hasImpulse = true;
+        livingEntity.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
 
         if (!livingEntity.level().isClientSide()) {
-            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox().inflate(2.0F).move(look2.reverse().scale(2.0F)));
+            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox().inflate(2.0F).move(look.reverse().scale(2.0F)));
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
                     if (entity.isAttackable()) {
@@ -52,19 +53,20 @@ public class NinjaActionUtils {
             }
         } else {
             Vec3 vec32 = livingEntity.getDeltaMovement();
-            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec32.x * -4.0, vec32.y * -4.0, vec32.z * -4.0);
+            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec32.x * -2, vec32.y * -2, vec32.z * -2);
         }
     }
 
     public static void tickAirRocket(LivingEntity livingEntity) {
 
-        Vec3 look = livingEntity.getViewVector(1.0F);
-        livingEntity.setDeltaMovement(look.x * 0.3F, look.y * 0.3F, look.z + look.x * 0.3F);
+        Vec3 look = livingEntity.getLookAngle();
+        livingEntity.setDeltaMovement(look.x * 0.5F, look.y * 0.5F, look.z * 0.5F);
         livingEntity.resetFallDistance();
         livingEntity.hasImpulse = true;
+        livingEntity.playSound(SoundEvents.WIND_CHARGE_BURST.value());
         if (livingEntity.level().isClientSide()) {
             Vec3 vec3 = livingEntity.getDeltaMovement();
-            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec3.x * -4.0, vec3.y * -4.0, vec3.z * -4.0);
+            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec3.x * -2, vec3.y * -2, vec3.z * -2);
         }
     }
 

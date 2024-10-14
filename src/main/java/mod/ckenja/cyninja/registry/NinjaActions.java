@@ -86,10 +86,10 @@ public class NinjaActions {
                     AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
                 }
             })
-            .priority(1005)
+            .priority(900)
     ));
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("heavy_air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 20)
             .addNeedCondition(livingEntity -> {
@@ -108,7 +108,7 @@ public class NinjaActions {
                     AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
                 }
             })
-            .priority(1005)
+            .priority(900)
     ));
 
 

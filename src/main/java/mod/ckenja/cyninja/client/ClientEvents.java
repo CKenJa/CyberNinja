@@ -56,7 +56,7 @@ public class ClientEvents {
 
         final boolean[] flag = {false};
         Cyninja.NINJA_ACTION_MAP.stream()
-                .sorted(Comparator.comparing(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
+                .sorted(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
                 .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputs()))
                 .forEach(holderNinjaInputEntry -> {
                     if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {

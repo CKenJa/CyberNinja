@@ -158,6 +158,12 @@ public class NinjaAction {
         return noBob;
     }
 
+
+    public NinjaAction setNoInputAction() {
+        Cyninja.NINJA_ACTION_MAP.add(Holder.direct(this));
+        return this;
+    }
+
     public static class Builder {
         public EnumSet<NinjaInput> inputs;
         private int priority;
@@ -312,6 +318,7 @@ public class NinjaAction {
             inputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
             return this;
         }
+
 
         public Builder setNoBob(boolean noBob) {
             this.noBob = noBob;

@@ -70,6 +70,14 @@ public class NinjaActionUtils {
         }
     }
 
+    public static void checkWallSlide(LivingEntity livingEntity) {
+
+        Vec3 vec3 = livingEntity.getDeltaMovement();
+        //slide to looking way
+        livingEntity.setDeltaMovement(vec3.x, vec3.y * 0.6F, vec3.z);
+        livingEntity.hasImpulse = true;
+    }
+
     public static void checkSlideAttack(LivingEntity livingEntity) {
         if (!livingEntity.level().isClientSide()) {
             List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox());

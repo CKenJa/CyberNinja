@@ -53,6 +53,23 @@ public class NinjaActions {
             )
     );
 
+    public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () ->
+            new NinjaAction(NinjaAction.Builder.newInstance()
+                    .addNeedCondition(livingEntity -> !livingEntity.onGround() && livingEntity.horizontalCollision &&
+                            !livingEntity.isInFluidType())
+                    .loop()
+                    .startAndEnd(0, 1)
+                    .setNoBob(true)
+                    .addTickAction(NinjaActionUtils::checkWallSlide)
+                    .next(livingEntity -> {
+                        if (livingEntity.onGround() || !livingEntity.horizontalCollision) {
+                            return NONE;
+                        }
+                        return null;
+                    }).priority(850)
+            ).setNoInputAction()
+    );
+
     public static final DeferredHolder<NinjaAction, NinjaAction> JUMP = NINJA_ACTIONS.register("jump", () ->
             new NinjaAction(NinjaAction.Builder.newInstance()
                     .setInput(NinjaInput.JUMP)

@@ -57,7 +57,7 @@ public class ClientEvents {
         final boolean[] flag = {false};
         Cyninja.NINJA_ACTION_MAP.stream()
                 .sorted(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
-                .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputs()))
+                .filter(ninjaActionEntry -> ninjaActionEntry.value().getInputs() == null || inputs.containsAll(ninjaActionEntry.value().getInputs()))
                 .forEach(holderNinjaInputEntry -> {
                     if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
                         ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());

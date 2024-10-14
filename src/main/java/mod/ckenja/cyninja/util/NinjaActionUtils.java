@@ -7,6 +7,7 @@ import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
@@ -14,7 +15,9 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -28,6 +31,41 @@ public class NinjaActionUtils {
         livingEntity.setDeltaMovement(vec3.x, 0.6F, vec3.z);
         livingEntity.resetFallDistance();
         livingEntity.hasImpulse = true;
+    }
+
+    public static void tickHeavyAirJump(LivingEntity livingEntity) {
+        Vec3 vec3 = livingEntity.getDeltaMovement();
+        Vec3 look = livingEntity.getLookAngle();
+        Vec3 look2 = livingEntity.getViewVector(1.0F);
+        livingEntity.setDeltaMovement(vec3.x + look.x * 0.1F, 0.6F, vec3.z + look.x * 0.1F);
+        livingEntity.resetFallDistance();
+        livingEntity.hasImpulse = true;
+
+        if (!livingEntity.level().isClientSide()) {
+            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox().inflate(2.0F).move(look2.reverse().scale(2.0F)));
+            if (!list.isEmpty()) {
+                for (Entity entity : list) {
+                    if (entity.isAttackable()) {
+                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK, livingEntity), 8F);
+                    }
+                }
+            }
+        } else {
+            Vec3 vec32 = livingEntity.getDeltaMovement();
+            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec32.x * -4.0, vec32.y * -4.0, vec32.z * -4.0);
+        }
+    }
+
+    public static void tickAirRocket(LivingEntity livingEntity) {
+
+        Vec3 look = livingEntity.getViewVector(1.0F);
+        livingEntity.setDeltaMovement(look.x * 0.3F, look.y * 0.3F, look.z + look.x * 0.3F);
+        livingEntity.resetFallDistance();
+        livingEntity.hasImpulse = true;
+        if (livingEntity.level().isClientSide()) {
+            Vec3 vec3 = livingEntity.getDeltaMovement();
+            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec3.x * -4.0, vec3.y * -4.0, vec3.z * -4.0);
+        }
     }
 
     public static void checkSlideAttack(LivingEntity livingEntity) {
@@ -99,6 +137,18 @@ public class NinjaActionUtils {
         }
 
         return i >= 4;
+    }
+
+    public static boolean isWearingNinjaTrim(LivingEntity livingEntity, Item item) {
+        for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
+            if ((itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
+                ArmorTrim armorTrim = itemstack.get(DataComponents.TRIM);
+                if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static boolean isWearingNinjaForWolf(Mob livingEntity) {

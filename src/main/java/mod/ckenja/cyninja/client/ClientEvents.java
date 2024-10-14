@@ -4,6 +4,7 @@ import bagu_chan.bagus_lib.animation.BaguAnimationController;
 import bagu_chan.bagus_lib.api.client.IRootModel;
 import bagu_chan.bagus_lib.client.event.BagusModelEvent;
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
+import com.mojang.math.Axis;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
@@ -12,7 +13,7 @@ import mod.ckenja.cyninja.registry.ModAnimations;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
-import mod.ckenja.cyninja.util.VectorUtil;
+import mod.ckenja.cyninja.util.client.ActionAnimationUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
@@ -25,10 +26,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.joml.Vector3f;
 
+import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Optional;
 
 import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
 
@@ -56,6 +56,7 @@ public class ClientEvents {
 
         final boolean[] flag = {false};
         Cyninja.NINJA_ACTION_MAP.stream()
+                .sorted(Comparator.comparing(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
                 .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputs()))
                 .forEach(holderNinjaInputEntry -> {
                     if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
@@ -79,85 +80,23 @@ public class ClientEvents {
     public static void animationPostEvent(BagusModelEvent.PostAnimate bagusModelEvent) {
         Entity entity = bagusModelEvent.getEntity();
         IRootModel rootModel = bagusModelEvent.getRootModel();
+
+        ActionAnimationUtil.animationWalkWithHandHeadRotation(bagusModelEvent, NinjaActions.SLIDE, 1.0F, 2.5F);
+        ActionAnimationUtil.animationWithHandHeadRotation(bagusModelEvent, PlayerAnimations.jump, ModAnimations.AIR_JUMP);
+
+
         if (entity instanceof LivingEntity livingEntity) {
             if (bagusModelEvent.isSupportedAnimateModel()) {
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SLIDE.value()) {
-                    Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
-                    Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");
-                    Optional<ModelPart> right_arm = rootModel.getBetterAnyDescendantWithName("right_arm");
-                    Optional<ModelPart> left_arm = rootModel.getBetterAnyDescendantWithName("left_arm");
-                    Optional<ModelPart> right_sleeve = rootModel.getBetterAnyDescendantWithName("right_sleeve");
-                    Optional<ModelPart> left_sleeve = rootModel.getBetterAnyDescendantWithName("left_sleeve");
-
-                    Vector3f headVec = new Vector3f();
-                    Vector3f rightVec = new Vector3f();
-                    Vector3f leftVec = new Vector3f();
-
-
-                    if (headPart.isPresent()) {
-                        headVec = VectorUtil.movePartToVec(headPart.get());
-                    }
-                    if (right_arm.isPresent()) {
-                        rightVec = VectorUtil.movePartToVec(right_arm.get());
-                    }
-                    if (left_arm.isPresent()) {
-                        leftVec = VectorUtil.movePartToVec(left_arm.get());
-                    }
-
-                    rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
-                    if (headPart.isPresent()) {
-                        VectorUtil.moveVecToPart(headVec, headPart.get());
-                    }
-                    if (right_arm.isPresent()) {
-                        VectorUtil.moveVecToPart(rightVec, right_arm.get());
-                    }
-                    if (left_arm.isPresent()) {
-                        VectorUtil.moveVecToPart(leftVec, left_arm.get());
-                    }
-                    if (hatPart.isPresent()) {
-                        VectorUtil.moveVecToPart(headVec, hatPart.get());
-                    }
-                    if (right_sleeve.isPresent()) {
-                        VectorUtil.moveVecToPart(rightVec, right_sleeve.get());
-                    }
-                    if (left_sleeve.isPresent()) {
-                        VectorUtil.moveVecToPart(leftVec, left_sleeve.get());
-                    }
-                    float f4 = livingEntity.walkAnimation.speed(bagusModelEvent.getPartialTick());
-                    float f5 = livingEntity.walkAnimation.position(bagusModelEvent.getPartialTick());
-                    rootModel.animateWalkBagu(PlayerAnimations.slide, f5, 1.0F, 2.0F, 2.5F);
-
-                }
                 BaguAnimationController animationController = AnimationUtil.getAnimationController(bagusModelEvent.getEntity());
 
-                if (animationController != null) {
-                    if (animationController.getAnimationState(ModAnimations.AIR_JUMP).isStarted()) {
-                        Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
-                        Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");
-
-                        Vector3f headVec = new Vector3f();
-                        if (headPart.isPresent()) {
-                            headVec = VectorUtil.movePartToVec(headPart.get());
-                        }
-
+                if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.AIR_ROCKET.value()) {
+                    if (animationController.getAnimationState(ModAnimations.AIR_ROCKET).isStarted()) {
                         rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
-                        if (headPart.isPresent()) {
-                            VectorUtil.moveVecToPart(headVec, headPart.get());
-                        }
-                        if (hatPart.isPresent()) {
-                            VectorUtil.moveVecToPart(headVec, hatPart.get());
-                        }
-                        rootModel.animateBagu(animationController.getAnimationState(ModAnimations.AIR_JUMP), PlayerAnimations.jump, bagusModelEvent.getAgeInTick());
+
+                        rootModel.animateBagu(animationController.getAnimationState(ModAnimations.AIR_ROCKET), PlayerAnimations.air_rocket, bagusModelEvent.getAgeInTick());
                     }
                 }
-
-                /*if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_RUN.value()) {
-                    rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
-                    float f4 = livingEntity.walkAnimation.speed(bagusModelEvent.getPartialTick());
-                    float f5 = livingEntity.walkAnimation.position(bagusModelEvent.getPartialTick());
-                    rootModel.animateWalkBagu(PlayerAnimations.wall_run, f5, 1.0F, 2.0F, 2.5F);
-                }*/
             }
         }
     }
@@ -169,13 +108,11 @@ public class ClientEvents {
     @SubscribeEvent
     public static void rotation(BagusModelEvent.Scale bagusModelEvent) {
         Entity entity = bagusModelEvent.getEntity();
-        /*if (entity instanceof LivingEntity livingEntity) {
+        if (entity instanceof LivingEntity livingEntity) {
             NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_RUN.value()) {
-                float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
-                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
-                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(livingEntity.getDirection().toYRot()));
+            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.AIR_ROCKET.value()) {
+                bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot()));
             }
-        }*/
+        }
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -69,6 +70,47 @@ public class NinjaActions {
                     })
             )
     );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+            .setInput(NinjaInput.JUMP)
+            .startAndEnd(0, 1)
+            .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
+            .addNeedCondition(livingEntity -> {
+                NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
+                return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+            })
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
+            .addTickAction(NinjaActionUtils::tickHeavyAirJump).addStartAction(livingEntity -> {
+                if (!livingEntity.level().isClientSide()) {
+                    AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
+                }
+            })
+            .priority(1005)
+    ));
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("heavy_air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+            .setInput(NinjaInput.JUMP)
+            .startAndEnd(0, 20)
+            .addNeedCondition(livingEntity -> {
+                NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
+                return !livingEntity.onGround() && attachment.getActionTick() >= 3 && attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
+                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+            })
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
+            .addTickAction(NinjaActionUtils::tickAirRocket).addStartAction(livingEntity -> {
+                if (!livingEntity.level().isClientSide()) {
+                    AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_ROCKET);
+                }
+            })
+            .addStopAction(livingEntity -> {
+                if (!livingEntity.level().isClientSide()) {
+                    AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
+                }
+            })
+            .priority(1005)
+    ));
+
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)

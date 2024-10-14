@@ -224,7 +224,7 @@ public class NinjaAction {
             return this;
         }
 
-        //set priority that Which one is used first(higher valve is make more first usable)
+        //set priority that Which one is used first(higher valve is make more selectable)
         public Builder priority(int priority) {
             this.priority = priority;
             return this;

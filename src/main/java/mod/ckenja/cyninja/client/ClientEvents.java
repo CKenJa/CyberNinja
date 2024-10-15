@@ -38,23 +38,20 @@ import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
-    public static void triggerNinjaActions(ClientTickEvent.Pre event) {
+    public static void checkKeyDown(ClientTickEvent.Pre event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
+
         EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
-        if (Minecraft.getInstance().options.keyShift.isDown()) {
+        if (Minecraft.getInstance().options.keyShift.isDown())
             inputs.add(NinjaInput.SNEAK);
-        }
-
-        if (Minecraft.getInstance().options.keyJump.isDown()) {
+        if (Minecraft.getInstance().options.keyJump.isDown())
             inputs.add(NinjaInput.JUMP);
-        }
-
-
-        if (Minecraft.getInstance().options.keySprint.isDown()) {
+        if (Minecraft.getInstance().options.keySprint.isDown())
             inputs.add(NinjaInput.SPRINT);
-        }
+        if (Minecraft.getInstance().options.keyUse.isDown())
+            inputs.add(NinjaInput.LEFT_CLICK);
 
         final boolean[] flag = {false};
         Cyninja.NINJA_ACTION_MAP.stream()

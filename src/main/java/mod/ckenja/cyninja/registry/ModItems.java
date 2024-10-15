@@ -1,6 +1,7 @@
 package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.item.KatanaItem;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.item.ShurikenItem;
 import net.minecraft.ChatFormatting;
@@ -8,9 +9,7 @@ import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlag;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SmithingTemplateItem;
+import net.minecraft.world.item.*;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -24,6 +23,8 @@ public class ModItems {
     public static final DeferredItem<Item> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(18))));
     public static final DeferredItem<Item> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(18))));
     public static final DeferredItem<Item> SHURIKEN = ITEMS.register("shuriken", () -> new ShurikenItem((new Item.Properties())));
+    //createAttributesの引数は、tier、攻撃力補正、攻撃速度補正
+    public static final DeferredItem<Item> KATANA = ITEMS.register("katana", () -> new KatanaItem(new Item.Properties().durability(100).attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
     private static final ChatFormatting TITLE_FORMAT = ChatFormatting.GRAY;
     private static final ChatFormatting DESCRIPTION_FORMAT = ChatFormatting.BLUE;

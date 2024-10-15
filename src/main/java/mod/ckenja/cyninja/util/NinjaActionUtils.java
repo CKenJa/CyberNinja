@@ -4,14 +4,15 @@ import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
-import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,8 +20,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -81,33 +84,23 @@ public class NinjaActionUtils {
         }
     }
 
-    public static void checkSlideAttack(LivingEntity livingEntity) {
-        if (!livingEntity.level().isClientSide()) {
-            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox());
-            if (!list.isEmpty()) {
-                for (Entity entity : list) {
-                    if (entity.isAttackable()) {
-                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK, livingEntity), 6F);
-                        if (entity instanceof LivingEntity target) {
-                            double d0 = livingEntity.getX() - target.getX();
-                            double d1 = livingEntity.getZ() - target.getZ();
-                            target.knockback(0.8F, d0, d1);
-                        }
-                        livingEntity.hasImpulse = true;
-                        break;
-                    }
+    public static void attackEntities(LivingEntity attacker, List<Entity> victims, float damage, float knockback, ResourceKey<DamageType> damageType) {
+        for(Entity victim: victims){
+            if (victim.isAttackable()) {
+                victim.hurt(attacker.damageSources().source(damageType, attacker), damage);
+                if (victim instanceof LivingEntity livingVictim) {
+                    double d0 = attacker.getX() - livingVictim.getX();
+                    double d1 = attacker.getZ() - livingVictim.getZ();
+                    livingVictim.knockback(knockback, d0, d1);
                 }
+                //これはノックバックしたときのみ必要なのか、それともダメージを受けた時も必要なのか
+                attacker.hasImpulse = true;
             }
-        } else {
-            spawnSprintParticle(livingEntity);
         }
-
-        //slide to looking way
-        livingEntity.moveRelative(0.2F, new Vec3(0, 0, NinjaActions.SLIDE.get().getMoveSpeed()));
-        livingEntity.hasImpulse = true;
     }
 
-    protected static void spawnSprintParticle(LivingEntity livingEntity) {
+
+    public static void spawnSprintParticle(LivingEntity livingEntity) {
         BlockPos blockpos = livingEntity.getOnPosLegacy();
         BlockState blockstate = livingEntity.level().getBlockState(blockpos);
         if (!blockstate.addRunningEffects(livingEntity.level(), blockpos, livingEntity))
@@ -171,5 +164,12 @@ public class NinjaActionUtils {
 
 
         return true;
+    }
+
+    public static List<Entity> getEnemiesInSphere(Level level, Vec3 position, double r) {
+        AABB aabb = new AABB(position.x-r,position.y-r,position.z-r,position.x+r,position.y+r,position.z+r);
+        return level.getEntitiesOfClass(Entity.class,aabb).stream()
+                //TODO: getPositionの引数の使い方わからん
+                .filter(entity -> entity.getPosition(1F).distanceTo(position) <= r).toList();
     }
 }

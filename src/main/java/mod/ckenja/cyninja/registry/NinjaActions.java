@@ -127,14 +127,12 @@ public class NinjaActions {
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addTickAction(NinjaActionUtils::tickAirRocket)
             .addStartAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide()) {
+                if (!livingEntity.level().isClientSide())
                     AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_ROCKET);
-                }
             })
             .addStopAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide()) {
+                if (!livingEntity.level().isClientSide())
                     AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
-                }
             })
             .priority(900)
     ));

@@ -65,8 +65,7 @@ public class NinjaAction {
         this.holdAction = builder.holdAction;
 
         this.inputs = builder.inputs;
-        if(inputs != null)
-            Cyninja.NINJA_ACTION_MAP.add(Holder.direct(this));
+        Cyninja.NINJA_ACTIONS.add(Holder.direct(this));
 
         this.tickAction = builder.tickAction;
         this.startAction = builder.startAction;
@@ -160,7 +159,7 @@ public class NinjaAction {
 
 
     public NinjaAction setNoInputAction() {
-        Cyninja.NINJA_ACTION_MAP.add(Holder.direct(this));
+        Cyninja.NINJA_ACTIONS.add(Holder.direct(this));
         return this;
     }
 

@@ -23,7 +23,7 @@ public class Cyninja
 {
     public static final String MODID = "cyninja";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final List<Holder<NinjaAction>> NINJA_ACTION_MAP = new ArrayList<>();
+    public static final List<Holder<NinjaAction>> NINJA_ACTIONS = new ArrayList<>();
 
     public Cyninja(IEventBus modEventBus)
     {
@@ -34,17 +34,7 @@ public class Cyninja
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
-        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::setupPackets);
-    }
-
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            /*NINJA_ACTION_MAP.put(NinjaActions.SLIDE, NinjaInput.SNEAK);
-            NINJA_ACTION_MAP.put(NinjaActions.JUMP, NinjaInput.JUMP);
-            NINJA_ACTION_MAP.put(NinjaActions.AIR_JUMP, NinjaInput.JUMP);*/
-        });
     }
 
     public static ResourceLocation prefix(String name) {

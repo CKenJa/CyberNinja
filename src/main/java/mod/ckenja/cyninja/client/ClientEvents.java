@@ -15,6 +15,7 @@ import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import mod.ckenja.cyninja.util.client.ActionAnimationUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
@@ -26,17 +27,24 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Comparator;
 import java.util.EnumSet;
 
+import static mod.ckenja.cyninja.Cyninja.NINJA_ACTIONS;
 import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
 public class ClientEvents {
+    @SubscribeEvent
+    public static void sortActions(FMLClientSetupEvent event){
+        NINJA_ACTIONS.sort(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()));
+    }
+
     @SubscribeEvent
     public static void checkKeyDown(ClientTickEvent.Pre event) {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -44,19 +52,19 @@ public class ClientEvents {
             return;
 
         EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
-        if (Minecraft.getInstance().options.keyShift.isDown())
+        Options options = Minecraft.getInstance().options;
+        if (options.keyShift.isDown())
             inputs.add(NinjaInput.SNEAK);
-        if (Minecraft.getInstance().options.keyJump.isDown())
+        if (options.keyJump.isDown())
             inputs.add(NinjaInput.JUMP);
-        if (Minecraft.getInstance().options.keySprint.isDown())
+        if (options.keySprint.isDown())
             inputs.add(NinjaInput.SPRINT);
-        if (Minecraft.getInstance().options.keyUse.isDown())
+        if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
 
         final boolean[] flag = {false};
-        Cyninja.NINJA_ACTION_MAP.stream()
-                .sorted(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
-                .filter(ninjaActionEntry -> ninjaActionEntry.value().getInputs() == null || inputs.containsAll(ninjaActionEntry.value().getInputs()))
+        NINJA_ACTIONS.stream()
+                .filter(ninjaActionEntry -> inputs.containsAll(ninjaActionEntry.value().getInputs()))
                 .forEach(holderNinjaInputEntry -> {
                     if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
                         ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());

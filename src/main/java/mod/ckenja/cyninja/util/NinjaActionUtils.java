@@ -38,15 +38,19 @@ public class NinjaActionUtils {
     }
 
     public static void tickHeavyAirJump(LivingEntity livingEntity) {
-        Vec3 vec3 = livingEntity.getDeltaMovement();
+        Level level = livingEntity.level();
+        Vec3 delta = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
-        livingEntity.setDeltaMovement(vec3.x + look.x * 0.6F, 0.6F, vec3.z + look.z * 0.6F);
-        livingEntity.resetFallDistance();
+        Vec3 planeDelta = new Vec3(look.x,0,look.z).normalize().scale(0.6F).add(delta);
+
+        livingEntity.setDeltaMovement(planeDelta.x * 0.6F, 0.6F, planeDelta.z);
         livingEntity.hasImpulse = true;
+        
+        livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
 
-        if (!livingEntity.level().isClientSide()) {
-            List<Entity> list = livingEntity.level().getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
+        if (!level.isClientSide()) {
+            List<Entity> list = level.getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
                     if (entity.isAttackable()) {
@@ -55,21 +59,23 @@ public class NinjaActionUtils {
                 }
             }
         } else {
-            Vec3 vec32 = livingEntity.getDeltaMovement();
-            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec32.x * -2, vec32.y * -2, vec32.z * -2);
+            level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), delta.x * -2, delta.y * -2, delta.z * -2);
         }
     }
 
     public static void tickAirRocket(LivingEntity livingEntity) {
-        Vec3 vec32 = livingEntity.getDeltaMovement();
+        Level level = livingEntity.level();
+        Vec3 delta = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
-        livingEntity.setDeltaMovement(vec32.x + look.x * 0.08F, vec32.y + look.y * 0.08F + livingEntity.getGravity() * 1.01F, vec32.z + look.z * 0.08F);
-        livingEntity.resetFallDistance();
+
+        livingEntity.setDeltaMovement(delta.x + look.x * 0.08F, delta.y + look.y * 0.08F + livingEntity.getGravity() * 1.01F, delta.z + look.z * 0.08F);
         livingEntity.hasImpulse = true;
+
+        livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.WIND_CHARGE_BURST.value());
-        if (livingEntity.level().isClientSide()) {
-            Vec3 vec3 = livingEntity.getDeltaMovement();
-            livingEntity.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), vec3.x * -2, vec3.y * -2, vec3.z * -2);
+
+        if (level.isClientSide()) {
+            level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), delta.x * -2, delta.y * -2, delta.z * -2);
         }
     }
 
@@ -102,8 +108,10 @@ public class NinjaActionUtils {
 
     public static void spawnSprintParticle(LivingEntity livingEntity) {
         BlockPos blockpos = livingEntity.getOnPosLegacy();
-        BlockState blockstate = livingEntity.level().getBlockState(blockpos);
-        if (!blockstate.addRunningEffects(livingEntity.level(), blockpos, livingEntity))
+        Level level = livingEntity.level();
+
+        BlockState blockstate = level.getBlockState(blockpos);
+        if (!blockstate.addRunningEffects(level, blockpos, livingEntity))
             if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
                 Vec3 vec3 = livingEntity.getDeltaMovement();
                 BlockPos blockpos1 = livingEntity.blockPosition();
@@ -117,7 +125,7 @@ public class NinjaActionUtils {
                     d1 = Mth.clamp(d1, (double) blockpos.getZ(), (double) blockpos.getZ() + 1.0);
                 }
 
-                livingEntity.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate).setPos(blockpos), d0, livingEntity.getY() + 0.1, d1, vec3.x * -4.0, 1.5, vec3.z * -4.0);
+                level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate).setPos(blockpos), d0, livingEntity.getY() + 0.1, d1, vec3.x * -4.0, 1.5, vec3.z * -4.0);
             }
     }
 
@@ -169,7 +177,6 @@ public class NinjaActionUtils {
     public static List<Entity> getEnemiesInSphere(Level level, Vec3 position, double r) {
         AABB aabb = new AABB(position.x-r,position.y-r,position.z-r,position.x+r,position.y+r,position.z+r);
         return level.getEntitiesOfClass(Entity.class,aabb).stream()
-                //TODO: getPositionの引数の使い方わからん
                 .filter(entity -> entity.position().distanceTo(position) <= r).toList();
     }
 }

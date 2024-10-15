@@ -81,8 +81,6 @@ public class ClientEvents {
         IRootModel rootModel = bagusModelEvent.getRootModel();
         ActionAnimationUtil.animationWalkWithHeadRotation(bagusModelEvent, PlayerAnimations.wall_run, NinjaActions.WALL_SLIDE, 1.0F, 2.5F);
         ActionAnimationUtil.animationWalkWithHandHeadRotation(bagusModelEvent, PlayerAnimations.slide, NinjaActions.SLIDE, 1.0F, 2.5F);
-        ActionAnimationUtil.animationWithHandHeadRotation(bagusModelEvent, PlayerAnimations.jump, ModAnimations.AIR_JUMP);
-
 
         if (entity instanceof LivingEntity livingEntity) {
             if (bagusModelEvent.isSupportedAnimateModel()) {

@@ -155,7 +155,9 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
             }
-            user.setPose(Pose.STANDING);
+            if (this.ninjaAction.value().getHitBox().isPresent()) {
+                user.setPose(Pose.STANDING);
+            }
         }
 
 

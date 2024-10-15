@@ -108,11 +108,6 @@ public class NinjaActions {
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addTickAction(NinjaActionUtils::tickHeavyAirJump)
-            .addStartAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide()) {
-                    AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
-                }
-            })
             .priority(900)
     ));
 
@@ -151,10 +146,6 @@ public class NinjaActions {
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addTickAction(NinjaActionUtils::tickAirJump)
-            .addStartAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide())
-                    AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_JUMP);
-            })
     ));
 
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
@@ -184,11 +175,6 @@ public class NinjaActions {
                     return NONE;
                 return null;
             })
-            .addStopAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide()) {
-                    AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_JUMP);
-                }
-            })
     ));
 
     //タグを作るのは面倒だった
@@ -206,7 +192,7 @@ public class NinjaActions {
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)
             .addTickAction(attacker->{
-                List<Entity> entities = NinjaActionUtils.getEnemiesInSphere(attacker.level(), attacker.position(), 1.5);
+                List<Entity> entities = NinjaActionUtils.getEnemiesInSphere(attacker.level(), attacker.position(), 2.5);
                 NinjaActionUtils.attackEntities(attacker, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);
                 attacker.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
                 attacker.level().addParticle(ParticleTypes.SWEEP_ATTACK, attacker.getX(), attacker.getY(), attacker.getZ(), 0,0,0);

@@ -9,8 +9,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -170,6 +170,6 @@ public class NinjaActionUtils {
         AABB aabb = new AABB(position.x-r,position.y-r,position.z-r,position.x+r,position.y+r,position.z+r);
         return level.getEntitiesOfClass(Entity.class,aabb).stream()
                 //TODO: getPositionの引数の使い方わからん
-                .filter(entity -> entity.getPosition(1F).distanceTo(position) <= r).toList();
+                .filter(entity -> entity.position().distanceTo(position) <= r).toList();
     }
 }

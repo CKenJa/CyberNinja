@@ -8,15 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class NinjaAction {
+
+    public static final List<Holder<NinjaAction>> NINJA_ACTIONS = new ArrayList<>();
 
     private int startTick;
     private int endTick;
@@ -65,7 +65,7 @@ public class NinjaAction {
         this.holdAction = builder.holdAction;
 
         this.inputs = builder.inputs;
-        Cyninja.NINJA_ACTIONS.add(Holder.direct(this));
+        NINJA_ACTIONS.add(Holder.direct(this));
 
         this.tickAction = builder.tickAction;
         this.startAction = builder.startAction;
@@ -155,12 +155,6 @@ public class NinjaAction {
 
     public boolean isNoBob() {
         return noBob;
-    }
-
-
-    public NinjaAction setNoInputAction() {
-        Cyninja.NINJA_ACTIONS.add(Holder.direct(this));
-        return this;
     }
 
     public static class Builder {

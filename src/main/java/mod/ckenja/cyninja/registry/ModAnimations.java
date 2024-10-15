@@ -8,12 +8,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 @EventBusSubscriber(modid = Cyninja.MODID)
 public class ModAnimations {
-    public static final ResourceLocation AIR_JUMP = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "air_jump");
     public static final ResourceLocation AIR_ROCKET = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "air_rocket");
 
     @SubscribeEvent
     public static void entityAnimationRegister(RegisterBagusAnimationEvents events) {
-        events.addAnimationState(AIR_JUMP);
         events.addAnimationState(AIR_ROCKET);
     }
 }

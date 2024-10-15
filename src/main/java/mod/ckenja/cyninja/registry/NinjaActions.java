@@ -145,7 +145,7 @@ public class NinjaActions {
                         && attachment.getNinjaAction().value() == NinjaActions.NONE.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
-            .addTickAction(NinjaActionUtils::tickAirJump)
+            .addStartAction(NinjaActionUtils::doAirJump)
     ));
 
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
@@ -159,10 +159,11 @@ public class NinjaActions {
                         attachment.getNinjaAction().value() == NinjaActions.WALL_SLIDE.value();
             })
             .addStartAction(livingEntity -> {
-                livingEntity.setDeltaMovement(0, 1F, 0F);
+                livingEntity.setDeltaMovement(0, 0.8, 0F);
                 livingEntity.resetFallDistance();
                 livingEntity.hasImpulse = true;
             })
+            .priority(800)
     ));
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance()

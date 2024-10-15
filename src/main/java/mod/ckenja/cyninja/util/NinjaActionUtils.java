@@ -30,7 +30,7 @@ import java.util.List;
 
 public class NinjaActionUtils {
 
-    public static void tickAirJump(LivingEntity livingEntity) {
+    public static void doAirJump(LivingEntity livingEntity) {
         Vec3 vec3 = livingEntity.getDeltaMovement();
         livingEntity.setDeltaMovement(vec3.x, 0.6F, vec3.z);
         livingEntity.resetFallDistance();

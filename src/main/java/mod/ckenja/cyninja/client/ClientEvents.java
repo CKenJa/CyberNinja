@@ -113,6 +113,11 @@ public class ClientEvents {
                 bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot()));
             }
 
+            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SPIN.value()) {
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees((bagusModelEvent.getPartialTick() + entity.tickCount) * 60F));
+
+            }
+
             if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_SLIDE.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));

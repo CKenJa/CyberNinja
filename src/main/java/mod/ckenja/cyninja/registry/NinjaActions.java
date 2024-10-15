@@ -103,8 +103,8 @@ public class NinjaActions {
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
                 return attachment.isFullAir()
+                        && attachment.getNinjaAction().value() == NinjaActions.NONE.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
-
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addTickAction(NinjaActionUtils::tickHeavyAirJump)
@@ -146,7 +146,6 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-
                 return attachment.isFullAir()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
@@ -196,7 +195,7 @@ public class NinjaActions {
     //JUMP系の宣言後じゃないとjumpsが使えない
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity -> {
-                Set<NinjaAction> jumps = Set.of(JUMP.value(),AIR_JUMP.value(),AIR_ROCKET.value(),HEAVY_AIR_JUMP.value(),AIR_JUMP_FINISH.value(),SLIDE.value());
+                Set<NinjaAction> jumps = Set.of(AIR_JUMP.value(), AIR_ROCKET.value(), HEAVY_AIR_JUMP.value(), AIR_JUMP_FINISH.value(), SLIDE.value());
                 return !livingEntity.onGround() &&
                     jumps.contains(NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value());
             })

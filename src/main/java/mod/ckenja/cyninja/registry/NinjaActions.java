@@ -95,25 +95,6 @@ public class NinjaActions {
             ).setNoInputAction()
     );
 
-    //DOUBLE JUMPの前提
-    public static final DeferredHolder<NinjaAction, NinjaAction> JUMP = NINJA_ACTIONS.register("jump", () ->
-            new NinjaAction(NinjaAction.Builder.newInstance()
-                    .setInput(NinjaInput.JUMP)
-                    .startAndEnd(0, 10000)
-                    .next(livingEntity -> {
-                        if (livingEntity.onGround() || livingEntity.isInFluidType()) {
-                            return NONE;
-                        }
-                        return null;
-                    })
-                    .addNeedCondition(livingEntity -> {
-                        NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                        return !livingEntity.onGround() &&
-                                !livingEntity.isInFluidType() &&
-                                attachment.getNinjaAction().value() == NinjaActions.NONE.value();
-                    })
-            )
-    );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
@@ -121,11 +102,9 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() &&
-                        !attachment.wasInFluid() &&
-                        attachment.getActionTick() >= 3 &&
-                        attachment.getNinjaAction().value() == NinjaActions.JUMP.value() &&
-                        (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+                return attachment.isFullAir()
+                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addTickAction(NinjaActionUtils::tickHeavyAirJump)
@@ -143,10 +122,7 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() &&
-                        !attachment.wasInFluid() && attachment.getActionTick() >= 3 &&
-                        attachment.getNinjaAction().value() == NinjaActions.JUMP.value()
-                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+                return attachment.isFullAir() && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addTickAction(NinjaActionUtils::tickAirRocket)
@@ -170,11 +146,9 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() &&
-                        !attachment.wasInFluid() &&
-                        attachment.getActionTick() >= 3 &&//ジャンプした直後はスペースキーを大抵押しているので謝検知を防ぐため。後でキーを押し始めたタイミングでエアジャンプするようにする
-                        attachment.getNinjaAction().value() == NinjaActions.JUMP.value() &&
-                        (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+
+                return attachment.isFullAir()
+                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addTickAction(NinjaActionUtils::tickAirJump)
             .addStartAction(livingEntity -> {
@@ -186,7 +160,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
-            .nextOfTimeout(livingEntity -> NinjaActions.JUMP)
+            .nextOfTimeout(livingEntity -> NinjaActions.NONE)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
                 return !livingEntity.onGround() &&

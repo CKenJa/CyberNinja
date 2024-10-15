@@ -12,5 +12,5 @@ public class ModAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Cyninja.MODID);
 
     public static final Supplier<AttachmentType<NinjaActionAttachment>> NINJA_ACTION = ATTACHMENT_TYPES.register(
-            "ninja_action", () -> AttachmentType.serializable(NinjaActionAttachment::new).copyOnDeath().build());
+            "ninja_action", () -> AttachmentType.serializable(NinjaActionAttachment::new).build());
 }

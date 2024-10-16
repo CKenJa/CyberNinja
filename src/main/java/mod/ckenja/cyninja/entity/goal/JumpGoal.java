@@ -11,14 +11,27 @@ import net.minecraft.world.entity.Mob;
 import java.util.EnumSet;
 
 public class JumpGoal extends TimeConditionGoal {
+    private int cooldown;
+    private int maxCooldown;
+    private final UniformInt timeBetweenCooldown;
     public JumpGoal(Mob mob, UniformInt cooldown) {
         super(mob, cooldown);
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+        this.timeBetweenCooldown = cooldown;
     }
 
-    public JumpGoal(Mob mob, UniformInt cooldown, UniformInt time) {
-        super(mob, cooldown, time);
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+    @Override
+    public boolean canUse() {
+        if (this.maxCooldown <= 0) {
+            this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
+            return false;
+        } else if (this.cooldown > this.maxCooldown && this.isMatchCondition()) {
+            this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
+            return true;
+        } else {
+            ++this.cooldown;
+            return false;
+        }
     }
 
     @Override

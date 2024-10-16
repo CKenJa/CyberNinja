@@ -26,6 +26,7 @@ public class JumpGoal extends TimeConditionGoal {
             this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
             return false;
         } else if (this.cooldown > this.maxCooldown && this.isMatchCondition()) {
+            this.cooldown = this.maxCooldown;
             this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
             return true;
         } else {
@@ -59,8 +60,8 @@ public class JumpGoal extends TimeConditionGoal {
     @Override
     public void stop() {
         super.stop();
+        this.cooldown = this.maxCooldown;
         this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
-
     }
 
     @Override

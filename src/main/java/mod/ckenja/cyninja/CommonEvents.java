@@ -53,7 +53,7 @@ public class CommonEvents {
             NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
             if (actionData != null) {
                 if (!NinjaActionUtils.isWearingNinja(livingEntity)) {
-                    actionData.setAction(livingEntity, NinjaActions.NONE);
+                    NinjaActionUtils.setAction(livingEntity, NinjaActions.NONE);
                 } else {
                     actionData.tick(livingEntity);
                 }

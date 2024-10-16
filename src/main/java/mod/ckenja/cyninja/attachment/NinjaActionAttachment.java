@@ -6,6 +6,8 @@ import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -21,15 +23,30 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
-    public EnumSet<NinjaInput> previous_inputs;
-    public EnumSet<NinjaInput> inputs;
+    private EnumSet<NinjaInput> previousInputs;
+    private EnumSet<NinjaInput> inputs;
 
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
     private int inFluidTick;
     private int airTick;
 
-    public int airJumpCount;
+    private int airJumpCount;
+
+    public void checkKeyDown() {
+        EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
+        Options options = Minecraft.getInstance().options;
+        if (options.keyShift.isDown())
+            inputs.add(NinjaInput.SNEAK);
+        if (options.keyJump.isDown())
+            inputs.add(NinjaInput.JUMP);
+        if (options.keySprint.isDown())
+            inputs.add(NinjaInput.SPRINT);
+        if (options.keyUse.isDown())
+            inputs.add(NinjaInput.LEFT_CLICK);
+        previousInputs = inputs;
+        inputs = inputs;
+    }
 
     public int getActionTick() {
         return actionTick;
@@ -201,5 +218,33 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             }
         }
 
+    }
+
+    public boolean canDoubleJump(LivingEntity livingEntity) {
+        return canDoubleJump(livingEntity, NinjaActions.NONE.value());
+    }
+
+    public boolean canDoubleJump(LivingEntity livingEntity, NinjaAction action) {
+        return airJumpCount>0 && isFullAir() &&
+                previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
+                getNinjaAction().value() == action &&
+                (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+    }
+
+
+    public EnumSet<NinjaInput> getInputs() {
+        return inputs;
+    }
+
+    public EnumSet<NinjaInput> getPreviousInputs() {
+        return previousInputs;
+    }
+
+    public void resetAirJumpCount() {
+        airJumpCount = 1;
+    }
+
+    public void decreaseAirJumpCount() {
+        airJumpCount--;
     }
 }

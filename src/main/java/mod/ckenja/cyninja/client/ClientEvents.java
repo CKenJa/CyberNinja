@@ -19,6 +19,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,32 +40,31 @@ import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
-    public static void checkKeyDown(ClientTickEvent.Pre event) {
+    public static void triggerNinjaAction(ClientTickEvent.Pre event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
 
-        EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
-        Options options = Minecraft.getInstance().options;
-        if (options.keyShift.isDown())
-            inputs.add(NinjaInput.SNEAK);
-        if (options.keyJump.isDown())
-            inputs.add(NinjaInput.JUMP);
-        if (options.keySprint.isDown())
-            inputs.add(NinjaInput.SPRINT);
-        if (options.keyUse.isDown())
-            inputs.add(NinjaInput.LEFT_CLICK);
-        NinjaActionAttachment attachment = player.getData(NINJA_ACTION);
-        attachment.previous_inputs = attachment.inputs;
-        attachment.inputs = inputs;
-
-        NINJA_ACTIONS.stream()
+        NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
+        data.checkKeyDown();
+        /*NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
                 .filter(action -> action.value().getInputs() == null ||
                         inputs.containsAll(action.value().getInputs()))
                 .filter(action -> action.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
-                .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
+                .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));*/
+        final boolean[] flag = {false};
+        NINJA_ACTIONS.stream()
+                .sorted(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
+                .filter(ninjaActionEntry -> ninjaActionEntry.value().getInputs() == null || data.getInputs().containsAll(ninjaActionEntry.value().getInputs()))
+                .forEach(holderNinjaInputEntry -> {
+                    if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
+                        ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
+                        PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
+                        flag[0] = true;
+                    }
+                });
     }
 
     @SubscribeEvent

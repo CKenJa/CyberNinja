@@ -99,14 +99,13 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.NONE)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return !livingEntity.onGround() &&
-                        !attachment.wasInFluid() &&
-                        attachment.getNinjaAction().value() == NinjaActions.WALL_SLIDE.value();
+                return attachment.canDoubleJump(livingEntity, NinjaActions.WALL_SLIDE.value());
             })
             .addStartAction(livingEntity -> {
                 livingEntity.setDeltaMovement(0, 1F, 0F);
                 livingEntity.resetFallDistance();
                 livingEntity.hasImpulse = true;
+                NinjaActionUtils.getActionData(livingEntity).resetAirJumpCount();
             })
     ));
 
@@ -114,13 +113,7 @@ public class NinjaActions {
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
-            .addNeedCondition(livingEntity -> {
-                NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return attachment.isFullAir()
-                        && !attachment.previous_inputs.contains(NinjaInput.JUMP)//今tickからジャンプキーを押し始めたか?
-                        && attachment.getNinjaAction().value() == NinjaActions.NONE.value()
-                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
-            })
+            .addNeedCondition(NinjaActionUtils::canDoubleJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addTickAction(NinjaActionUtils::tickHeavyAirJump)
             .priority(900)
@@ -130,16 +123,13 @@ public class NinjaActions {
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 8)
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
-            .addNeedCondition(livingEntity -> {
-                NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return attachment.isFullAir() &&
-                        (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
-            })
+            .addNeedCondition(NinjaActionUtils::canDoubleJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addTickAction(NinjaActionUtils::tickAirRocket)
             .addStartAction(livingEntity -> {
                 if (!livingEntity.level().isClientSide())
                     AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_ROCKET);
+                NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
             })
             .addStopAction(livingEntity -> {
                 if (!livingEntity.level().isClientSide())
@@ -153,13 +143,7 @@ public class NinjaActions {
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
-            .addNeedCondition(livingEntity -> {
-                NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return attachment.isFullAir()
-                        && !attachment.previous_inputs.contains(NinjaInput.JUMP)//今tickからジャンプキーを押し始めたか?
-                        && attachment.getNinjaAction().value() == NinjaActions.NONE.value()
-                        && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
-            })
+            .addNeedCondition(NinjaActionUtils::canDoubleJump)
             .addStartAction(NinjaActionUtils::doAirJump)
     ));
 

@@ -4,6 +4,7 @@ import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
+import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -35,6 +36,7 @@ public class NinjaActionUtils {
         livingEntity.setDeltaMovement(vec3.x, 0.6F, vec3.z);
         livingEntity.resetFallDistance();
         livingEntity.hasImpulse = true;
+        NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
     }
 
     public static void tickHeavyAirJump(LivingEntity livingEntity) {
@@ -45,7 +47,9 @@ public class NinjaActionUtils {
 
         livingEntity.setDeltaMovement(planeDelta.x * 0.6F, 0.6F, planeDelta.z);
         livingEntity.hasImpulse = true;
-        
+
+        NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
+
         livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
 
@@ -178,5 +182,9 @@ public class NinjaActionUtils {
         AABB aabb = new AABB(position.x-r,position.y-r,position.z-r,position.x+r,position.y+r,position.z+r);
         return level.getEntitiesOfClass(Entity.class,aabb).stream()
                 .filter(entity -> entity.position().distanceTo(position) <= r).toList();
+    }
+
+    public static boolean canDoubleJump(LivingEntity livingEntity) {
+        return getActionData(livingEntity).canDoubleJump(livingEntity);
     }
 }

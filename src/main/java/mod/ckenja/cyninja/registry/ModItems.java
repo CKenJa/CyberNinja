@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.item.*;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -18,13 +19,16 @@ import java.util.List;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Cyninja.MODID);
 
-    public static final DeferredItem<Item> NINJA_HELMET = ITEMS.register("ninja_helmet", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.HELMET, (new Item.Properties()).durability(ArmorItem.Type.HELMET.getDurability(18))));
-    public static final DeferredItem<Item> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).durability(ArmorItem.Type.CHESTPLATE.getDurability(18))));
-    public static final DeferredItem<Item> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(18))));
-    public static final DeferredItem<Item> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(18))));
+    public static final DeferredItem<Item> NINJA_HELMET = ITEMS.register("ninja_helmet", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.HELMET, (new Item.Properties()).durability(ArmorItem.Type.HELMET.getDurability(22))));
+    public static final DeferredItem<Item> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).durability(ArmorItem.Type.CHESTPLATE.getDurability(22))));
+    public static final DeferredItem<Item> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(22))));
+    public static final DeferredItem<Item> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(22))));
     public static final DeferredItem<Item> SHURIKEN = ITEMS.register("shuriken", () -> new ShurikenItem((new Item.Properties())));
     //createAttributesの引数は、tier、攻撃力補正、攻撃速度補正
     public static final DeferredItem<Item> KATANA = ITEMS.register("katana", () -> new KatanaItem(new Item.Properties().durability(100).attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+
+    public static final DeferredItem<Item> CYBER_NINJA_SPAWN_EGG = ITEMS.register("cyber_ninja_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.CYBER_ILLAGER, 0x8E9393, 0x3C3C6F, new Item.Properties()));
+
 
     private static final ChatFormatting TITLE_FORMAT = ChatFormatting.GRAY;
     private static final ChatFormatting DESCRIPTION_FORMAT = ChatFormatting.BLUE;

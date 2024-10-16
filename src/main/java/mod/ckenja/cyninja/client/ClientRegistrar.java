@@ -1,6 +1,8 @@
 package mod.ckenja.cyninja.client;
 
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.client.model.CyberIllagerModel;
+import mod.ckenja.cyninja.client.render.CyberIllagerRender;
 import mod.ckenja.cyninja.client.render.ThrownItemEntityRenderer;
 import mod.ckenja.cyninja.registry.ModEntities;
 import net.neoforged.api.distmarker.Dist;
@@ -15,14 +17,14 @@ public class ClientRegistrar {
 
     @SubscribeEvent
     public static void registerEntityRenders(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.CYBER_ILLAGER.get(), CyberIllagerRender::new);
+
         event.registerEntityRenderer(ModEntities.THROWN_ITEM.get(), ThrownItemEntityRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(ModModelLayers.CYBER_NINJA, CyberIllagerModel::createBodyLayer);
     }
 
-    @SubscribeEvent
-    public static void registerEntityRenders(EntityRenderersEvent.AddLayers event) {
-    }
 }

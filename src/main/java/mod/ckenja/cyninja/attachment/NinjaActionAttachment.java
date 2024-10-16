@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.attachment;
 
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
@@ -27,6 +28,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private int actionTick;
     private int inFluidTick;
     private int airTick;
+
+    public int airJumpCount;
 
     public int getActionTick() {
         return actionTick;
@@ -148,6 +151,9 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                     this.airTick--;
                 }
             }
+        }
+        if(user.onGround()){
+            user.getData(ModAttachments.NINJA_ACTION).airJumpCount = 1;
         }
     }
 

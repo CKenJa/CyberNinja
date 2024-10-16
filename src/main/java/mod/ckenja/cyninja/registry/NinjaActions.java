@@ -37,60 +37,59 @@ public class NinjaActions {
     public static final DeferredRegister<NinjaAction> NINJA_ACTIONS = DeferredRegister.create(NINJA_ACTIONS_REGISTRY, Cyninja.MODID);
     public static final DeferredHolder<NinjaAction, NinjaAction> NONE = NINJA_ACTIONS.register("none", () -> new NinjaAction(NinjaAction.Builder.newInstance().loop()));
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () ->
-            new NinjaAction(NinjaAction.Builder.newInstance()
-                    .addNeedCondition(livingEntity ->
-                            !livingEntity.isInFluidType() &&
-                            NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value()
-                    )
-                    .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
-                    .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
-                    .startAndEnd(0, 8)
-                    .speed(3F)
-                    .setReduceDamage(1.0F)
-                    .setReduceKnockback(1.0F)
-                    .setCanJump(false)
-                    .setNoBob(true)
-                    .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
-                    .addTickAction(slider->{
-                        Level level = slider.level();
-                        if (level.isClientSide()) {
-                            NinjaActionUtils.spawnSprintParticle(slider);
-                        } else {
-                            List<Entity> entities = level.getEntities(slider, slider.getBoundingBox());
-                            NinjaActionUtils.attackEntities(slider, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);
-                        }
-                        moveToLookingWay(slider,0.2F, NinjaActions.SLIDE);
-                    })
-                    .next(livingEntity -> {
-                        //壁にぶつかったら止まる
-                        if (!livingEntity.onGround() || livingEntity.horizontalCollision) {
-                            return NONE;
-                        }
-                        return null;
-                    })
+    public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+            .addNeedCondition(livingEntity ->
+                    !livingEntity.isInFluidType() &&
+                    NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value()
+            )
+            .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
+            .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
+            .startAndEnd(0, 8)
+            .speed(3F)
+            .setReduceDamage(1.0F)
+            .setReduceKnockback(1.0F)
+            .setCanJump(false)
+            .setNoBob(true)
+            .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
+            .addTickAction(slider->{
+                Level level = slider.level();
+                if (level.isClientSide()) {
+                    NinjaActionUtils.spawnSprintParticle(slider);
+                } else {
+                    List<Entity> entities = level.getEntities(slider, slider.getBoundingBox());
+                    NinjaActionUtils.attackEntities(slider, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);
+                }
+                moveToLookingWay(slider,0.2F, NinjaActions.SLIDE);
+            })
+            .next(livingEntity -> {
+                //壁にぶつかったら止まる
+                if (!livingEntity.onGround() || livingEntity.horizontalCollision) {
+                    return NONE;
+                }
+                return null;
+            })
             )
     );
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () ->
-            new NinjaAction(NinjaAction.Builder.newInstance()
-                    .addNeedCondition(livingEntity ->
-                            !livingEntity.onGround() &&
-                            livingEntity.horizontalCollision &&
-                            !livingEntity.isInFluidType() &&
-                            livingEntity.getDeltaMovement().y < 0.0F
-                    )
-                    .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
-                    .loop()
-                    .startAndEnd(0, 1)
-                    .setNoBob(true)
-                    .addTickAction(NinjaActionUtils::checkWallSlide)
-                    .next(livingEntity -> {
-                        if (livingEntity.onGround() || !livingEntity.horizontalCollision) {
-                            return NONE;
-                        }
-                        return null;
-                    }).priority(850)
+    public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () -> new NinjaAction(NinjaAction.Builder.newInstance()
+            .addNeedCondition(livingEntity ->
+                    !livingEntity.onGround() &&
+                    livingEntity.horizontalCollision &&
+                    !livingEntity.isInFluidType() &&
+                    livingEntity.getDeltaMovement().y < 0.0F
+            )
+            .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
+            .loop()
+            .startAndEnd(0, 1)
+            .setNoBob(true)
+            .addTickAction(NinjaActionUtils::checkWallSlide)
+            .next(livingEntity -> {
+                if (livingEntity.onGround() || !livingEntity.horizontalCollision) {
+                    return NONE;
+                }
+                return null;
+            })
+            .priority(850)
             )
     );
 
@@ -118,6 +117,7 @@ public class NinjaActions {
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
                 return attachment.isFullAir()
+                        && !attachment.previous_inputs.contains(NinjaInput.JUMP)//今tickからジャンプキーを押し始めたか?
                         && attachment.getNinjaAction().value() == NinjaActions.NONE.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
@@ -132,7 +132,8 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return attachment.isFullAir() && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+                return attachment.isFullAir() &&
+                        (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addTickAction(NinjaActionUtils::tickAirRocket)

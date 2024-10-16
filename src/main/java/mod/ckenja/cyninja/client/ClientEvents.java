@@ -54,8 +54,9 @@ public class ClientEvents {
             inputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
-        player.getData(NINJA_ACTION).previous_inputs = player.getData(NINJA_ACTION).inputs;
-        player.getData(NINJA_ACTION).inputs = inputs;
+        NinjaActionAttachment attachment = player.getData(NINJA_ACTION);
+        attachment.previous_inputs = attachment.inputs;
+        attachment.inputs = inputs;
 
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの

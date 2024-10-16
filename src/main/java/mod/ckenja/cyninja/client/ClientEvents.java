@@ -59,12 +59,11 @@ public class ClientEvents {
 
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
-                .filter(ninjaActionEntry -> ninjaActionEntry.value().getInputs() == null ||
-                        inputs.containsAll(ninjaActionEntry.value().getInputs()) &&
-                        ninjaActionEntry.value().getNeedCondition().test(player))
+                .filter(action -> action.value().getInputs() == null ||
+                        inputs.containsAll(action.value().getInputs()))
+                .filter(action -> action.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
-
     }
 
     @SubscribeEvent

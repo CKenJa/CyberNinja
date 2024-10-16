@@ -103,8 +103,6 @@ public class CyberIllagerModel<T extends CyberIllager> extends HierarchicalModel
         if (!this.young) {
             this.roots.translateAndRotate(p_102926_);
             this.getArm(p_102925_).translateAndRotate(p_102926_);
-            p_102926_.translate(0, -0.15D, 0);
-            p_102926_.scale(0.95F, 0.95F, 0.95F);
         }
     }
 
@@ -113,27 +111,25 @@ public class CyberIllagerModel<T extends CyberIllager> extends HierarchicalModel
     public void translateToHead(ModelPart modelPart, PoseStack poseStack) {
         this.roots.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
+		poseStack.translate(0, -0.1F, 0);
     }
 
     @Override
     public void translateToChest(ModelPart modelPart, PoseStack poseStack) {
         this.roots.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
-        poseStack.scale(0.75F, 0.75F, 0.75F);
     }
 
     @Override
     public void translateToLeg(ModelPart modelPart, PoseStack poseStack) {
         this.roots.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
-        poseStack.scale(0.5F, 0.5F, 0.5F);
     }
 
     @Override
     public void translateToChestPat(ModelPart modelPart, PoseStack poseStack) {
         this.roots.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
-        poseStack.scale(0.75F, 0.75F, 0.75F);
     }
 
     @Override

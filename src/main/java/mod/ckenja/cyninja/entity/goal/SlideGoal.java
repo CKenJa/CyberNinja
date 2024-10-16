@@ -23,7 +23,7 @@ public class SlideGoal extends TimeConditionGoal {
     @Override
     public boolean isMatchCondition() {
         LivingEntity livingEntity = this.mob.getTarget();
-        return this.mob.onGround() && this.mob.isAlive() && livingEntity != null && livingEntity.isAlive() && (this.mob.distanceTo(livingEntity) < 6F);
+        return this.mob.onGround() && this.mob.isAlive() && livingEntity != null && livingEntity.isAlive() && this.mob.hasLineOfSight(livingEntity) && (this.mob.distanceTo(livingEntity) < 6F);
     }
 
     @Override

@@ -5,6 +5,7 @@ import mod.ckenja.cyninja.registry.ModItems;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
 import java.util.EnumSet;
@@ -22,25 +23,33 @@ public class JumpGoal extends TimeConditionGoal {
 
     @Override
     public boolean isMatchCondition() {
-        return this.mob.onGround() || this.mob.fallDistance > 3.0F;
+        LivingEntity livingEntity = this.mob.getTarget();
+        if (livingEntity == null || !this.mob.isAlive()) {
+            return false;
+        }
+
+        return livingEntity.isAlive() && this.mob.hasLineOfSight(livingEntity) && (this.mob.distanceTo(livingEntity) < 3F) && (this.mob.onGround() || this.mob.fallDistance > 3.0F);
     }
 
     @Override
     public boolean canContinueToUse() {
-        return !this.mob.onGround() || NinjaActionUtils.getActionData(this.mob).getNinjaAction().value() == NinjaActions.AIR_JUMP.value();
+        return !this.mob.onGround() || this.tick < 2;
     }
 
     @Override
     public void start() {
         super.start();
 
-        NinjaActionUtils.syncAction(this.mob, NinjaActions.AIR_JUMP);
+        this.mob.jumpFromGround();
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.tick == 5 && this.mob.isHolding(ModItems.KATANA.asItem())) {
+        if (this.tick == 3) {
+            NinjaActionUtils.syncAction(this.mob, NinjaActions.AIR_JUMP);
+        }
+        if (this.tick == 7 && this.mob.isHolding(ModItems.KATANA.asItem())) {
             NinjaActionUtils.syncAction(this.mob, NinjaActions.SPIN);
         }
     }

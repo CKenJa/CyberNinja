@@ -13,8 +13,8 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 
 public class CyberIllagerRender extends MobRenderer<CyberIllager, CyberIllagerModel<CyberIllager>> {
-    private static final ResourceLocation LOCATION = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "textures/entity/cyber_ninja.png");
-    private static final ResourceLocation EYE_LOCATION = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "textures/entity/cyber_ninja_eye.png");
+    private static final ResourceLocation LOCATION = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "textures/entity/cyber_ninja/cyber_ninja.png");
+    private static final ResourceLocation EYE_LOCATION = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "textures/entity/cyber_ninja/cyber_ninja_eye.png");
 
     public CyberIllagerRender(EntityRendererProvider.Context p_173956_) {
         super(p_173956_, new CyberIllagerModel<>(p_173956_.bakeLayer(ModModelLayers.CYBER_NINJA)), 0.5F);

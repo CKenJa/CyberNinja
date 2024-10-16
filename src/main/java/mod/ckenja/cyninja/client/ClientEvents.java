@@ -12,10 +12,8 @@ import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.registry.ModAnimations;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
-import mod.ckenja.cyninja.util.NinjaInput;
 import mod.ckenja.cyninja.util.client.ActionAnimationUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
@@ -31,10 +29,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Comparator;
-import java.util.EnumSet;
 
 import static mod.ckenja.cyninja.ninja_action.NinjaAction.NINJA_ACTIONS;
-import static mod.ckenja.cyninja.registry.ModAttachments.NINJA_ACTION;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)

@@ -99,7 +99,7 @@ public class NinjaActions {
             .nextOfTimeout(livingEntity -> NinjaActions.NONE)
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
-                return attachment.canDoubleJump(livingEntity, NinjaActions.WALL_SLIDE.value());
+                return attachment.canAirJump(livingEntity, NinjaActions.WALL_SLIDE.value());
             })
             .addStartAction(livingEntity -> {
                 livingEntity.setDeltaMovement(0, 1F, 0F);
@@ -112,8 +112,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
-            .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
-            .addNeedCondition(NinjaActionUtils::canDoubleJump)
+            .addNeedCondition(NinjaActionUtils::canAirJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addTickAction(NinjaActionUtils::tickHeavyAirJump)
             .priority(900)
@@ -122,8 +121,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 8)
-            .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
-            .addNeedCondition(NinjaActionUtils::canDoubleJump)
+            .addNeedCondition(NinjaActionUtils::canAirJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addTickAction(NinjaActionUtils::tickAirRocket)
             .addStartAction(livingEntity -> {
@@ -142,20 +140,14 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> new NinjaAction(NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
-            .nextOfTimeout(livingEntity -> NinjaActions.AIR_JUMP_FINISH)
-            .addNeedCondition(NinjaActionUtils::canDoubleJump)
-            .addStartAction(NinjaActionUtils::doAirJump)
-    ));
-
-    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP_FINISH = NINJA_ACTIONS.register("air_jump_finish", () -> new NinjaAction(NinjaAction.Builder.newInstance()
-            .loop()
-            .next(livingEntity -> {
-                if (livingEntity.onGround() || livingEntity.isInFluidType()) {
-                    return NONE;
-                }
-                if (livingEntity instanceof Player player && player.getAbilities().flying)
-                    return NONE;
-                return null;
+            .addNeedCondition(e -> {
+                boolean b = NinjaActionUtils.canAirJump(e);
+                if(b) Cyninja.LOGGER.debug("can start jump");
+                return b;
+            })
+            .addStartAction(e->{
+                Cyninja.LOGGER.debug("do start jump");
+                NinjaActionUtils.doAirJump(e);
             })
     ));
 

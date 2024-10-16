@@ -133,15 +133,6 @@ public class NinjaActionUtils {
             }
     }
 
-
-    public static void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).setNinjaAction(livingEntity, ninjaAction);
-    }
-
-    public static void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).sync(livingEntity, ninjaAction);
-    }
-
     public static NinjaActionAttachment getActionData(LivingEntity livingEntity) {
         return livingEntity.getData(ModAttachments.NINJA_ACTION.get());
     }
@@ -184,7 +175,7 @@ public class NinjaActionUtils {
                 .filter(entity -> entity.position().distanceTo(position) <= r).toList();
     }
 
-    public static boolean canDoubleJump(LivingEntity livingEntity) {
-        return getActionData(livingEntity).canDoubleJump(livingEntity);
+    public static boolean canAirJump(LivingEntity livingEntity) {
+        return getActionData(livingEntity).canAirJump(livingEntity);
     }
 }

@@ -55,7 +55,7 @@ public class NinjaActionUtils {
             List<Entity> list = level.getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
-                    if (entity.isAttackable()) {
+                    if (entity.isAttackable() && !entity.isAlliedTo(livingEntity)) {
                         entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK, livingEntity), 8F);
                     }
                 }

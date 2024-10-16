@@ -57,6 +57,13 @@ public class JumpGoal extends TimeConditionGoal {
     }
 
     @Override
+    public void stop() {
+        super.stop();
+        this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
+
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if (this.tick == 3) {

@@ -86,9 +86,6 @@ public class CyberIllagerModel<T extends CyberIllager> extends HierarchicalModel
         if (entity.isAggressive()) {
             AnimationUtils.swingWeaponDown(this.right_arm, this.left_arm, entity, this.attackTime, ageInTicks);
         }
-
-        float f6 = 12.0F;
-
     }
 
     private ModelPart getArm(HumanoidArm p_102923_) {

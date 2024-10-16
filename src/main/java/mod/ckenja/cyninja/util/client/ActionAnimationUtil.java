@@ -25,8 +25,6 @@ public class ActionAnimationUtil {
         IRootModel rootModel = event.getRootModel();
         if (entity instanceof LivingEntity livingEntity) {
             if (event.isSupportedAnimateModel()) {
-                BaguAnimationController animationController = AnimationUtil.getAnimationController(event.getEntity());
-
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
                 if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions.value()) {
 
@@ -64,7 +62,6 @@ public class ActionAnimationUtil {
         IRootModel rootModel = event.getRootModel();
         if (entity instanceof LivingEntity livingEntity) {
             if (event.isSupportedAnimateModel()) {
-                BaguAnimationController animationController = AnimationUtil.getAnimationController(event.getEntity());
 
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
                 if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions.value()) {

@@ -42,6 +42,13 @@ public class SlideGoal extends TimeConditionGoal {
     }
 
     @Override
+    public void stop() {
+        super.stop();
+        this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
+
+    }
+
+    @Override
     public boolean canContinueToUse() {
         return false;
     }

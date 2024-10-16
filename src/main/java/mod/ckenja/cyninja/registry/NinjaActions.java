@@ -155,6 +155,7 @@ public class NinjaActions {
             .addNeedCondition(livingEntity -> {
                 NinjaActionAttachment attachment = NinjaActionUtils.getActionData(livingEntity);
                 return attachment.isFullAir()
+                        && !attachment.previous_inputs.contains(NinjaInput.JUMP)//今tickからジャンプキーを押し始めたか?
                         && attachment.getNinjaAction().value() == NinjaActions.NONE.value()
                         && (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
             })

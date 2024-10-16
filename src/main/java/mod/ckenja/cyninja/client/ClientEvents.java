@@ -54,7 +54,9 @@ public class ClientEvents {
             inputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
+        player.getData(NINJA_ACTION).previous_inputs = player.getData(NINJA_ACTION).inputs;
         player.getData(NINJA_ACTION).inputs = inputs;
+
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
                 .filter(ninjaActionEntry -> ninjaActionEntry.value().getInputs() == null ||
@@ -62,6 +64,7 @@ public class ClientEvents {
                         ninjaActionEntry.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
+
     }
 
     @SubscribeEvent

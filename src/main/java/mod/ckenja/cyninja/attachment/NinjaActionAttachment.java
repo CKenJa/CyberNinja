@@ -20,11 +20,13 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
+    public EnumSet<NinjaInput> previous_inputs;
+    public EnumSet<NinjaInput> inputs;
+
     private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
     private int actionTick;
     private int inFluidTick;
     private int airTick;
-    public EnumSet<NinjaInput> inputs;
 
     public int getActionTick() {
         return actionTick;

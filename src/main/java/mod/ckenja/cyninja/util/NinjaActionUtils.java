@@ -4,7 +4,6 @@ import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
-import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -43,7 +42,7 @@ public class NinjaActionUtils {
         Level level = livingEntity.level();
         Vec3 delta = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
-        Vec3 planeDelta = new Vec3(look.x,0,look.z).normalize().scale(0.6F).add(delta);
+        Vec3 planeDelta = new Vec3(livingEntity.xxa, 0, livingEntity.zza).normalize().scale(0.6F).add(delta);
 
         livingEntity.setDeltaMovement(planeDelta.x * 0.6F, 0.6F, planeDelta.z);
         livingEntity.hasImpulse = true;

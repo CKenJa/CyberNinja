@@ -30,11 +30,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private int actionTick;
     private int inFluidTick;
     private int airTick;
+
     private int airJumpCount;
 
     public void checkKeyDown() {
-        previousInputs = inputs;
-        inputs = EnumSet.noneOf(NinjaInput.class);
+        EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
         if (options.keyShift.isDown())
             inputs.add(NinjaInput.SNEAK);
@@ -44,11 +44,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             inputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
+        previousInputs = inputs;
+        this.inputs = inputs;
     }
 
     public int getActionTick() {
         return actionTick;
     }
+
 
     public Holder<NinjaAction> getNinjaAction() {
         return ninjaAction;
@@ -56,6 +59,10 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public boolean wasInFluid() {
         return inFluidTick > 0;
+    }
+
+    public boolean isFullAir() {
+        return airTick <= 0;
     }
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
@@ -123,8 +130,10 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             this.actionHold(user);
         }
         if (!isActionLoop()) {
-            if (this.getActionTick() == 0)
+
+            if (this.getActionTick() == 0) {
                 this.ninjaAction.value().startAction(user);
+            }
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
@@ -216,12 +225,19 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public boolean canAirJump(LivingEntity livingEntity, NinjaAction action) {
-        if(livingEntity instanceof Player player && player.getAbilities().flying)
-            return false;
-        return airJumpCount>0 &&
-                airTick <= 0 &&
-                !previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
-                getNinjaAction().value() == action;
+        return airJumpCount>0 && isFullAir() &&
+                previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
+                getNinjaAction().value() == action &&
+                (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
+    }
+
+
+    public EnumSet<NinjaInput> getInputs() {
+        return inputs;
+    }
+
+    public EnumSet<NinjaInput> getPreviousInputs() {
+        return previousInputs;
     }
 
     public void resetAirJumpCount() {
@@ -230,13 +246,5 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void decreaseAirJumpCount() {
         airJumpCount--;
-    }
-
-    public EnumSet<NinjaInput> getInputs() {
-        return inputs;
-    }
-
-    public EnumSet<NinjaInput> getPreviousInputs() {
-        return previousInputs;
     }
 }

@@ -53,12 +53,14 @@ public class ClientEvents {
         final boolean[] flag = {false};
         NINJA_ACTIONS.stream()
                 .sorted(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
-                .filter(ninjaActionEntry -> ninjaActionEntry.value().getInputs() == null || data.getInputs().containsAll(ninjaActionEntry.value().getInputs()))
+                .filter(ninjaActionEntry -> data.getInputs() != null && data.getInputs().containsAll(ninjaActionEntry.value().getInputs()))
                 .forEach(holderNinjaInputEntry -> {
-                    if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
-                        ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
-                        PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
-                        flag[0] = true;
+                    if (holderNinjaInputEntry.value() != NinjaActions.NONE.value() && holderNinjaInputEntry.value() != data.getNinjaAction().value()) {
+                        if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
+                            ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
+                            PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
+                            flag[0] = true;
+                        }
                     }
                 });
     }

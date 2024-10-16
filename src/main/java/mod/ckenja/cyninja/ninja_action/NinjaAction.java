@@ -1,6 +1,5 @@
 package mod.ckenja.cyninja.ninja_action;
 
-import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Holder;
@@ -65,8 +64,9 @@ public class NinjaAction {
         this.holdAction = builder.holdAction;
 
         this.inputs = builder.inputs;
-        NINJA_ACTIONS.add(Holder.direct(this));
-
+        if (this.inputs != null && !this.inputs.isEmpty()) {
+            NINJA_ACTIONS.add(Holder.direct(this));
+        }
         this.tickAction = builder.tickAction;
         this.startAction = builder.startAction;
         this.stopAction = builder.stopAction;

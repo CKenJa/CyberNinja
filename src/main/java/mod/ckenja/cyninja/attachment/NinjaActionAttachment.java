@@ -45,7 +45,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
         previousInputs = inputs;
-        inputs = inputs;
+        this.inputs = inputs;
     }
 
     public int getActionTick() {

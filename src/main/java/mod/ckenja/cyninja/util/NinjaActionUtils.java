@@ -94,7 +94,7 @@ public class NinjaActionUtils {
 
     public static void attackEntities(LivingEntity attacker, List<Entity> victims, float damage, float knockback, ResourceKey<DamageType> damageType) {
         for(Entity victim: victims){
-            if (victim.isAttackable()) {
+            if (victim.isAttackable() && !attacker.isAlliedTo(victim)) {
                 victim.hurt(attacker.damageSources().source(damageType, attacker), damage);
                 if (victim instanceof LivingEntity livingVictim) {
                     double d0 = attacker.getX() - livingVictim.getX();

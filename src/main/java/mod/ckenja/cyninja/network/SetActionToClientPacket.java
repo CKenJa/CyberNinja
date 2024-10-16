@@ -12,7 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
@@ -58,11 +58,11 @@ public class SetActionToClientPacket implements CustomPacketPayload, IPayloadHan
     public void handle(SetActionToClientPacket message, IPayloadContext context) {
         context.enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().player.level().getEntity(message.entityId);
-            if (entity != null && entity instanceof Player player) {
-                NinjaActionAttachment attachment = player.getData(ModAttachments.NINJA_ACTION);
+            if (entity != null && entity instanceof LivingEntity livingEntity) {
+                NinjaActionAttachment attachment = livingEntity.getData(ModAttachments.NINJA_ACTION);
                 Optional<Holder.Reference<NinjaAction>> holder = NinjaActions.getRegistry().getHolder(resourceLocation);
                 if (holder.isPresent()) {
-                    attachment.setAction(player, holder.get());
+                    attachment.setAction(livingEntity, holder.get());
                 }
             }
         });

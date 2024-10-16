@@ -42,9 +42,8 @@ public class NinjaActionUtils {
         Level level = livingEntity.level();
         Vec3 delta = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
-        Vec3 planeDelta = new Vec3(livingEntity.xxa, 0, livingEntity.zza).normalize().scale(0.6F).add(delta);
-
-        livingEntity.setDeltaMovement(planeDelta.x * 0.6F, 0.6F, planeDelta.z);
+        livingEntity.setDeltaMovement(delta.x, 0.6F, delta.z);
+        livingEntity.moveRelative(0.6F, new Vec3(livingEntity.xxa, 0, livingEntity.zza));
         livingEntity.hasImpulse = true;
 
         NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();

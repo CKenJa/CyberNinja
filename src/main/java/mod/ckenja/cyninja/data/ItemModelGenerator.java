@@ -29,7 +29,13 @@ public class ItemModelGenerator extends ItemModelProvider {
         this.singleTexTool(ModItems.SHURIKEN);
         this.singleTex(ModItems.CYBER_TRIM_SMITHING_TEMPLATE);
         this.singleTexTool(ModItems.KATANA);
+        this.egg(ModItems.CYBER_NINJA_SPAWN_EGG);
     }
+
+    public ItemModelBuilder egg(Supplier<Item> item) {
+        return withExistingParent(BuiltInRegistries.ITEM.getKey(item.get()).getPath(), mcLoc("item/template_spawn_egg"));
+    }
+
 
     private ItemModelBuilder tool(String name, ResourceLocation... layers) {
         return buildItem(name, "item/handheld", 0, layers);

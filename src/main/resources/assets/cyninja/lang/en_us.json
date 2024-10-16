@@ -5,8 +5,10 @@
   "item.cyninja.ninja_boots": "Ninja Boots",
   "item.cyninja.shuriken": "Shuriken",
   "item.cyninja.katana": "Katana",
+  "item.cyninja.cyber_ninja_spawn_egg": "Cyber Ninja Spawn Egg",
   "item.cyninja.cyber_trim_smithing_template": "Cyber Smithing Template",
   "trim_pattern.cyninja.cyber": "Cyber Armor Trim",
+  "entity.cyninja.cyber_ninja": "Cyber Ninja",
   "entity.cyninja.thrown_item": "Thrown Item",
   "itemGroup.cyninja.main_tab": "Cyninja"
 }

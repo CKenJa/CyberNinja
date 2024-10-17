@@ -4,6 +4,7 @@ import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
+import mod.ckenja.cyninja.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -138,7 +139,7 @@ public class NinjaActionUtils {
         return livingEntity.getData(ModAttachments.NINJA_ACTION.get());
     }
 
-    public static boolean isWearingNinja(LivingEntity livingEntity) {
+    public static boolean isWearingFullNinjaSuit(LivingEntity livingEntity) {
         int i = 0;
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
             if ((itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
@@ -186,5 +187,9 @@ public class NinjaActionUtils {
 
     public static void setAction(LivingEntity entity, Holder<NinjaAction> action) {
         getActionData(entity).setAction(entity, action);
+    }
+
+    public static boolean isEquipKatana(LivingEntity livingEntity) {
+        return livingEntity.getMainHandItem().is(ModItems.KATANA);
     }
 }

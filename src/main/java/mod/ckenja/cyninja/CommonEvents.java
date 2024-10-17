@@ -31,7 +31,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void fallEvent(LivingFallEvent event) {
-        if (NinjaActionUtils.isWearingNinja(event.getEntity())) {
+        if (NinjaActionUtils.isWearingFullNinjaSuit(event.getEntity())) {
             event.setDistance(event.getDistance() - 4);
         }
     }
@@ -52,7 +52,7 @@ public class CommonEvents {
             //basic action handle
             NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
             if (actionData != null) {
-                if (!NinjaActionUtils.isWearingNinja(livingEntity)) {
+                if (!NinjaActionUtils.isWearingFullNinjaSuit(livingEntity)) {
                     NinjaActionUtils.setAction(livingEntity, NinjaActions.NONE);
                 } else {
                     actionData.tick(livingEntity);

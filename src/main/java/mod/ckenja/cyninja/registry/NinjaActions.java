@@ -3,7 +3,6 @@ package mod.ckenja.cyninja.registry;
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
-import mod.ckenja.cyninja.util.EquipmentRequest;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Registry;
@@ -42,7 +41,7 @@ public class NinjaActions {
                     !livingEntity.isInFluidType() &&
                     getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value()
             )
-            .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
             .startAndEnd(0, 8)
             .speed(3F)
@@ -76,7 +75,7 @@ public class NinjaActions {
                     livingEntity.horizontalCollision &&
                     !livingEntity.isInFluidType()
             )
-            .addNeedCondition(EquipmentRequest.FULL_ARMOR::test)
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .loop()
             .startAndEnd(0, 1)
             .setNoBob(true)
@@ -140,7 +139,7 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity -> !livingEntity.onGround())
-            .addNeedCondition(EquipmentRequest.KATANA::test)
+            .addNeedCondition(NinjaActionUtils::isEquipKatana)
             .setInput(NinjaInput.LEFT_CLICK)
             .startAndEnd(2, 12)
             .setReduceDamage(1.0F)

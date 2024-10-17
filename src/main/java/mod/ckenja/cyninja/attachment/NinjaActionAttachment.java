@@ -65,14 +65,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return airTick <= 0;
     }
 
-    public void setNinjaAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+    public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         this.ninjaAction.value().stopAction(livingEntity);
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
         livingEntity.refreshDimensions();
     }
 
-    public void sync(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+    public void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         this.ninjaAction.value().stopAction(livingEntity);
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
@@ -137,13 +137,13 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
-                NinjaActionUtils.setAction(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
+                setAction(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
             }
         }
         if (isActionActive() && !isActionLoop() || isActionLoop()) {
             Holder<NinjaAction> ninjaAction = this.getNinjaAction().value().getNext().apply(user);
             if (ninjaAction != null) {
-                NinjaActionUtils.setAction(user, ninjaAction);
+                setAction(user, ninjaAction);
             }
         }
         if (user.isInFluidType()) {
@@ -220,11 +220,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     }
 
-    public boolean canDoubleJump(LivingEntity livingEntity) {
-        return canDoubleJump(livingEntity, NinjaActions.NONE.value());
+    public boolean canAirJump(LivingEntity livingEntity) {
+        return canAirJump(livingEntity, NinjaActions.NONE.value());
     }
 
-    public boolean canDoubleJump(LivingEntity livingEntity, NinjaAction action) {
+    public boolean canAirJump(LivingEntity livingEntity, NinjaAction action) {
         return airJumpCount>0 && isFullAir() &&
                 previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
                 getNinjaAction().value() == action &&

@@ -17,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,26 +42,13 @@ public class ClientEvents {
 
         NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
         data.checkKeyDown();
-        /*NINJA_ACTIONS.stream()
+        NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
-                .filter(action -> action.value().getInputs() == null ||
-                        inputs.containsAll(action.value().getInputs()))
+                .filter(action -> action.value().getInputs() != null &&
+                        data.getInputs().containsAll(action.value().getInputs()))
                 .filter(action -> action.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
-                .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));*/
-        final boolean[] flag = {false};
-        NINJA_ACTIONS.stream()
-                .sorted(Comparator.comparingInt(ninjaActionHolder -> ninjaActionHolder.value().getPriority()))
-                .filter(ninjaActionEntry -> data.getInputs() != null && data.getInputs().containsAll(ninjaActionEntry.value().getInputs()))
-                .forEach(holderNinjaInputEntry -> {
-                    if (holderNinjaInputEntry.value() != NinjaActions.NONE.value() && holderNinjaInputEntry.value() != data.getNinjaAction().value()) {
-                        if (holderNinjaInputEntry.value().getNeedCondition().test(player) && !flag[0]) {
-                            ResourceLocation ninjaAction = NinjaActions.getRegistry().getKey(holderNinjaInputEntry.value());
-                            PacketDistributor.sendToServer(new SetActionToServerPacket(ninjaAction));
-                            flag[0] = true;
-                        }
-                    }
-                });
+                .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
     }
 
     @SubscribeEvent

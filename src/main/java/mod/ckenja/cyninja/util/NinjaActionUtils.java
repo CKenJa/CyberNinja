@@ -4,6 +4,7 @@ import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
+import mod.ckenja.cyninja.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -31,11 +32,13 @@ import java.util.List;
 public class NinjaActionUtils {
 
     public static void doAirJump(LivingEntity livingEntity) {
-        Vec3 vec3 = livingEntity.getDeltaMovement();
-        livingEntity.setDeltaMovement(vec3.x, 0.6F, vec3.z);
-        livingEntity.resetFallDistance();
+        Vec3 delta = livingEntity.getDeltaMovement();
+        //架空の床を踏んで飛ぶイメージなので、上向きの運動量に定数を設定する
+        livingEntity.setDeltaMovement(delta.x, 0.6F, delta.z);
         livingEntity.hasImpulse = true;
-        NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
+
+        livingEntity.resetFallDistance();
+        getActionData(livingEntity).decreaseAirJumpCount();
     }
 
     public static void tickHeavyAirJump(LivingEntity livingEntity) {
@@ -71,6 +74,7 @@ public class NinjaActionUtils {
         Vec3 look = livingEntity.getLookAngle();
 
         livingEntity.setDeltaMovement(delta.x + look.x * 0.08F, delta.y + look.y * 0.08F + livingEntity.getGravity() * 1.01F, delta.z + look.z * 0.08F);
+        //livingEntity.push(look.scale(0.08F));
         livingEntity.hasImpulse = true;
 
         livingEntity.resetFallDistance();
@@ -85,7 +89,7 @@ public class NinjaActionUtils {
 
         Vec3 vec3 = livingEntity.getDeltaMovement();
         //slide to looking way
-        if (vec3.y < 0.0F) {
+        if (vec3.y < 0.0F && livingEntity.getDeltaMovement().y < 0.0F) {
             livingEntity.setDeltaMovement(vec3.x, vec3.y * 0.6F, vec3.z);
             livingEntity.resetFallDistance();
             livingEntity.hasImpulse = true;
@@ -131,20 +135,11 @@ public class NinjaActionUtils {
             }
     }
 
-
-    public static void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).setNinjaAction(livingEntity, ninjaAction);
-    }
-
-    public static void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        livingEntity.getData(ModAttachments.NINJA_ACTION.get()).sync(livingEntity, ninjaAction);
-    }
-
     public static NinjaActionAttachment getActionData(LivingEntity livingEntity) {
         return livingEntity.getData(ModAttachments.NINJA_ACTION.get());
     }
 
-    public static boolean isWearingNinja(LivingEntity livingEntity) {
+    public static boolean isWearingFullNinjaSuit(LivingEntity livingEntity) {
         int i = 0;
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
             if ((itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
@@ -182,7 +177,19 @@ public class NinjaActionUtils {
                 .filter(entity -> entity.position().distanceTo(position) <= r).toList();
     }
 
-    public static boolean canDoubleJump(LivingEntity livingEntity) {
-        return getActionData(livingEntity).canDoubleJump(livingEntity);
+    public static boolean canAirJump(LivingEntity livingEntity) {
+        return getActionData(livingEntity).canAirJump(livingEntity);
+    }
+
+    public static void syncAction(LivingEntity entity, Holder<NinjaAction> action) {
+        getActionData(entity).syncAction(entity, action);
+    }
+
+    public static void setAction(LivingEntity entity, Holder<NinjaAction> action) {
+        getActionData(entity).setAction(entity, action);
+    }
+
+    public static boolean isEquipKatana(LivingEntity livingEntity) {
+        return livingEntity.getMainHandItem().is(ModItems.KATANA);
     }
 }

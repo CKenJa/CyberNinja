@@ -97,7 +97,7 @@ public class NinjaActions {
                     }
                 }
 
-                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.3F) {
+                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.25F) {
                     return NONE;
                 }
                 return null;

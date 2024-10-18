@@ -53,7 +53,7 @@ public class ClientEvents {
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
         NinjaAction currentNinjaAction = data.getNinjaAction().value();
-        if (currentNinjaAction.getNeedInputs() != null && !currentNinjaAction.getNeedInputs().containsAll(data.getInputs())) {
+        if (currentNinjaAction.getNeedInputs() != null && !currentNinjaAction.getNeedInputs().contains(data.getInputs())) {
             Holder<NinjaAction> holder = currentNinjaAction.getNext().apply(player);
             if (holder != null) {
                 PacketDistributor.sendToServer(new SetActionToServerPacket(holder));

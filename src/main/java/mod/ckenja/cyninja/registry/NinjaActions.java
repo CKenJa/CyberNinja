@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
@@ -44,7 +45,7 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity ->
-                    !livingEntity.isInFluidType() && getActionData(livingEntity).getAirSlideCount() > 0 &&
+                    !livingEntity.isInFluidType() && !livingEntity.isInWater() && getActionData(livingEntity).getAirSlideCount() > 0 &&
                     getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value()
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
@@ -69,12 +70,12 @@ public class NinjaActions {
             })
             .addStartAction(livingEntity -> {
                 AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
-                if (attributeinstance != null) {
+                if (attributeinstance != null && !attributeinstance.hasModifier(SLIDE_STEP_ID)) {
                     livingEntity.getAttribute(Attributes.STEP_HEIGHT).addTransientModifier(new AttributeModifier(SLIDE_STEP_ID, (double) 0.5F, AttributeModifier.Operation.ADD_VALUE));
 
                 }
 
-                moveToLookingWay(livingEntity, 0.25F, NinjaActions.SLIDE);
+                moveToLookingWay(livingEntity, 0.5F, NinjaActions.SLIDE);
             })
             .addStopAction(livingEntity -> {
                 AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
@@ -83,12 +84,20 @@ public class NinjaActions {
                 }
             })
             .next(livingEntity -> {
+                NinjaActionAttachment attachment = getActionData(livingEntity);
                 //壁にぶつかったら止まる
                 if (livingEntity.horizontalCollision) {
                     return NONE;
                 }
+                // sneakかjumpした時とまる
+                if (attachment.getInputs() != null) {
+                    if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround() || !attachment.getInputs().contains(NinjaInput.SNEAK)) {
+                        attachment.decreaseAirSlideCount();
+                        return NONE;
+                    }
+                }
 
-                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.08F) {
+                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.2F) {
                     return NONE;
                 }
                 return null;
@@ -99,7 +108,7 @@ public class NinjaActions {
             .addNeedCondition(livingEntity ->
                     !livingEntity.onGround() &&
                     livingEntity.horizontalCollision &&
-                    !livingEntity.isInFluidType()
+                            !livingEntity.isInFluidType() && !livingEntity.isInWater()
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .loop()

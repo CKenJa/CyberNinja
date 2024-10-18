@@ -145,7 +145,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 setAction(user, ninjaAction);
             }
         }
-        if (user.isInFluidType()) {
+        if (user.isInFluidType() || user.isInWater()) {
             this.inFluidTick = 5;
         } else {
             if (user.onGround()) {
@@ -157,7 +157,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             }
         }
 
-        if (user.isInFluidType()) {
+        if (user.isInFluidType() || user.isInWater()) {
             this.airTick = 3;
         } else {
             if (user.onGround()) {
@@ -171,11 +171,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (getNinjaAction().value() == NinjaActions.SLIDE.value()) {
             this.setSlideTick(this.getSlideTick() + 1);
         } else {
-            this.setSlideTick(0);
+            this.setSlideTick(this.getSlideTick() - 1);
         }
         if(user.onGround()){
             user.getData(ModAttachments.NINJA_ACTION).airJumpCount = 1;
-            if (user.onGround() && getNinjaAction().value() != NinjaActions.SLIDE.value()) {
+            if (getNinjaAction().value() != NinjaActions.SLIDE.value()) {
                 user.getData(ModAttachments.NINJA_ACTION).airSlideCount = 1;
             }
         }

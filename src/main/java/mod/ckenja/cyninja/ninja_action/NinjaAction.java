@@ -17,36 +17,36 @@ public class NinjaAction {
 
     public static final List<Holder<NinjaAction>> NINJA_ACTIONS = new ArrayList<>();
 
-    private int startTick;
-    private int endTick;
-    private float moveSpeed;
-    private float reduceDamage;
-    private float reduceKnockback;
-    private boolean loop;
-    private boolean canJump;
-    private boolean noBob;
+    private final int startTick;
+    private final int endTick;
+    private final float moveSpeed;
+    private final float reduceDamage;
+    private final float reduceKnockback;
+    private final boolean loop;
+    private final boolean canJump;
+    private final boolean noBob;
 
     // Next input acceptance period *ms
     public int timeout;
 
-    private Function<LivingEntity, Holder<NinjaAction>> next;
-    private Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
-    private Predicate<LivingEntity> needCondition;
+    private final Function<LivingEntity, Holder<NinjaAction>> next;
+    private final Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
+    private final Predicate<LivingEntity> needCondition;
 
-    private Consumer<LivingEntity> holdAction;
+    private final Consumer<LivingEntity> holdAction;
 
-    private Consumer<LivingEntity> tickAction;
+    private final Consumer<LivingEntity> tickAction;
 
-    private BiConsumer<LivingEntity, LivingEntity> hitEffect;
-    private Consumer<LivingEntity> startAction;
-    private Consumer<LivingEntity> stopAction;
-    private int priority;
+    private final BiConsumer<LivingEntity, LivingEntity> hitEffect;
+    private final Consumer<LivingEntity> startAction;
+    private final Consumer<LivingEntity> stopAction;
+    private final int priority;
 
-    private Optional<EntityDimensions> hitBox;
+    private final Optional<EntityDimensions> hitBox;
 
-    private EnumSet<NinjaInput> inputs;
+    private final EnumSet<NinjaInput> inputs;
 
-    public NinjaAction(Builder builder) {
+    private NinjaAction(Builder builder) {
         this.startTick = builder.startTick;
         this.endTick = builder.endTick;
         this.moveSpeed = builder.moveSpeed;
@@ -257,6 +257,11 @@ public class NinjaAction {
             return this;
         }
 
+        /**
+         * 途中で終了して次のアクションに変えるか決定する関数を設定する。
+         * @param next 発動中毎tick実行され、null以外を返すとエンティティのアクションを返り値に変更し、nullを返すとアクションを変更しない。
+         * @return このビルダー自身
+         */
         public Builder next(Function<LivingEntity, Holder<NinjaAction>> next) {
             this.next = next;
             return this;

@@ -13,6 +13,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +34,9 @@ import static net.minecraft.resources.ResourceKey.createRegistryKey;
 
 @EventBusSubscriber(modid = Cyninja.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class NinjaActions {
+    private static final ResourceLocation SLIDE_STEP_ID = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "slide_step");
+
+
     public static final ResourceKey<Registry<NinjaAction>> NINJA_ACTIONS_REGISTRY = createRegistryKey(ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "ninja_skill"));
 
     public static final DeferredRegister<NinjaAction> NINJA_ACTIONS = DeferredRegister.create(NINJA_ACTIONS_REGISTRY, Cyninja.MODID);
@@ -38,12 +44,14 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity ->
-                    !livingEntity.isInFluidType() &&
+                    !livingEntity.isInFluidType() && getActionData(livingEntity).getAirSlideCount() > 0 &&
                     getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value()
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
-            .startAndEnd(0, 8)
+            .setNeedInput(NinjaInput.SNEAK)
+            .startAndEnd(0, 1)
+            .loop()
             .speed(3F)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)
@@ -58,11 +66,29 @@ public class NinjaActions {
                     List<Entity> entities = level.getEntities(slider, slider.getBoundingBox());
                     NinjaActionUtils.attackEntities(slider, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);
                 }
-                moveToLookingWay(slider,0.2F, NinjaActions.SLIDE);
+            })
+            .addStartAction(livingEntity -> {
+                AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
+                if (attributeinstance != null) {
+                    livingEntity.getAttribute(Attributes.STEP_HEIGHT).addTransientModifier(new AttributeModifier(SLIDE_STEP_ID, (double) 0.5F, AttributeModifier.Operation.ADD_VALUE));
+
+                }
+
+                moveToLookingWay(livingEntity, 0.25F, NinjaActions.SLIDE);
+            })
+            .addStopAction(livingEntity -> {
+                AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
+                if (attributeinstance != null) {
+                    livingEntity.getAttribute(Attributes.STEP_HEIGHT).removeModifier(SLIDE_STEP_ID);
+                }
             })
             .next(livingEntity -> {
                 //壁にぶつかったら止まる
-                if (!livingEntity.onGround() || livingEntity.horizontalCollision) {
+                if (livingEntity.horizontalCollision) {
+                    return NONE;
+                }
+
+                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.08F) {
                     return NONE;
                 }
                 return null;

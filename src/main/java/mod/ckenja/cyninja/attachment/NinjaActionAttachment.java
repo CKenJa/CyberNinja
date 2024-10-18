@@ -4,7 +4,6 @@ import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
-import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -32,6 +31,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private int airTick;
 
     private int airJumpCount;
+    private int airSlideCount;
+    private int slideTick;
 
     public void checkKeyDown() {
         EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
@@ -69,6 +70,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         this.ninjaAction.value().stopAction(livingEntity);
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
+        this.ninjaAction.value().startAction(livingEntity);
         livingEntity.refreshDimensions();
     }
 
@@ -79,6 +81,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (!livingEntity.level().isClientSide()) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(livingEntity, new SetActionToClientPacket(livingEntity, ninjaAction));
         }
+        this.ninjaAction.value().startAction(livingEntity);
         livingEntity.refreshDimensions();
     }
 
@@ -130,10 +133,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             this.actionHold(user);
         }
         if (!isActionLoop()) {
-
-            if (this.getActionTick() == 0) {
-                this.ninjaAction.value().startAction(user);
-            }
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
@@ -169,8 +168,16 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 }
             }
         }
+        if (getNinjaAction().value() == NinjaActions.SLIDE.value()) {
+            this.setSlideTick(this.getSlideTick() + 1);
+        } else {
+            this.setSlideTick(0);
+        }
         if(user.onGround()){
             user.getData(ModAttachments.NINJA_ACTION).airJumpCount = 1;
+            if (user.onGround() && getNinjaAction().value() != NinjaActions.SLIDE.value()) {
+                user.getData(ModAttachments.NINJA_ACTION).airSlideCount = 1;
+            }
         }
     }
 
@@ -246,5 +253,25 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void decreaseAirJumpCount() {
         airJumpCount--;
+    }
+
+    public void resetAirSlideCount() {
+        airSlideCount = 1;
+    }
+
+    public void decreaseAirSlideCount() {
+        airSlideCount--;
+    }
+
+    public int getAirSlideCount() {
+        return airSlideCount;
+    }
+
+    public void setSlideTick(int slideTick) {
+        this.slideTick = slideTick;
+    }
+
+    public int getSlideTick() {
+        return slideTick;
     }
 }

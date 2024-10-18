@@ -46,6 +46,7 @@ public class CommonEvents {
         }
     }
 
+
     @SubscribeEvent
     public static void tickEvent(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {

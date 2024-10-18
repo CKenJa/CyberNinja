@@ -45,6 +45,7 @@ public class NinjaAction {
     private final Optional<EntityDimensions> hitBox;
 
     private final EnumSet<NinjaInput> inputs;
+    private final EnumSet<NinjaInput> needInputs;
 
     private NinjaAction(Builder builder) {
         this.startTick = builder.startTick;
@@ -64,6 +65,7 @@ public class NinjaAction {
         this.holdAction = builder.holdAction;
 
         this.inputs = builder.inputs;
+        this.needInputs = builder.needInputs;
         if (this.inputs != null && !this.inputs.isEmpty()) {
             NINJA_ACTIONS.add(Holder.direct(this));
         }
@@ -153,12 +155,17 @@ public class NinjaAction {
         return inputs;
     }
 
+    public EnumSet<NinjaInput> getNeedInputs() {
+        return needInputs;
+    }
+
     public boolean isNoBob() {
         return noBob;
     }
 
     public static class Builder {
         public EnumSet<NinjaInput> inputs;
+        private EnumSet<NinjaInput> needInputs;
         private int priority;
         private boolean canJump;
         private boolean noBob;
@@ -314,6 +321,11 @@ public class NinjaAction {
 
         public Builder setInput(NinjaInput... ninjaInputs) {
             inputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
+            return this;
+        }
+
+        public Builder setNeedInput(NinjaInput... ninjaInputs) {
+            needInputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
             return this;
         }
 

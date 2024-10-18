@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "mod.ckenja.cyninja.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "cyninja.refmap.json",
+  "mixins": [
+    "LivingEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

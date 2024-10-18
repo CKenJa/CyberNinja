@@ -171,7 +171,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (getNinjaAction().value() == NinjaActions.SLIDE.value()) {
             this.setSlideTick(this.getSlideTick() + 1);
         } else {
-            this.setSlideTick(this.getSlideTick() - 1);
+            this.setSlideTick(0);
         }
         if(user.onGround()){
             user.getData(ModAttachments.NINJA_ACTION).airJumpCount = 1;

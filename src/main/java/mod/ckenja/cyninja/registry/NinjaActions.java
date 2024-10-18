@@ -75,7 +75,7 @@ public class NinjaActions {
 
                 }
 
-                moveToLookingWay(livingEntity, 0.5F, NinjaActions.SLIDE);
+                moveToLookingWay(livingEntity, 0.4F, NinjaActions.SLIDE);
             })
             .addStopAction(livingEntity -> {
                 AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
@@ -97,7 +97,7 @@ public class NinjaActions {
                     }
                 }
 
-                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.2F) {
+                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.3F) {
                     return NONE;
                 }
                 return null;

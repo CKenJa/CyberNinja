@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "cyninja.refmap.json",
   "mixins": [
+    "EntityMixin",
     "LivingEntityMixin",
     "PlayerMixin"
   ],

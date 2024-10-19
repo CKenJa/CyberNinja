@@ -132,7 +132,7 @@ public abstract class LivingEntityMixin extends Entity {
                     if (this.shouldDiscardFriction()) {
                         this.setDeltaMovement(vec35.x, d2, vec35.z);
                     } else {
-                        this.setDeltaMovement(vec35.x * (double) f3, this instanceof FlyingAnimal ? d2 * (double) f3 : d2 * 0.98F, vec35.z * (double) f3);
+                        this.setDeltaMovement(vec35.x * (double) f3 + vec35.x * d0 * 0.01F, this instanceof FlyingAnimal ? d2 * (double) f3 : d2 * 0.98F, vec35.z * (double) f3 + vec35.z * d0 * 0.01F);
                     }
                     this.move(MoverType.SELF, this.getDeltaMovement());
                 }

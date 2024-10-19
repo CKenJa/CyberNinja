@@ -112,6 +112,15 @@ public class ClientEvents {
 
             }
 
+            if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
+                float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(actionHolder.getActionYRot()));
+                bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(-livingEntity.getXRot()));
+                bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(actionHolder.getActionXRot()));
+            }
+
+
             if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.SLIDE.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));

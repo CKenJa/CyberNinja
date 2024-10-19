@@ -70,10 +70,10 @@ public class NinjaActionUtils {
 
     public static void tickAirRocket(LivingEntity livingEntity) {
         Level level = livingEntity.level();
-        Vec3 delta = livingEntity.getDeltaMovement();
-        Vec3 look = livingEntity.getLookAngle();
+        NinjaActionAttachment attachment = getActionData(livingEntity);
+        Vec3 look = livingEntity.calculateViewVector(attachment.getActionXRot(), attachment.getActionYRot());
 
-        livingEntity.setDeltaMovement(delta.x + look.x * 0.08F, delta.y + look.y * 0.08F + livingEntity.getGravity() * 1.01F, delta.z + look.z * 0.08F);
+        livingEntity.setDeltaMovement(look.x * 0.8F, look.y * 0.8F, look.z * 0.8F);
         //livingEntity.push(look.scale(0.08F));
         livingEntity.hasImpulse = true;
 
@@ -81,6 +81,8 @@ public class NinjaActionUtils {
         livingEntity.playSound(SoundEvents.WIND_CHARGE_BURST.value());
 
         if (level.isClientSide()) {
+            Vec3 delta = livingEntity.getDeltaMovement();
+
             level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), delta.x * -2, delta.y * -2, delta.z * -2);
         }
     }

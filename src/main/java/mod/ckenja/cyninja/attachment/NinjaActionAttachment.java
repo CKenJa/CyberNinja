@@ -36,6 +36,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private int airJumpCount;
     private int airSlideCount;
 
+    private float actionXRot;
     private float actionYRot;
 
     public void checkKeyDown() {
@@ -67,6 +68,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public float getActionYRot() {
         return actionYRot;
+    }
+
+    public void setActionXRot(float actionXRot) {
+        this.actionXRot = actionXRot;
+    }
+
+    public float getActionXRot() {
+        return actionXRot;
     }
 
     public boolean wasInFluid() {

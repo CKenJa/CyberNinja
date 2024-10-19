@@ -151,13 +151,15 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
-            .startAndEnd(0, 8)
+            .startAndEnd(0, 20)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addStartAction(livingEntity -> {
                 if (!livingEntity.level().isClientSide())
                     AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_ROCKET);
                 getActionData(livingEntity).decreaseAirJumpCount();
+                getActionData(livingEntity).setActionXRot(livingEntity.getXRot());
+                getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
             })
             .addTickAction(NinjaActionUtils::tickAirRocket)
             .addStopAction(livingEntity -> {

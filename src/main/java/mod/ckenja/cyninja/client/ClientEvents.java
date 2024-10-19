@@ -26,7 +26,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -47,7 +46,7 @@ public class ClientEvents {
         data.checkKeyDown();
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
-                .filter(action -> action.value().getInputs() != null &&
+                .filter(action -> action.value().getInputs() == null ||
                         data.getInputs().containsAll(action.value().getInputs()))
                 .filter(action -> action.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
@@ -75,7 +74,7 @@ public class ClientEvents {
         Entity entity = bagusModelEvent.getEntity();
         IRootModel rootModel = bagusModelEvent.getRootModel();
         ActionAnimationUtil.animationWalkWithHeadRotation(bagusModelEvent, PlayerAnimations.wall_run, NinjaActions.WALL_SLIDE, 1.0F, 2.5F);
-        ActionAnimationUtil.animationWalkWithHandHeadRotation(bagusModelEvent, PlayerAnimations.slide, NinjaActions.SLIDE, 1.0F, 2.5F);
+        ActionAnimationUtil.animationWalkWithHeadRotation(bagusModelEvent, PlayerAnimations.slide, NinjaActions.SLIDE, 1.0F, 2.5F);
 
         if (entity instanceof LivingEntity livingEntity) {
             if (bagusModelEvent.isSupportedAnimateModel()) {
@@ -111,6 +110,12 @@ public class ClientEvents {
 
             }
 
+            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SLIDE.value()) {
+                float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(actionHolder.getActionYRot()));
+            }
+
             if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_SLIDE.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
@@ -123,16 +128,6 @@ public class ClientEvents {
                 }
 
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(direction.toYRot()));
-            }
-        }
-    }
-
-
-    @SubscribeEvent
-    public static void playerTurnEvent(CalculatePlayerTurnEvent event) {
-        if (Minecraft.getInstance().player != null) {
-            if (NinjaActionUtils.getActionData(Minecraft.getInstance().player).getNinjaAction().value() == NinjaActions.SLIDE.value()) {
-                event.setMouseSensitivity(0.0F);
             }
         }
     }

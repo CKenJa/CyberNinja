@@ -72,8 +72,8 @@ public class NinjaActions {
                 AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
                 if (attributeinstance != null && !attributeinstance.hasModifier(SLIDE_STEP_ID)) {
                     livingEntity.getAttribute(Attributes.STEP_HEIGHT).addTransientModifier(new AttributeModifier(SLIDE_STEP_ID, (double) 0.5F, AttributeModifier.Operation.ADD_VALUE));
-
                 }
+                NinjaActionUtils.getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
 
                 moveToLookingWay(livingEntity, 0.4F, NinjaActions.SLIDE);
             })
@@ -85,8 +85,10 @@ public class NinjaActions {
             })
             .next(livingEntity -> {
                 NinjaActionAttachment attachment = getActionData(livingEntity);
-                //壁にぶつかったら止まる
+                //壁にぶつかったら止まる。そして減速
                 if (livingEntity.horizontalCollision) {
+                    Vec3 delta = livingEntity.getDeltaMovement();
+                    livingEntity.setDeltaMovement(delta.x * 0.45F, delta.y, delta.z * 0.45F);
                     return NONE;
                 }
                 // sneakかjumpした時とまる

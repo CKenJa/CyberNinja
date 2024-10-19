@@ -89,7 +89,7 @@ public class NinjaActionUtils {
 
         Vec3 vec3 = livingEntity.getDeltaMovement();
         //slide to looking way
-        if (vec3.y < 0.0F && livingEntity.getDeltaMovement().y < 0.0F) {
+        if (vec3.y < 0.0F) {
             livingEntity.setDeltaMovement(vec3.x, vec3.y * 0.6F, vec3.z);
             livingEntity.resetFallDistance();
             livingEntity.hasImpulse = true;

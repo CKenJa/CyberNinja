@@ -34,6 +34,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private int airSlideCount;
     private int slideTick;
 
+    private float actionYRot;
+
     public void checkKeyDown() {
         EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
@@ -56,6 +58,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public Holder<NinjaAction> getNinjaAction() {
         return ninjaAction;
+    }
+
+    public void setActionYRot(float actionYRot) {
+        this.actionYRot = actionYRot;
+    }
+
+    public float getActionYRot() {
+        return actionYRot;
     }
 
     public boolean wasInFluid() {

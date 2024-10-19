@@ -80,6 +80,9 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         this.ninjaAction.value().stopAction(livingEntity);
+        if (this.ninjaAction.value().getCooldown() > 0) {
+            this.setCooldown(this.ninjaAction, this.ninjaAction.value().getCooldown());
+        }
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
         this.ninjaAction.value().startAction(livingEntity);

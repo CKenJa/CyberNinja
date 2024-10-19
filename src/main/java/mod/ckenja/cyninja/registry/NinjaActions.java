@@ -3,6 +3,7 @@ package mod.ckenja.cyninja.registry;
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
@@ -52,7 +54,6 @@ public class NinjaActions {
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
-            .setNeedInput(NinjaInput.SNEAK)
             .startAndEnd(0, 1)
             .cooldown(4)
             .loop()
@@ -99,8 +100,15 @@ public class NinjaActions {
                     return NONE;
                 }
                 // jumpで止まる
-                if (attachment.getInputs() != null) {
+                if (livingEntity.level().isClientSide && attachment.getInputs() != null) {
+                    //sneakを押してなければnone
+                    if (!attachment.getInputs().contains(NinjaInput.SNEAK)) {
+                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        return NONE;
+                    }
+
                     if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
+                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         return NONE;
                     }
                 }

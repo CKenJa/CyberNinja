@@ -9,7 +9,6 @@ import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAnimations;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
@@ -18,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -53,13 +51,6 @@ public class ClientEvents {
                 .filter(data::canAction)
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
-        NinjaAction currentNinjaAction = data.getCurrentAction().value();
-        if (currentNinjaAction.getNeedInputs() != null && !currentNinjaAction.getNeedInputs().contains(data.getInputs())) {
-            Holder<NinjaAction> holder = currentNinjaAction.getNext().apply(player);
-            if (holder != null) {
-                PacketDistributor.sendToServer(new SetActionToServerPacket(holder));
-            }
-        }
     }
 
     @SubscribeEvent

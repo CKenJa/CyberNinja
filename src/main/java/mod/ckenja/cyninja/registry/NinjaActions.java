@@ -54,6 +54,7 @@ public class NinjaActions {
             .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
             .setNeedInput(NinjaInput.SNEAK)
             .startAndEnd(0, 1)
+            .cooldown(4)
             .loop()
             .speed(3F)
             .setReduceDamage(1.0F)
@@ -183,6 +184,7 @@ public class NinjaActions {
             .startAndEnd(2, 12)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)
+            .cooldown(4)
             .addTickAction(attacker->{
                 List<Entity> entities = NinjaActionUtils.getEnemiesInSphere(attacker.level(), attacker.position(), 2.5);
                 NinjaActionUtils.attackEntities(attacker, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);

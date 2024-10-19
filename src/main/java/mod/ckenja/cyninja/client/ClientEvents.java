@@ -50,6 +50,7 @@ public class ClientEvents {
                         action.value().getInputs() != null && data.getInputs().containsAll(action.value().getInputs()))
                 .filter(action -> action.value() != data.getCurrentAction().value())
                 .filter(action -> action.value().getNeedCondition().test(player))
+                .filter(data::canAction)
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
         NinjaAction currentNinjaAction = data.getCurrentAction().value();

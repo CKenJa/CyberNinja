@@ -19,6 +19,7 @@ public class NinjaAction {
 
     private final int startTick;
     private final int endTick;
+    private final int cooldown;
     private final float moveSpeed;
     private final float reduceDamage;
     private final float reduceKnockback;
@@ -50,6 +51,7 @@ public class NinjaAction {
     private NinjaAction(Builder builder) {
         this.startTick = builder.startTick;
         this.endTick = builder.endTick;
+        this.cooldown = builder.cooldown;
         this.moveSpeed = builder.moveSpeed;
         this.reduceDamage = builder.reduceDamage;
         this.reduceKnockback = builder.reduceKnockback;
@@ -88,6 +90,10 @@ public class NinjaAction {
 
     public int getEndTick() {
         return endTick;
+    }
+
+    public int getCooldown() {
+        return cooldown;
     }
 
     public float getMoveSpeed() {
@@ -171,6 +177,7 @@ public class NinjaAction {
         private boolean noBob;
         private int startTick;
         private int endTick;
+        private int cooldown;
         private float moveSpeed;
         private boolean loop;
         private int timeout;
@@ -229,6 +236,13 @@ public class NinjaAction {
             this.endTick = end;
             return this;
         }
+
+        //Set Cooldown
+        public Builder cooldown(int cooldown) {
+            this.cooldown = cooldown;
+            return this;
+        }
+
 
         //The smaller the number, the higher the priority.
         public Builder priority(int priority) {

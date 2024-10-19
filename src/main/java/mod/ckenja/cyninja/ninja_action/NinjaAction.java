@@ -24,7 +24,7 @@ public class NinjaAction {
     private final float reduceDamage;
     private final float reduceKnockback;
     private final boolean loop;
-    private final boolean canJump;
+    private final boolean canAction;
     private final boolean noBob;
 
     // Next input acceptance period *ms
@@ -57,7 +57,7 @@ public class NinjaAction {
         this.reduceKnockback = builder.reduceKnockback;
         this.timeout = builder.timeout;
         this.loop = builder.loop;
-        this.canJump = builder.canJump;
+        this.canAction = builder.canAction;
         this.noBob = builder.noBob;
 
         this.next = builder.next;
@@ -116,8 +116,8 @@ public class NinjaAction {
         return priority;
     }
 
-    public boolean isCanJump() {
-        return canJump;
+    public boolean isCanAction() {
+        return canAction;
     }
 
     public Optional<EntityDimensions> getHitBox() {
@@ -173,7 +173,7 @@ public class NinjaAction {
         private EnumSet<NinjaInput> inputs;
         private EnumSet<NinjaInput> needInputs;
         private int priority;
-        private boolean canJump;
+        private boolean canAction;
         private boolean noBob;
         private int startTick;
         private int endTick;
@@ -218,7 +218,7 @@ public class NinjaAction {
             this.hitEffect = (a, b) -> {
             };
             this.animationID = Optional.empty();
-            this.canJump = true;
+            this.canAction = true;
             this.noBob = false;
         }
 
@@ -323,8 +323,8 @@ public class NinjaAction {
             return this;
         }
 
-        public Builder setCanJump(boolean canJump) {
-            this.canJump = canJump;
+        public Builder setCanAction(boolean canAction) {
+            this.canAction = canAction;
             return this;
         }
 

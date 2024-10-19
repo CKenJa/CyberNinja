@@ -59,7 +59,7 @@ public class NinjaActions {
             .speed(3F)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)
-            .setCanJump(false)
+            .setCanAction(false)
             .setNoBob(true)
             .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
             .addTickAction(slider->{

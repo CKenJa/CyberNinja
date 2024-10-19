@@ -33,7 +33,7 @@ public abstract class LivingEntityMixin extends Entity {
     protected Vec3 maybeBackOffFromEdge(Vec3 p_20019_, MoverType p_20020_) {
         LivingEntity livingEntity = (LivingEntity) (Object) this;
 
-        if (NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.SLIDE.value()) {
+        if (NinjaActionUtils.getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SLIDE.value()) {
             return p_20019_;
         }
         return super.maybeBackOffFromEdge(p_20019_, p_20020_);
@@ -47,7 +47,7 @@ public abstract class LivingEntityMixin extends Entity {
         if (flag && this.hasEffect(MobEffects.SLOW_FALLING)) {
             d0 = Math.min(d0, 0.01);
         }
-        if (NinjaActionUtils.getActionData(livingEntity).getNinjaAction().value() == NinjaActions.SLIDE.value()) {
+        if (NinjaActionUtils.getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SLIDE.value()) {
             if (this.isControlledByLocalInstance()) {
                 if (d0 != 0.0) {
                     this.setDeltaMovement(this.getDeltaMovement().add(0.0, -d0, 0.0));

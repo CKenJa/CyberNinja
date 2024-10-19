@@ -26,7 +26,7 @@ public class ActionAnimationUtil {
         if (entity instanceof LivingEntity livingEntity) {
             if (event.isSupportedAnimateModel()) {
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions.value()) {
+                if (actionHolder != null && actionHolder.getCurrentAction().value() == ninjaActions.value()) {
 
                     Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
                     Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");
@@ -64,7 +64,7 @@ public class ActionAnimationUtil {
             if (event.isSupportedAnimateModel()) {
 
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == ninjaActions.value()) {
+                if (actionHolder != null && actionHolder.getCurrentAction().value() == ninjaActions.value()) {
 
                         Optional<ModelPart> headPart = rootModel.getBetterAnyDescendantWithName("head");
                         Optional<ModelPart> hatPart = rootModel.getBetterAnyDescendantWithName("hat");

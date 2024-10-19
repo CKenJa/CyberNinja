@@ -45,8 +45,10 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> SLIDE = NINJA_ACTIONS.register("slide", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity ->
-                    !livingEntity.isInFluidType() && !livingEntity.isInWater() && getActionData(livingEntity).getAirSlideCount() > 0 &&
-                    getActionData(livingEntity).getNinjaAction().value() == NinjaActions.NONE.value()
+                    !(livingEntity.isInFluidType() || livingEntity.isInWater()) &&
+                    getActionData(livingEntity).canAirSlideCount() &&
+                    getActionData(livingEntity).getCurrentAction().value() == NinjaActions.NONE.value() &&
+                    getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SPIN.value()
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
@@ -73,9 +75,10 @@ public class NinjaActions {
                 if (attributeinstance != null && !attributeinstance.hasModifier(SLIDE_STEP_ID)) {
                     livingEntity.getAttribute(Attributes.STEP_HEIGHT).addTransientModifier(new AttributeModifier(SLIDE_STEP_ID, (double) 0.5F, AttributeModifier.Operation.ADD_VALUE));
                 }
-                NinjaActionUtils.getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
+                getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
 
-                moveToLookingWay(livingEntity, 0.4F, NinjaActions.SLIDE);
+                getActionData(livingEntity).decreaseAirSlideCount();
+                moveToLookingWay(livingEntity, 1F, NinjaActions.SLIDE);
             })
             .addStopAction(livingEntity -> {
                 AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
@@ -91,14 +94,13 @@ public class NinjaActions {
                     livingEntity.setDeltaMovement(delta.x * 0.45F, delta.y, delta.z * 0.45F);
                     return NONE;
                 }
-                // sneakかjumpした時とまる
+                // jumpで止まる
                 if (attachment.getInputs() != null) {
-                    if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround() || !attachment.getInputs().contains(NinjaInput.SNEAK)) {
-                        attachment.decreaseAirSlideCount();
+                    if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
                         return NONE;
                     }
                 }
-
+                // 一定時間経過かつ減速で止まる
                 if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.25F) {
                     return NONE;
                 }
@@ -110,7 +112,7 @@ public class NinjaActions {
             .addNeedCondition(livingEntity ->
                     !livingEntity.onGround() &&
                     livingEntity.horizontalCollision &&
-                            !livingEntity.isInFluidType() && !livingEntity.isInWater()
+                    !(livingEntity.isInFluidType() || livingEntity.isInWater())
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .loop()

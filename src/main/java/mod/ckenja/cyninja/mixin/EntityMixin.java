@@ -29,7 +29,8 @@ public abstract class EntityMixin {
             if (NinjaActionUtils.getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SLIDE.value()) {
 
                 Vec3 vec3 = getDeltaMovement();
-                setDeltaMovement(vec3.x * 0.9F, vec3.y, vec3.z * 0.9F);
+                //段差に当たったとき減速する
+                setDeltaMovement(vec3.x * 0.85F, vec3.y, vec3.z * 0.85F);
             }
         }
     }

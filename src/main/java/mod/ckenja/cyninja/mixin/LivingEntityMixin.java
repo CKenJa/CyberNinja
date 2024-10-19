@@ -29,16 +29,6 @@ public abstract class LivingEntityMixin extends Entity {
         super(p_19870_, p_19871_);
 
     }
-
-    protected Vec3 maybeBackOffFromEdge(Vec3 p_20019_, MoverType p_20020_) {
-        LivingEntity livingEntity = (LivingEntity) (Object) this;
-
-        if (NinjaActionUtils.getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SLIDE.value()) {
-            return p_20019_;
-        }
-        return super.maybeBackOffFromEdge(p_20019_, p_20020_);
-    }
-
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
     public void travel(Vec3 p_21280_, CallbackInfo ci) {
         LivingEntity livingEntity = (LivingEntity) (Object) this;

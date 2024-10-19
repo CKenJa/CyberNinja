@@ -66,7 +66,7 @@ public class NinjaAction {
 
         this.inputs = builder.inputs;
         this.needInputs = builder.needInputs;
-        if (this.inputs != null && !this.inputs.isEmpty()) {
+        if (this.inputs != null && !this.inputs.isEmpty() || this.inputs == null) {
             NINJA_ACTIONS.add(Holder.direct(this));
         }
         this.tickAction = builder.tickAction;

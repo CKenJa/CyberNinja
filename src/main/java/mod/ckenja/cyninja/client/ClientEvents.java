@@ -46,7 +46,7 @@ public class ClientEvents {
         data.checkKeyDown();
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
-                .filter(action -> action.value().getInputs() == null ||
+                .filter(action -> action.value().getInputs() == null || action.value().getInputs().isEmpty() ||
                         data.getInputs().containsAll(action.value().getInputs()))
                 .filter(action -> action.value() != data.getCurrentAction().value())
                 .filter(action -> action.value().getNeedCondition().test(player))

@@ -68,7 +68,7 @@ public abstract class LivingEntityMixin extends Entity {
                 if ((this.isInWater() || (this.isInFluidType(fluidstate) && fluidstate.getFluidType() != net.neoforged.neoforge.common.NeoForgeMod.LAVA_TYPE.value())) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
                     if (this.isInWater() || (this.isInFluidType(fluidstate) && !livingEntity.moveInFluid(fluidstate, p_21280_, d0))) {
                         double d9 = this.getY();
-                        float f4 = this.isSprinting() ? 0.96F : this.getWaterSlowDown() + 0.06F;
+                        float f4 = 0.92F;
                         float f5 = 0.02F;
                         float f6 = (float) this.getAttributeValue(Attributes.WATER_MOVEMENT_EFFICIENCY);
                         if (!this.onGround()) {

@@ -153,10 +153,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         for (Map.Entry<NinjaAction, Integer> cooldownMap : cooldown.entrySet()) {
             if (cooldownMap.getValue() > 1) {
                 cooldown.replace(cooldownMap.getKey(), cooldownMap.getValue() - 1);
-            } else {
-                cooldown.remove(cooldownMap.getKey());
             }
         }
+        cooldown.entrySet().removeIf(entry -> {
+            return entry.getValue() <= 0;
+        });
         if (!isActionLoop()) {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);

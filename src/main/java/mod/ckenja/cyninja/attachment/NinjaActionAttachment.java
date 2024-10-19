@@ -2,7 +2,6 @@ package mod.ckenja.cyninja.attachment;
 
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
-import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
@@ -55,8 +54,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return actionTick;
     }
 
-
-    public Holder<NinjaAction> getNinjaAction() {
+    public Holder<NinjaAction> getCurrentAction() {
         return ninjaAction;
     }
 
@@ -112,7 +110,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public boolean isActionLoop(){
-        return this.getNinjaAction().value().isLoop();
+        return this.getCurrentAction().value().isLoop();
     }
     
     public float movementSpeed() {
@@ -146,11 +144,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             if (!this.isActionStop()) {
                 this.setActionTick(this.getActionTick() + 1);
             } else {
-                setAction(user, this.getNinjaAction().value().getNextOfTimeout().apply(user));
+                setAction(user, this.getCurrentAction().value().getNextOfTimeout().apply(user));
             }
         }
         if (isActionActive() && !isActionLoop() || isActionLoop()) {
-            Holder<NinjaAction> ninjaAction = this.getNinjaAction().value().getNext().apply(user);
+            Holder<NinjaAction> ninjaAction = this.getCurrentAction().value().getNext().apply(user);
             if (ninjaAction != null) {
                 setAction(user, ninjaAction);
             }
@@ -178,16 +176,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 }
             }
         }
-        if (getNinjaAction().value() == NinjaActions.SLIDE.value()) {
-            this.setSlideTick(this.getSlideTick() + 1);
+        if (getCurrentAction().value() == NinjaActions.SLIDE.value()) {
+            slideTick++;
         } else {
-            this.setSlideTick(0);
+            slideTick = 0;
         }
         if(user.onGround()){
-            user.getData(ModAttachments.NINJA_ACTION).airJumpCount = 1;
-            if (getNinjaAction().value() != NinjaActions.SLIDE.value()) {
-                user.getData(ModAttachments.NINJA_ACTION).airSlideCount = 1;
-            }
+            resetAirJumpCount();
+            resetAirSlideCount();
         }
     }
 
@@ -244,7 +240,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     public boolean canAirJump(LivingEntity livingEntity, NinjaAction action) {
         return airJumpCount>0 && isFullAir() &&
                 previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
-                getNinjaAction().value() == action &&
+                getCurrentAction().value() == action &&
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }
 
@@ -273,12 +269,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         airSlideCount--;
     }
 
-    public int getAirSlideCount() {
-        return airSlideCount;
-    }
-
-    public void setSlideTick(int slideTick) {
-        this.slideTick = slideTick;
+    public boolean canAirSlideCount() {
+        return airSlideCount > 0;
     }
 
     public int getSlideTick() {

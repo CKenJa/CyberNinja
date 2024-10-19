@@ -164,7 +164,7 @@ public class NinjaAction {
     }
 
     public static class Builder {
-        public EnumSet<NinjaInput> inputs;
+        private EnumSet<NinjaInput> inputs;
         private EnumSet<NinjaInput> needInputs;
         private int priority;
         private boolean canJump;

@@ -49,10 +49,13 @@ public class ClientEvents {
                 .filter(action -> action.value() != NinjaActions.NONE.value() && action.value().getInputs() == null ||
                         action.value().getInputs() != null && data.getInputs().containsAll(action.value().getInputs()))
                 .filter(action -> action.value() != data.getNinjaAction().value())
+                .filter(action -> action.value().getInputs() == null || action.value().getInputs().isEmpty() ||
+                        data.getInputs().containsAll(action.value().getInputs()))
+                .filter(action -> action.value() != data.getCurrentAction().value())
                 .filter(action -> action.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
-        NinjaAction currentNinjaAction = data.getNinjaAction().value();
+        NinjaAction currentNinjaAction = data.getCurrentAction().value();
         if (currentNinjaAction.getNeedInputs() != null && !currentNinjaAction.getNeedInputs().contains(data.getInputs())) {
             Holder<NinjaAction> holder = currentNinjaAction.getNext().apply(player);
             if (holder != null) {
@@ -82,7 +85,7 @@ public class ClientEvents {
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
                 BaguAnimationController animationController = AnimationUtil.getAnimationController(bagusModelEvent.getEntity());
 
-                if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.AIR_ROCKET.value()) {
+                if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
                     if (animationController.getAnimationState(ModAnimations.AIR_ROCKET).isStarted()) {
                         rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
 
@@ -102,22 +105,22 @@ public class ClientEvents {
         Entity entity = bagusModelEvent.getEntity();
         if (entity instanceof LivingEntity livingEntity) {
             NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
-            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.AIR_ROCKET.value()) {
+            if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot()));
             }
 
-            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SPIN.value()) {
+            if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.SPIN.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees((bagusModelEvent.getPartialTick() + entity.tickCount) * 60F));
 
             }
 
-            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.SLIDE.value()) {
+            if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.SLIDE.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(actionHolder.getActionYRot()));
             }
 
-            if (actionHolder != null && actionHolder.getNinjaAction().value() == NinjaActions.WALL_SLIDE.value()) {
+            if (actionHolder != null && actionHolder.getCurrentAction().value() == NinjaActions.WALL_SLIDE.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
                 Direction direction = livingEntity.getMotionDirection();

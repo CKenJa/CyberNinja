@@ -48,6 +48,7 @@ public class ClientEvents {
                 //入力が必要ないもの or 必要で、一致するもの
                 .filter(action -> action.value().getInputs() == null ||
                         data.getInputs().containsAll(action.value().getInputs()))
+                .filter(action -> action.value() != data.getNinjaAction().value())
                 .filter(action -> action.value().getNeedCondition().test(player))
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));

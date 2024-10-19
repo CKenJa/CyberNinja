@@ -37,7 +37,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void triggerNinjaAction(ClientTickEvent.Pre event) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null)
+        if (player == null || player.isSpectator())
             return;
 
         NinjaActionAttachment data = NinjaActionUtils.getActionData(player);

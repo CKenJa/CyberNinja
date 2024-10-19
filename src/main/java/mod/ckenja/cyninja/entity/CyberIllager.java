@@ -41,8 +41,8 @@ public class CyberIllager extends AbstractIllager {
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(4, new SlideGoal(this, UniformInt.of(60, 120)));
-        this.goalSelector.addGoal(5, new JumpGoal(this, UniformInt.of(200, 400)));
+        this.goalSelector.addGoal(4, new SlideGoal(this, UniformInt.of(200, 300)));
+        this.goalSelector.addGoal(5, new JumpGoal(this, UniformInt.of(200, 600)));
         this.goalSelector.addGoal(6, new MeleeAttackGoal(this, 1.0F, true));
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
@@ -54,7 +54,7 @@ public class CyberIllager extends AbstractIllager {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.FOLLOW_RANGE, 18.0).add(Attributes.MAX_HEALTH, 32.0);
+        return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.FOLLOW_RANGE, 25.0).add(Attributes.MAX_HEALTH, 32.0);
     }
 
 

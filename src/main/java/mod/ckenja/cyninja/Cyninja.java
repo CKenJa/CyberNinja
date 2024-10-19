@@ -1,6 +1,7 @@
 package mod.ckenja.cyninja;
 
 import com.mojang.logging.LogUtils;
+import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.registry.*;
@@ -39,5 +40,6 @@ public class Cyninja
         PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0.0").optional();
         registrar.playBidirectional(SetActionToServerPacket.TYPE, SetActionToServerPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
         registrar.playBidirectional(SetActionToClientPacket.TYPE, SetActionToClientPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
+        registrar.playBidirectional(ResetFallServerPacket.TYPE, ResetFallServerPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
     }
 }

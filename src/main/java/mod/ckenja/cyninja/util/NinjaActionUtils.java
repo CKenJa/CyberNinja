@@ -2,9 +2,11 @@ package mod.ckenja.cyninja.util;
 
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
+import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.ModItems;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -93,6 +96,9 @@ public class NinjaActionUtils {
         //slide to looking way
         if (vec3.y < 0.0F) {
             livingEntity.setDeltaMovement(vec3.x, vec3.y * 0.6F, vec3.z);
+            if (livingEntity instanceof LocalPlayer localPlayer) {
+                PacketDistributor.sendToServer(new ResetFallServerPacket());
+            }
             livingEntity.resetFallDistance();
             livingEntity.hasImpulse = true;
         }

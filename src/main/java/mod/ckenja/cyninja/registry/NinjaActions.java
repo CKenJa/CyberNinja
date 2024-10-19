@@ -79,6 +79,8 @@ public class NinjaActions {
                 getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
 
                 getActionData(livingEntity).decreaseAirSlideCount();
+                Vec3 vec3 = livingEntity.getDeltaMovement();
+                livingEntity.setDeltaMovement(vec3.x, 0, vec3.z);
                 moveToLookingWay(livingEntity, 1F, NinjaActions.SLIDE);
             })
             .addStopAction(livingEntity -> {

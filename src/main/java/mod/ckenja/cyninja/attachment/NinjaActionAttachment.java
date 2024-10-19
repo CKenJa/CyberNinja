@@ -35,7 +35,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     private int airJumpCount;
     private int airSlideCount;
-    private int slideTick;
 
     private float actionYRot;
 
@@ -194,11 +193,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 }
             }
         }
-        if (getCurrentAction().value() == NinjaActions.SLIDE.value()) {
-            slideTick++;
-        } else {
-            slideTick = 0;
-        }
         if(user.onGround()){
             resetAirJumpCount();
             resetAirSlideCount();
@@ -298,9 +292,5 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public boolean canAirSlideCount() {
         return airSlideCount > 0;
-    }
-
-    public int getSlideTick() {
-        return slideTick;
     }
 }

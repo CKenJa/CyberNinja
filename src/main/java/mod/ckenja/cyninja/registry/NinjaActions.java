@@ -102,7 +102,7 @@ public class NinjaActions {
                     }
                 }
                 // 一定時間経過かつ減速で止まる
-                if (getActionData(livingEntity).getSlideTick() > 5 && livingEntity.getDeltaMovement().horizontalDistance() < 0.25F) {
+                if (livingEntity.getDeltaMovement().horizontalDistance() < 0.2F) {
                     return NONE;
                 }
                 return null;

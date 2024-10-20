@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.entity.CyberIllager;
+import mod.ckenja.cyninja.entity.SickleEntity;
 import mod.ckenja.cyninja.entity.ThrownItemEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -24,6 +25,7 @@ public class ModEntities {
     public static final Supplier<EntityType<CyberIllager>> CYBER_ILLAGER = ENTITIES_REGISTRY.register("cyber_illager", () -> EntityType.Builder.of(CyberIllager::new, MobCategory.MONSTER).sized(0.6F, 1.95F).build(prefix("cyber_illager")));
 
     public static final Supplier<EntityType<ThrownItemEntity>> THROWN_ITEM = ENTITIES_REGISTRY.register("thrown_item", () -> EntityType.Builder.<ThrownItemEntity>of(ThrownItemEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).clientTrackingRange(8).setUpdateInterval(20).build(prefix("thrown_item")));
+    public static final Supplier<EntityType<SickleEntity>> SICKLE = ENTITIES_REGISTRY.register("sickle", () -> EntityType.Builder.<SickleEntity>of(SickleEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).clientTrackingRange(8).setUpdateInterval(20).build(prefix("sickle")));
 
     private static String prefix(String path) {
         return Cyninja.MODID + "." + path;

@@ -26,6 +26,7 @@ public class ModCreativeTabs {
                         ModItems.CYBER_TRIM_SMITHING_TEMPLATE,
                         ModItems.SHURIKEN,
                                 ModItems.KATANA,
+                                ModItems.CHAIN_SICKLE,
                                 ModItems.CYBER_NINJA_SPAWN_EGG
                 ).map(sup ->
                         sup.get().getDefaultInstance()).toList()

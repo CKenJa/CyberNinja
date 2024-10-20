@@ -33,6 +33,14 @@ public class CraftingGenerator extends CraftingDataHelper {
                 .define('T', ModItems.CYBER_TRIM_SMITHING_TEMPLATE)
                 .unlockedBy("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE))
                 .save(consumer, prefix("cyber_trim_dupe"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.CHAIN_SICKLE, 1)
+                .pattern("F")
+                .pattern("C")
+                .pattern("C")
+                .define('F', Items.IRON_HOE)
+                .define('C', Items.CHAIN)
+                .unlockedBy("has_item", has(Items.CHAIN))
+                .save(consumer);
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.NINJA_HELMET), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_helmet"));
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.NINJA_CHESTPLATE), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_chestplate"));
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.NINJA_LEGGINGS), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_leggings"));

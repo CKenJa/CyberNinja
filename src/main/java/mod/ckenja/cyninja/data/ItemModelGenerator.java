@@ -29,6 +29,7 @@ public class ItemModelGenerator extends ItemModelProvider {
         this.singleTexTool(ModItems.SHURIKEN);
         this.singleTex(ModItems.CYBER_TRIM_SMITHING_TEMPLATE);
         this.singleTexTool(ModItems.KATANA);
+        this.singleTexTool(ModItems.CHAIN_SICKLE);
         this.egg(ModItems.CYBER_NINJA_SPAWN_EGG);
     }
 

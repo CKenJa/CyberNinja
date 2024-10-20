@@ -1,6 +1,7 @@
 package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.item.ChainAndSickleItem;
 import mod.ckenja.cyninja.item.KatanaItem;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.item.ShurikenItem;
@@ -26,6 +27,7 @@ public class ModItems {
     public static final DeferredItem<Item> SHURIKEN = ITEMS.register("shuriken", () -> new ShurikenItem((new Item.Properties())));
     //createAttributesの引数は、tier、攻撃力補正、攻撃速度補正
     public static final DeferredItem<Item> KATANA = ITEMS.register("katana", () -> new KatanaItem(new Item.Properties().durability(100).attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+    public static final DeferredItem<Item> CHAIN_SICKLE = ITEMS.register("chain_sickle", () -> new ChainAndSickleItem(new Item.Properties().durability(200)));
 
     public static final DeferredItem<Item> CYBER_NINJA_SPAWN_EGG = ITEMS.register("cyber_ninja_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.CYBER_ILLAGER, 0x8E9393, 0x3C3C6F, new Item.Properties()));
 

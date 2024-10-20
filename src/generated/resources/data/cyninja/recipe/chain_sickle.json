@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "minecraft:chain"
+    },
+    "F": {
+      "item": "minecraft:iron_hoe"
+    }
+  },
+  "pattern": [
+    "F",
+    "C",
+    "C"
+  ],
+  "result": {
+    "count": 1,
+    "id": "cyninja:chain_sickle"
+  }
+}

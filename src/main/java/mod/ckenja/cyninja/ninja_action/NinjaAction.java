@@ -23,7 +23,7 @@ public class NinjaAction {
     private final float moveSpeed;
     private final float reduceDamage;
     private final float reduceKnockback;
-    private final boolean loop;
+    private final NinjaActionTickType ninjaActionTickType;
     private final boolean canAction;
     private final boolean noBob;
 
@@ -55,7 +55,7 @@ public class NinjaAction {
         this.reduceDamage = builder.reduceDamage;
         this.reduceKnockback = builder.reduceKnockback;
         this.timeout = builder.timeout;
-        this.loop = builder.loop;
+        this.ninjaActionTickType = builder.ninjaActionTickType;
         this.canAction = builder.canAction;
         this.noBob = builder.noBob;
 
@@ -78,8 +78,8 @@ public class NinjaAction {
         this.priority = builder.priority;
     }
 
-    public boolean isLoop() {
-        return loop;
+    public NinjaActionTickType getNinjaActionTickType() {
+        return ninjaActionTickType;
     }
 
     public int getStartTick() {
@@ -173,7 +173,7 @@ public class NinjaAction {
         private int endTick;
         private int cooldown;
         private float moveSpeed;
-        private boolean loop;
+        private NinjaActionTickType ninjaActionTickType;
         private int timeout;
         private float reduceDamage;
         private float reduceKnockback;
@@ -194,7 +194,7 @@ public class NinjaAction {
             this.timeout = 0;
             this.moveSpeed = 0F;
             this.reduceDamage = 0.0F;
-            this.loop = false;
+            this.ninjaActionTickType = NinjaActionTickType.START_TO_END;
             this.next = entity -> null;
             this.nextOfTimeout = entity -> NinjaActions.NONE;
             this.needCondition = entity -> true;
@@ -228,6 +228,12 @@ public class NinjaAction {
         public Builder startAndEnd(int start, int end) {
             this.startTick = start;
             this.endTick = end;
+            this.ninjaActionTickType = NinjaActionTickType.START_TO_END;
+            return this;
+        }
+
+        public Builder instant() {
+            this.ninjaActionTickType = NinjaActionTickType.INSTANT;
             return this;
         }
 
@@ -263,7 +269,7 @@ public class NinjaAction {
 
         //loop action
         public Builder loop() {
-            this.loop = true;
+            this.ninjaActionTickType = NinjaActionTickType.LOOP;
             return this;
         }
 

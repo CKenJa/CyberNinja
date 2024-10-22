@@ -3,6 +3,8 @@ package mod.ckenja.cyninja.attachment;
 import com.google.common.collect.Maps;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaActionTickType;
+import mod.ckenja.cyninja.ninja_action.TickState;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
@@ -123,38 +125,37 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         this.actionTick = actionTick;
     }
 
-    public boolean isActionActive(){
-        return isActionDo() && !isActionStop();
-    }
 
-    public boolean isActionLoop(){
-        return this.getCurrentAction().value().isLoop();
-    }
-    
-    public float movementSpeed() {
-        return isActionActive() ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
+    public float movementSpeed(LivingEntity user) {
+        return getTickState(user) == TickState.START ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
     }
 
     public void actionTick(LivingEntity user) {
-        if (isActionActive()) {
+        if (getTickState(user) == TickState.START) {
             this.ninjaAction.value().tickAction(user);
         }
     }
 
     public void actionHold(LivingEntity user) {
-        if (isActionActive()) {
+        if (getTickState(user) == TickState.START) {
             this.ninjaAction.value().holdAction(user);
         }
     }
 
     public void actionHold(LivingEntity target, LivingEntity user) {
-        if (isActionActive()) {
+        if (getTickState(user) == TickState.START) {
             this.ninjaAction.value().hitEffect(target, user);
         }
     }
 
+    public TickState getTickState(LivingEntity user) {
+        return ninjaAction.value().getNinjaActionTickType().getFunction().apply(user);
+    }
+
     public void tick(LivingEntity user) {
-        if (isActionActive() || isActionLoop()) {
+        NinjaActionTickType tickType = getCurrentAction().value().getNinjaActionTickType();
+        TickState tickState = tickType.getFunction().apply(user);
+        if (tickState == TickState.START) {
             this.actionTick(user);
             this.actionHold(user);
         }
@@ -166,14 +167,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         cooldown.entrySet().removeIf(entry -> {
             return entry.getValue() <= 0;
         });
-        if (!isActionLoop()) {
-            if (!this.isActionStop()) {
-                this.setActionTick(this.getActionTick() + 1);
-            } else {
-                setAction(user, this.getCurrentAction().value().getNextOfTimeout().apply(user));
-            }
+
+        if (tickState != TickState.STOP) {
+            this.setActionTick(this.getActionTick() + 1);
+        } else {
+            setAction(user, this.getCurrentAction().value().getNextOfTimeout().apply(user));
         }
-        if (isActionActive() && !isActionLoop() || isActionLoop()) {
+
+        if (tickState == TickState.START) {
             Holder<NinjaAction> ninjaAction = this.getCurrentAction().value().getNext().apply(user);
             if (ninjaAction != null) {
                 setAction(user, ninjaAction);
@@ -209,7 +210,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void pretick(LivingEntity user) {
-        if (isActionActive() || isActionLoop()) {
+        if (getTickState(user) == TickState.START) {
             if (!this.ninjaAction.value().isCanAction()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
@@ -227,8 +228,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
 
-    public Optional<EntityDimensions> hitBox() {
-        return isActionActive() ? this.ninjaAction.value().getHitBox() : Optional.empty();
+    public Optional<EntityDimensions> hitBox(LivingEntity user) {
+        return getTickState(user) == TickState.START ? this.ninjaAction.value().getHitBox() : Optional.empty();
     }
 
     @Override

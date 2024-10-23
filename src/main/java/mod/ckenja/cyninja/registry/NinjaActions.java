@@ -54,14 +54,13 @@ public class NinjaActions {
                                     getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SPIN.value())
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
-            .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
-            .startAndEnd(0, 1)
+            .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
             .cooldown(4)
             .loop()
             .speed(3F)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)
-            .setCanAction(false)
+            .setCanVanillaAction(false)
             .setNoBob(true)
             .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
             .addTickAction(slider->{
@@ -137,10 +136,10 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .nextOfTimeout(livingEntity -> NinjaActions.NONE)
-            .addNeedCondition(livingEntity -> getActionData(livingEntity).canAirJump(livingEntity, NinjaActions.WALL_SLIDE.value()))
+            .addNeedCondition(livingEntity -> getActionData(livingEntity).canJump(livingEntity, NinjaActions.WALL_SLIDE))
             .addStartAction(livingEntity -> {
                 Vec3 delta = livingEntity.getDeltaMovement();
                 livingEntity.setDeltaMovement(delta.x, 1F, delta.z);
@@ -150,9 +149,9 @@ public class NinjaActions {
             .build()
     );
 
-
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
             .setInput(NinjaInput.JUMP)
+
             .startAndEnd(0, 1)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addStartAction(NinjaActionUtils::doAirJump)
@@ -169,6 +168,7 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> NinjaAction.Builder.newInstance()
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 20)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addStartAction(livingEntity -> {
@@ -187,12 +187,10 @@ public class NinjaActions {
             .build(new NinjaAction.ModifierBuilder().setModifierType(ModifierType.OVERRIDE, AIR_JUMP))
     );
 
-
-
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity -> !livingEntity.onGround())
             .addNeedCondition(NinjaActionUtils::isEquipKatana)
-            .setInput(NinjaInput.LEFT_CLICK)
+            .setStartInput(NinjaInput.LEFT_CLICK)
             .startAndEnd(2, 12)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)

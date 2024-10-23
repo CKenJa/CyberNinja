@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
-    private Map<NinjaAction, Integer> cooldown = Maps.newHashMap();
+    private final Map<NinjaAction, Integer> cooldownMap = Maps.newHashMap();
 
     private EnumSet<NinjaInput> previousInputs;
     private EnumSet<NinjaInput> inputs;
@@ -43,7 +43,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private float actionYRot;
 
     public void checkKeyDown() {
-        EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
+        previousInputs = inputs;
+        inputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
         if (options.keyShift.isDown())
             inputs.add(NinjaInput.SNEAK);
@@ -53,8 +54,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             inputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
-        previousInputs = inputs;
-        this.inputs = inputs;
     }
 
     public int getActionTick() {
@@ -111,29 +110,10 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
-            this.ninjaAction.value().getOriginAction().value().stopAction(livingEntity);
-        }
-        this.ninjaAction.value().stopAction(livingEntity);
-
-        if (this.ninjaAction.value().getCooldown() > 0) {
-            if (this.ninjaAction.value().getOriginAction() != null) {
-                this.setCooldown(this.ninjaAction.value().getOriginAction(), this.ninjaAction.value().getCooldown());
-            }
-            this.setCooldown(this.ninjaAction, this.ninjaAction.value().getCooldown());
-
-        }
-        this.ninjaAction = ninjaAction;
-        this.setActionTick(0);
+        setAction(livingEntity, ninjaAction);
         if (!livingEntity.level().isClientSide()) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(livingEntity, new SetActionToClientPacket(livingEntity, ninjaAction));
         }
-        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
-            this.ninjaAction.value().getOriginAction().value().startAction(livingEntity);
-        }
-        this.ninjaAction.value().startAction(livingEntity);
-
-        livingEntity.refreshDimensions();
     }
 
     public boolean isActionStop() {
@@ -189,14 +169,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             this.actionTick(user);
             this.actionHold(user);
         }
-        for (Map.Entry<NinjaAction, Integer> cooldownMap : cooldown.entrySet()) {
-            if (cooldownMap.getValue() > 0) {
-                cooldown.replace(cooldownMap.getKey(), cooldownMap.getValue() - 1);
-            }
-        }
-        cooldown.entrySet().removeIf(entry -> {
-            return entry.getValue() <= 0;
-        });
+        cooldownMap.replaceAll((key,value) -> value - 1);
+        cooldownMap.entrySet().removeIf(entry -> entry.getValue() <= 0);
 
         if (tickState != TickState.STOP) {
             this.setActionTick(this.getActionTick() + 1);
@@ -241,7 +215,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void pretick(LivingEntity user) {
         if (getTickState(user) == TickState.START) {
-            if (!this.ninjaAction.value().isCanAction()) {
+            if (!this.ninjaAction.value().isCanVanillaAction()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
             }
@@ -286,25 +260,28 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setCooldown(Holder<NinjaAction> ninjaAction, int cooldown) {
-        this.cooldown.putIfAbsent(ninjaAction.value(), cooldown);
+        this.cooldownMap.putIfAbsent(ninjaAction.value(), cooldown);
     }
 
     public boolean canAction(Holder<NinjaAction> ninjaAction) {
-        return this.cooldown == null || !this.cooldown.containsKey(ninjaAction.value());
+        return !this.cooldownMap.containsKey(ninjaAction.value());
     }
 
 
     public boolean canAirJump(LivingEntity livingEntity) {
-        return canAirJump(livingEntity, NinjaActions.NONE.value());
+        return canAirJump(livingEntity, NinjaActions.NONE);
     }
 
-    public boolean canAirJump(LivingEntity livingEntity, NinjaAction action) {
-        return airJumpCount>0 && isFullAir() &&
-                previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
-                getCurrentAction().value() == action &&
+    public boolean canAirJump(LivingEntity livingEntity, Holder<NinjaAction> action) {
+        return airJumpCount>0 && canJump(livingEntity, action);
+    }
+
+    public boolean canJump(LivingEntity livingEntity, Holder<NinjaAction> action) {
+        return isFullAir() &&
+                !previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
+                getCurrentAction().value() == action.value() &&
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }
-
 
     public EnumSet<NinjaInput> getInputs() {
         return inputs;

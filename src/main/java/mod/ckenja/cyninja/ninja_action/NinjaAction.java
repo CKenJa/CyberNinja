@@ -24,10 +24,12 @@ public class NinjaAction {
     private final float reduceDamage;
     private final float reduceKnockback;
     private final NinjaActionTickType ninjaActionTickType;
+  
+    private final boolean canVanillaAction;
+
     private final ModifierType modifierType;
     private Holder<NinjaAction> originAction;
-
-    private final boolean canAction;
+  
     private final boolean noBob;
 
     // Next input acceptance period *ms
@@ -48,7 +50,7 @@ public class NinjaAction {
 
     private final Optional<EntityDimensions> hitBox;
 
-    private final EnumSet<NinjaInput> inputs;
+    private final EnumSet<NinjaInput> startInputs;
 
     private NinjaAction(Builder builder) {
         this(builder, new ModifierBuilder());
@@ -63,9 +65,12 @@ public class NinjaAction {
         this.reduceKnockback = builder.reduceKnockback;
         this.timeout = builder.timeout;
         this.ninjaActionTickType = builder.ninjaActionTickType;
+      
+        this.canVanillaAction = builder.canVanillaAction;
+
         this.modifierType = builder2.modifierType;
         this.originAction = builder2.originAction;
-        this.canAction = builder.canAction;
+
         this.noBob = builder.noBob;
 
         this.next = builder.next;
@@ -74,8 +79,8 @@ public class NinjaAction {
         this.needCondition = builder.needCondition;
         this.holdAction = builder.holdAction;
 
-        this.inputs = builder.inputs;
-        if (this.inputs != null && !this.inputs.isEmpty() || this.inputs == null) {
+        this.startInputs = builder.startInputs;
+        if (this.startInputs != null && !this.startInputs.isEmpty() || this.startInputs == null) {
             NINJA_ACTIONS.add(Holder.direct(this));
         }
         this.tickAction = builder.tickAction;
@@ -132,8 +137,8 @@ public class NinjaAction {
         return priority;
     }
 
-    public boolean isCanAction() {
-        return canAction;
+    public boolean isCanVanillaAction() {
+        return canVanillaAction;
     }
 
     public Optional<EntityDimensions> getHitBox() {
@@ -173,8 +178,8 @@ public class NinjaAction {
         hitEffect.accept(target, attacker);
     }
 
-    public EnumSet<NinjaInput> getInputs() {
-        return inputs;
+    public EnumSet<NinjaInput> getStartInputs() {
+        return startInputs;
     }
 
 
@@ -183,9 +188,9 @@ public class NinjaAction {
     }
 
     public static class Builder {
-        private EnumSet<NinjaInput> inputs;
+        private EnumSet<NinjaInput> startInputs;
         private int priority;
-        private boolean canAction;
+        private boolean canVanillaAction;
         private boolean noBob;
         private int startTick;
         private int endTick;
@@ -230,7 +235,7 @@ public class NinjaAction {
             this.hitEffect = (a, b) -> {
             };
             this.animationID = Optional.empty();
-            this.canAction = true;
+            this.canVanillaAction = true;
             this.noBob = false;
         }
 
@@ -346,8 +351,8 @@ public class NinjaAction {
             return this;
         }
 
-        public Builder setCanAction(boolean canAction) {
-            this.canAction = canAction;
+        public Builder setCanVanillaAction(boolean canVanillaAction) {
+            this.canVanillaAction = canVanillaAction;
             return this;
         }
 
@@ -356,8 +361,8 @@ public class NinjaAction {
             return this;
         }
 
-        public Builder setInput(NinjaInput... ninjaInputs) {
-            inputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
+        public Builder setStartInput(NinjaInput... ninjaInputs) {
+            startInputs = EnumSet.copyOf(Arrays.asList(ninjaInputs));
             return this;
         }
 

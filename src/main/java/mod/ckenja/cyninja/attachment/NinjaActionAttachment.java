@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
-    private Map<NinjaAction, Integer> cooldown = Maps.newHashMap();
+    private final Map<NinjaAction, Integer> cooldownMap = Maps.newHashMap();
 
     private EnumSet<NinjaInput> previousInputs;
     private EnumSet<NinjaInput> inputs;
@@ -159,14 +159,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             this.actionTick(user);
             this.actionHold(user);
         }
-        for (Map.Entry<NinjaAction, Integer> cooldownMap : cooldown.entrySet()) {
-            if (cooldownMap.getValue() > 0) {
-                cooldown.replace(cooldownMap.getKey(), cooldownMap.getValue() - 1);
-            }
-        }
-        cooldown.entrySet().removeIf(entry -> {
-            return entry.getValue() <= 0;
-        });
+        cooldownMap.replaceAll((key,value) -> value - 1);
+        cooldownMap.entrySet().removeIf(entry -> entry.getValue() <= 0);
 
         if (tickState != TickState.STOP) {
             this.setActionTick(this.getActionTick() + 1);
@@ -256,11 +250,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setCooldown(Holder<NinjaAction> ninjaAction, int cooldown) {
-        this.cooldown.putIfAbsent(ninjaAction.value(), cooldown);
+        this.cooldownMap.putIfAbsent(ninjaAction.value(), cooldown);
     }
 
     public boolean canAction(Holder<NinjaAction> ninjaAction) {
-        return this.cooldown == null || !this.cooldown.containsKey(ninjaAction.value());
+        return !this.cooldownMap.containsKey(ninjaAction.value());
     }
 
 

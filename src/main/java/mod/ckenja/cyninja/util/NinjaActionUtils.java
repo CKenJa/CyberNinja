@@ -91,7 +91,6 @@ public class NinjaActionUtils {
     }
 
     public static void checkWallSlide(LivingEntity livingEntity) {
-
         Vec3 vec3 = livingEntity.getDeltaMovement();
         //slide to looking way
         if (vec3.y < 0.0F) {

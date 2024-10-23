@@ -53,14 +53,13 @@ public class NinjaActions {
                                     getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SPIN.value())
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
-            .setInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
-            .startAndEnd(0, 1)
+            .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
             .cooldown(4)
             .loop()
             .speed(3F)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)
-            .setCanAction(false)
+            .setCanVanillaAction(false)
             .setNoBob(true)
             .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
             .addTickAction(slider->{
@@ -128,7 +127,6 @@ public class NinjaActions {
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .loop()
-            .startAndEnd(0, 1)
             .setNoBob(true)
             .addTickAction(NinjaActionUtils::checkWallSlide)
             .next(livingEntity -> livingEntity.onGround() || !livingEntity.horizontalCollision ? NONE : null)
@@ -137,7 +135,7 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .nextOfTimeout(livingEntity -> NinjaActions.NONE)
             .addNeedCondition(livingEntity -> getActionData(livingEntity).canAirJump(livingEntity, NinjaActions.WALL_SLIDE.value()))
@@ -151,7 +149,7 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
@@ -161,7 +159,7 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 20)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
@@ -183,7 +181,7 @@ public class NinjaActions {
 
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addStartAction(NinjaActionUtils::doAirJump)
@@ -193,7 +191,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity -> !livingEntity.onGround())
             .addNeedCondition(NinjaActionUtils::isEquipKatana)
-            .setInput(NinjaInput.LEFT_CLICK)
+            .setStartInput(NinjaInput.LEFT_CLICK)
             .startAndEnd(2, 12)
             .setReduceDamage(1.0F)
             .setReduceKnockback(1.0F)

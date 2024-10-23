@@ -211,7 +211,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void pretick(LivingEntity user) {
         if (getTickState(user) == TickState.START) {
-            if (!this.ninjaAction.value().isCanAction()) {
+            if (!this.ninjaAction.value().isCanVanillaAction()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
             }
@@ -274,7 +274,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 getCurrentAction().value() == action &&
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }
-
 
     public EnumSet<NinjaInput> getInputs() {
         return inputs;

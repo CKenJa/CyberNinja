@@ -9,6 +9,7 @@ import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
+import mod.ckenja.cyninja.ninja_action.ModifierType;
 import mod.ckenja.cyninja.registry.ModAnimations;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
@@ -17,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,15 +44,38 @@ public class ClientEvents {
 
         NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
         data.checkKeyDown();
+        final ResourceLocation[] doAction = {null};
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
+
+                .filter(action -> action.value().getModifierType() == ModifierType.NONE)
                 .filter(action -> action.value() != NinjaActions.NONE.value() && action.value().getStartInputs() == null ||
                         action.value().getStartInputs() != null && data.getInputs().containsAll(action.value().getStartInputs()))
                 .filter(action -> action.value() != data.getCurrentAction().value())
                 .filter(action -> action.value().getNeedCondition().test(player))
                 .filter(data::canAction)
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
-                .ifPresent(holder-> PacketDistributor.sendToServer(new SetActionToServerPacket(NinjaActions.getRegistry().getKey(holder.value()))));
+                .ifPresent(holder ->
+                {
+                    doAction[0] = NinjaActions.getRegistry().getKey(holder.value());
+                });
+
+        NINJA_ACTIONS.stream().filter(action -> {
+                    if (action.value().getOriginAction() != null) {
+                        return NinjaActions.getRegistry().getKey(action.value().getOriginAction().value()) == doAction[0];
+                    }
+                    return false;
+                })
+                .filter(action -> action.value().getNeedCondition().test(player))
+                .findFirst()
+                .ifPresent(holder ->
+                {
+                    doAction[0] = NinjaActions.getRegistry().getKey(holder.value());
+                });
+
+        if (doAction[0] != null) {
+            PacketDistributor.sendToServer(new SetActionToServerPacket(doAction[0]));
+        }
     }
 
     @SubscribeEvent

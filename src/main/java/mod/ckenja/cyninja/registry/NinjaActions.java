@@ -4,6 +4,7 @@ import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
+import mod.ckenja.cyninja.ninja_action.ModifierType;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
@@ -148,20 +149,27 @@ public class NinjaActions {
             .build()
     );
 
-    public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> NinjaAction.Builder.newInstance()
-            .setStartInput(NinjaInput.JUMP)
+    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
+            .setInput(NinjaInput.JUMP)
+
             .startAndEnd(0, 1)
             .addNeedCondition(NinjaActionUtils::canAirJump)
-            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
-            .addTickAction(NinjaActionUtils::tickHeavyAirJump)
-            .priority(900)
+            .addStartAction(NinjaActionUtils::doAirJump)
             .build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> NinjaAction.Builder.newInstance()
+            .setInput(NinjaInput.JUMP)
+            .instant()
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
+            .addStartAction(NinjaActionUtils::tickHeavyAirJump)
+            .priority(900)
+            .build(new NinjaAction.ModifierBuilder().setModifierType(ModifierType.INJECT, AIR_JUMP))
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> NinjaAction.Builder.newInstance()
             .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 20)
-            .addNeedCondition(NinjaActionUtils::canAirJump)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addStartAction(livingEntity -> {
                 if (!livingEntity.level().isClientSide())
@@ -176,16 +184,7 @@ public class NinjaActions {
                     AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
             })
             .priority(900)
-            .build()
-    );
-
-
-    public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
-            .setStartInput(NinjaInput.JUMP)
-            .startAndEnd(0, 1)
-            .addNeedCondition(NinjaActionUtils::canAirJump)
-            .addStartAction(NinjaActionUtils::doAirJump)
-            .build()
+            .build(new NinjaAction.ModifierBuilder().setModifierType(ModifierType.OVERRIDE, AIR_JUMP))
     );
 
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> NinjaAction.Builder.newInstance()

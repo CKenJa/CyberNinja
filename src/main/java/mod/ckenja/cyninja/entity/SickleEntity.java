@@ -103,7 +103,7 @@ public class SickleEntity extends ThrowableItemProjectile {
         super.onHitEntity(result);
         Entity entity = result.getEntity();
         Entity shooter = getOwner();
-        if (result.getEntity() != getOwner() && !this.isReturning()) {
+        if (result.getEntity() != getOwner() && !this.isReturning() && this.canAttach()) {
             LivingEntity livingentity = shooter instanceof LivingEntity ? (LivingEntity) shooter : null;
             double d0 = 6;
             DamageSource damagesource = this.damageSources().mobProjectile(this, livingentity);
@@ -121,7 +121,6 @@ public class SickleEntity extends ThrowableItemProjectile {
                 this.deflect(ProjectileDeflection.REVERSE, entity, this.getOwner(), false);
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.2));
             }
-            setAttach(false);
 
         }
     }
@@ -208,6 +207,9 @@ public class SickleEntity extends ThrowableItemProjectile {
         if (entity != null && !shouldReturnToThrower() && isReturning()) {
             drop(getX(), getY(), getZ());
         } else if (entity != null && isReturning()) {
+            if (this.canAttach()) {
+                this.setAttach(false);
+            }
             this.noPhysics = true;
             Vec3 vec3d3 = new Vec3(entity.getX() - getX(), entity.getEyeY() - getY(), entity.getZ() - getZ());
             double d0 = 0.3;

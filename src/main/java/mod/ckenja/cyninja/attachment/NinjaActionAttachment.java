@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.attachment;
 
 import com.google.common.collect.Maps;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
+import mod.ckenja.cyninja.ninja_action.ModifierType;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionTickType;
 import mod.ckenja.cyninja.ninja_action.TickState;
@@ -89,27 +90,49 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
+            this.ninjaAction.value().getOriginAction().value().stopAction(livingEntity);
+        }
         this.ninjaAction.value().stopAction(livingEntity);
         if (this.ninjaAction.value().getCooldown() > 0) {
+            if (this.ninjaAction.value().getOriginAction() != null) {
+                this.setCooldown(this.ninjaAction.value().getOriginAction(), this.ninjaAction.value().getCooldown());
+            }
             this.setCooldown(this.ninjaAction, this.ninjaAction.value().getCooldown());
+
         }
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
+        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
+            this.ninjaAction.value().getOriginAction().value().startAction(livingEntity);
+        }
         this.ninjaAction.value().startAction(livingEntity);
         livingEntity.refreshDimensions();
     }
 
     public void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
+        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
+            this.ninjaAction.value().getOriginAction().value().stopAction(livingEntity);
+        }
         this.ninjaAction.value().stopAction(livingEntity);
+
         if (this.ninjaAction.value().getCooldown() > 0) {
+            if (this.ninjaAction.value().getOriginAction() != null) {
+                this.setCooldown(this.ninjaAction.value().getOriginAction(), this.ninjaAction.value().getCooldown());
+            }
             this.setCooldown(this.ninjaAction, this.ninjaAction.value().getCooldown());
+
         }
         this.ninjaAction = ninjaAction;
         this.setActionTick(0);
         if (!livingEntity.level().isClientSide()) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(livingEntity, new SetActionToClientPacket(livingEntity, ninjaAction));
         }
+        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
+            this.ninjaAction.value().getOriginAction().value().startAction(livingEntity);
+        }
         this.ninjaAction.value().startAction(livingEntity);
+
         livingEntity.refreshDimensions();
     }
 
@@ -154,8 +177,15 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void tick(LivingEntity user) {
         NinjaActionTickType tickType = getCurrentAction().value().getNinjaActionTickType();
+        Holder<NinjaAction> origin = getCurrentAction().value().getOriginAction();
+        ModifierType modifierType = getCurrentAction().value().getModifierType();
         TickState tickState = tickType.getFunction().apply(user);
         if (tickState == TickState.START) {
+            if (origin != null && modifierType == ModifierType.INJECT) {
+                origin.value().tickAction(user);
+                origin.value().holdAction(user);
+            }
+
             this.actionTick(user);
             this.actionHold(user);
         }

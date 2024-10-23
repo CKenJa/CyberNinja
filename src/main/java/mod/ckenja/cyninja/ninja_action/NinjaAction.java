@@ -24,6 +24,9 @@ public class NinjaAction {
     private final float reduceDamage;
     private final float reduceKnockback;
     private final NinjaActionTickType ninjaActionTickType;
+    private final ModifierType modifierType;
+    private Holder<NinjaAction> originAction;
+
     private final boolean canAction;
     private final boolean noBob;
 
@@ -48,6 +51,10 @@ public class NinjaAction {
     private final EnumSet<NinjaInput> inputs;
 
     private NinjaAction(Builder builder) {
+        this(builder, new ModifierBuilder());
+    }
+
+    private NinjaAction(Builder builder, ModifierBuilder builder2) {
         this.startTick = builder.startTick;
         this.endTick = builder.endTick;
         this.cooldown = builder.cooldown;
@@ -56,6 +63,8 @@ public class NinjaAction {
         this.reduceKnockback = builder.reduceKnockback;
         this.timeout = builder.timeout;
         this.ninjaActionTickType = builder.ninjaActionTickType;
+        this.modifierType = builder2.modifierType;
+        this.originAction = builder2.originAction;
         this.canAction = builder.canAction;
         this.noBob = builder.noBob;
 
@@ -80,6 +89,15 @@ public class NinjaAction {
 
     public NinjaActionTickType getNinjaActionTickType() {
         return ninjaActionTickType;
+    }
+
+    public ModifierType getModifierType() {
+        return modifierType;
+    }
+
+    //Modifierを実行するために置き換えるNinjaAction
+    public Holder<NinjaAction> getOriginAction() {
+        return originAction;
     }
 
     public int getStartTick() {
@@ -224,6 +242,11 @@ public class NinjaAction {
             return new NinjaAction(this);
         }
 
+
+        public NinjaAction build(ModifierBuilder modifierBuilder) {
+            return new NinjaAction(this, modifierBuilder);
+        }
+
         //This is set start action and stop action
         public Builder startAndEnd(int start, int end) {
             this.startTick = start;
@@ -340,6 +363,21 @@ public class NinjaAction {
 
         public Builder setNoBob(boolean noBob) {
             this.noBob = noBob;
+            return this;
+        }
+    }
+
+    public static class ModifierBuilder {
+        private ModifierType modifierType = ModifierType.NONE;
+        private Holder<NinjaAction> originAction;
+
+        public ModifierBuilder() {
+            this.modifierType = ModifierType.NONE;
+        }
+
+        public ModifierBuilder setModifierType(ModifierType modifierType, Holder<NinjaAction> holder) {
+            this.modifierType = modifierType;
+            this.originAction = holder;
             return this;
         }
     }

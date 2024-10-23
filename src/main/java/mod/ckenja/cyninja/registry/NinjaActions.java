@@ -138,7 +138,7 @@ public class NinjaActions {
             .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .nextOfTimeout(livingEntity -> NinjaActions.NONE)
-            .addNeedCondition(livingEntity -> getActionData(livingEntity).canAirJump(livingEntity, NinjaActions.WALL_SLIDE.value()))
+            .addNeedCondition(livingEntity -> getActionData(livingEntity).canJump(livingEntity, NinjaActions.WALL_SLIDE))
             .addStartAction(livingEntity -> {
                 Vec3 delta = livingEntity.getDeltaMovement();
                 livingEntity.setDeltaMovement(delta.x, 1F, delta.z);

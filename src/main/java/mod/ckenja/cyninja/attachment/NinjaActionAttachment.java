@@ -251,13 +251,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
 
     public boolean canAirJump(LivingEntity livingEntity) {
-        return canAirJump(livingEntity, NinjaActions.NONE.value());
+        return canAirJump(livingEntity, NinjaActions.NONE);
     }
 
-    public boolean canAirJump(LivingEntity livingEntity, NinjaAction action) {
-        return airJumpCount>0 && isFullAir() &&
-                previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
-                getCurrentAction().value() == action &&
+    public boolean canAirJump(LivingEntity livingEntity, Holder<NinjaAction> action) {
+        return airJumpCount>0 && canJump(livingEntity, action);
+    }
+
+    public boolean canJump(LivingEntity livingEntity, Holder<NinjaAction> action) {
+        return isFullAir() &&
+                !previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
+                getCurrentAction().value() == action.value() &&
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }
 

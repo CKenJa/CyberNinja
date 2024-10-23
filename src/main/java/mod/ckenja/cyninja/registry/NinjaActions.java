@@ -150,8 +150,7 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
-
+            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 1)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addStartAction(NinjaActionUtils::doAirJump)
@@ -159,7 +158,7 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_AIR_JUMP = NINJA_ACTIONS.register("heavy_air_jump", () -> NinjaAction.Builder.newInstance()
-            .setInput(NinjaInput.JUMP)
+            .setStartInput(NinjaInput.JUMP)
             .instant()
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addStartAction(NinjaActionUtils::tickHeavyAirJump)

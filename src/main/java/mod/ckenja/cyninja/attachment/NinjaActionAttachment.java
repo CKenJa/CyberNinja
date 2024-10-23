@@ -42,7 +42,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private float actionYRot;
 
     public void checkKeyDown() {
-        EnumSet<NinjaInput> inputs = EnumSet.noneOf(NinjaInput.class);
+        previousInputs = inputs;
+        inputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
         if (options.keyShift.isDown())
             inputs.add(NinjaInput.SNEAK);
@@ -52,8 +53,6 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             inputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
             inputs.add(NinjaInput.LEFT_CLICK);
-        previousInputs = inputs;
-        this.inputs = inputs;
     }
 
     public int getActionTick() {

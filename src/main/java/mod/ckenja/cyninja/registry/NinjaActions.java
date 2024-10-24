@@ -137,8 +137,7 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> NinjaAction.Builder.newInstance()
             .setStartInput(NinjaInput.JUMP)
-            .startAndEnd(0, 1)
-            .nextOfTimeout(livingEntity -> NinjaActions.NONE)
+            .instant()
             .addNeedCondition(livingEntity -> getActionData(livingEntity).canJump(livingEntity, NinjaActions.WALL_SLIDE))
             .addStartAction(livingEntity -> {
                 Vec3 delta = livingEntity.getDeltaMovement();
@@ -151,7 +150,7 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
             .setStartInput(NinjaInput.JUMP)
-            .startAndEnd(0, 1)
+            .instant()
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addStartAction(NinjaActionUtils::doAirJump)
             .build()

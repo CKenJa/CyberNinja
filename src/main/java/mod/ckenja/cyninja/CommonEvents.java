@@ -58,7 +58,6 @@ public class CommonEvents {
             //basic action handle
             NinjaActionAttachment actionData = NinjaActionUtils.getActionData(livingEntity);
             actionData.pretick(livingEntity);
-
         }
     }
 

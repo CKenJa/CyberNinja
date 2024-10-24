@@ -43,7 +43,7 @@ public class ClientEvents {
             return;
 
         NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
-        data.checkKeyDown();
+        data.checkKeyDown(event);
         final ResourceLocation[] doAction = {null};
         NINJA_ACTIONS.stream()
                 //入力が必要ないもの or 必要で、一致するもの
@@ -52,7 +52,7 @@ public class ClientEvents {
                 .filter(action -> action.value() != NinjaActions.NONE.value() && action.value().getStartInputs() == null ||
                         action.value().getStartInputs() != null && data.getInputs().containsAll(action.value().getStartInputs()))
                 .filter(action -> action.value() != data.getCurrentAction().value())
-                .filter(action -> action.value().getNeedCondition().test(player))
+                .filter(action -> action.value().needCondition(player))
                 .filter(data::canAction)
                 .min(Comparator.comparingInt(holder -> holder.value().getPriority()))
                 .ifPresent(holder ->
@@ -66,7 +66,7 @@ public class ClientEvents {
                     }
                     return false;
                 })
-                .filter(action -> action.value().getNeedCondition().test(player))
+                .filter(action -> action.value().needCondition(player))
                 .findFirst()
                 .ifPresent(holder ->
                 {

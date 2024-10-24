@@ -8,7 +8,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -39,11 +38,8 @@ public class NinjaAction {
     private final Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
     private final Predicate<LivingEntity> needCondition;
 
-    private final Consumer<LivingEntity> holdAction;
-
     private final Consumer<LivingEntity> tickAction;
 
-    private final BiConsumer<LivingEntity, LivingEntity> hitEffect;
     private final Consumer<LivingEntity> startAction;
     private final Consumer<LivingEntity> stopAction;
     private final int priority;
@@ -77,17 +73,14 @@ public class NinjaAction {
         this.hitBox = builder.hitBox;
         this.nextOfTimeout = builder.nextOfTimeout;
         this.needCondition = builder.needCondition;
-        this.holdAction = builder.holdAction;
 
         this.startInputs = builder.startInputs;
-        if (this.startInputs != null && !this.startInputs.isEmpty() || this.startInputs == null) {
+        if (this.startInputs == null || !this.startInputs.isEmpty()) {
             NINJA_ACTIONS.add(Holder.direct(this));
         }
         this.tickAction = builder.tickAction;
         this.startAction = builder.startAction;
         this.stopAction = builder.stopAction;
-
-        this.hitEffect = builder.hitEffect;
 
         this.priority = builder.priority;
     }
@@ -145,21 +138,16 @@ public class NinjaAction {
         return hitBox;
     }
 
-
-    public Function<LivingEntity, Holder<NinjaAction>> getNext() {
-        return next;
+    public Holder<NinjaAction> getNext(LivingEntity entity) {
+        return next.apply(entity);
     }
 
-    public Function<LivingEntity, Holder<NinjaAction>> getNextOfTimeout() {
-        return nextOfTimeout;
+    public Holder<NinjaAction> getNextOfTimeout(LivingEntity entity) {
+        return nextOfTimeout.apply(entity);
     }
 
-    public Predicate<LivingEntity> getNeedCondition() {
-        return needCondition;
-    }
-
-    public void holdAction(LivingEntity user) {
-        holdAction.accept(user);
+    public boolean needCondition(LivingEntity entity) {
+        return needCondition.test(entity);
     }
 
     public void tickAction(LivingEntity user) {
@@ -172,10 +160,6 @@ public class NinjaAction {
 
     public void stopAction(LivingEntity user) {
         stopAction.accept(user);
-    }
-
-    public void hitEffect(LivingEntity target, LivingEntity attacker) {
-        hitEffect.accept(target, attacker);
     }
 
     public EnumSet<NinjaInput> getStartInputs() {
@@ -206,9 +190,7 @@ public class NinjaAction {
 
         private Consumer<LivingEntity> startAction;
         private Consumer<LivingEntity> stopAction;
-        private Consumer<LivingEntity> holdAction;
         private Consumer<LivingEntity> tickAction;
-        private BiConsumer<LivingEntity, LivingEntity> hitEffect;
         private Optional<ResourceLocation> animationID;
         private Optional<EntityDimensions> hitBox = Optional.empty();
 
@@ -224,16 +206,12 @@ public class NinjaAction {
             this.tickAction = (livingEntity -> {
 
             });
-            this.holdAction = (a) -> {
-            };
             this.startAction = (livingEntity -> {
 
             });
             this.stopAction = (livingEntity -> {
 
             });
-            this.hitEffect = (a, b) -> {
-            };
             this.animationID = Optional.empty();
             this.canVanillaAction = true;
             this.noBob = false;
@@ -321,11 +299,6 @@ public class NinjaAction {
             return this;
         }
 
-        public Builder addHoldAction(Consumer<LivingEntity> holdAction) {
-            this.holdAction = this.holdAction.andThen(holdAction);
-            return this;
-        }
-
         public Builder addTickAction(Consumer<LivingEntity> tickAction) {
             this.tickAction = this.tickAction.andThen(tickAction);
             return this;
@@ -338,11 +311,6 @@ public class NinjaAction {
 
         public Builder addStopAction(Consumer<LivingEntity> stopAction) {
             this.stopAction = this.stopAction.andThen(stopAction);
-            return this;
-        }
-
-        public Builder addHitEffect(BiConsumer<LivingEntity, LivingEntity> hitEffect) {
-            this.hitEffect = this.hitEffect.andThen(hitEffect);
             return this;
         }
 

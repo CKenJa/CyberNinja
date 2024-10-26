@@ -8,7 +8,6 @@ import java.util.function.Function;
 
 public enum NinjaActionTickType {
     START_TO_END(livingEntity -> {
-
         NinjaActionAttachment ninjaActionAttachment = NinjaActionUtils.getActionData(livingEntity);
         NinjaAction ninjaAction = ninjaActionAttachment.getCurrentAction().value();
         if (ninjaActionAttachment.getActionTick() >= ninjaAction.getStartTick() && ninjaActionAttachment.getActionTick() < ninjaAction.getEndTick()) {
@@ -26,13 +25,13 @@ public enum NinjaActionTickType {
         return TickState.STOP;
     });
 
-    public Function<LivingEntity, TickState> function;
+    private final Function<LivingEntity, TickState> function;
 
     NinjaActionTickType(Function<LivingEntity, TickState> function) {
         this.function = function;
     }
 
-    public Function<LivingEntity, TickState> getFunction() {
-        return function;
+    public TickState apply(LivingEntity user) {
+        return function.apply(user);
     }
 }

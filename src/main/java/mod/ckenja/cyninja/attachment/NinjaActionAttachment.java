@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
 import mod.ckenja.cyninja.ninja_action.ModifierType;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
-import mod.ckenja.cyninja.ninja_action.NinjaActionTickType;
 import mod.ckenja.cyninja.ninja_action.TickState;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaInput;
@@ -14,10 +13,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -31,9 +30,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private EnumSet<NinjaInput> previousInputs;
     private EnumSet<NinjaInput> inputs;
 
-    private Holder<NinjaAction> ninjaAction = NinjaActions.NONE;
+    private Holder<NinjaAction> currentAction = NinjaActions.NONE;
     private int actionTick;
-    private int inFluidTick;
     private int airTick;
 
     private int airJumpCount;
@@ -42,7 +40,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private float actionXRot;
     private float actionYRot;
 
-    public void checkKeyDown() {
+    public void checkKeyDown(ClientTickEvent.Pre event) {
         previousInputs = inputs;
         inputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
@@ -61,7 +59,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public Holder<NinjaAction> getCurrentAction() {
-        return ninjaAction;
+        return currentAction;
     }
 
     public void setActionYRot(float actionYRot) {
@@ -80,32 +78,24 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return actionXRot;
     }
 
-    public boolean wasInFluid() {
-        return inFluidTick > 0;
-    }
-
-    public boolean isFullAir() {
-        return airTick <= 0;
-    }
-
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
-            this.ninjaAction.value().getOriginAction().value().stopAction(livingEntity);
+        if (this.currentAction.value().getOriginAction() != null && this.currentAction.value().getModifierType() == ModifierType.INJECT) {
+            this.currentAction.value().getOriginAction().value().stopAction(livingEntity);
         }
-        this.ninjaAction.value().stopAction(livingEntity);
-        if (this.ninjaAction.value().getCooldown() > 0) {
-            if (this.ninjaAction.value().getOriginAction() != null) {
-                this.setCooldown(this.ninjaAction.value().getOriginAction(), this.ninjaAction.value().getCooldown());
+        this.currentAction.value().stopAction(livingEntity);
+        if (this.currentAction.value().getCooldown() > 0) {
+            if (this.currentAction.value().getOriginAction() != null) {
+                this.setCooldown(this.currentAction.value().getOriginAction(), this.currentAction.value().getCooldown());
             }
-            this.setCooldown(this.ninjaAction, this.ninjaAction.value().getCooldown());
+            this.setCooldown(this.currentAction, this.currentAction.value().getCooldown());
 
         }
-        this.ninjaAction = ninjaAction;
+        this.currentAction = ninjaAction;
         this.setActionTick(0);
-        if (this.ninjaAction.value().getOriginAction() != null && this.ninjaAction.value().getModifierType() == ModifierType.INJECT) {
-            this.ninjaAction.value().getOriginAction().value().startAction(livingEntity);
+        if (this.currentAction.value().getOriginAction() != null && this.currentAction.value().getModifierType() == ModifierType.INJECT) {
+            this.currentAction.value().getOriginAction().value().startAction(livingEntity);
         }
-        this.ninjaAction.value().startAction(livingEntity);
+        this.currentAction.value().startAction(livingEntity);
         livingEntity.refreshDimensions();
     }
 
@@ -116,58 +106,30 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         }
     }
 
-    public boolean isActionStop() {
-        return this.actionTick >= this.ninjaAction.value().getEndTick();
-    }
-
-    public boolean isActionDo() {
-        return this.actionTick >= this.ninjaAction.value().getStartTick();
-    }
-
     public void setActionTick(int actionTick) {
         this.actionTick = actionTick;
     }
 
-
-    public float movementSpeed(LivingEntity user) {
-        return getTickState(user) == TickState.START ? this.ninjaAction.value().getMoveSpeed() : 0.0F;
-    }
-
     public void actionTick(LivingEntity user) {
         if (getTickState(user) == TickState.START) {
-            this.ninjaAction.value().tickAction(user);
-        }
-    }
-
-    public void actionHold(LivingEntity user) {
-        if (getTickState(user) == TickState.START) {
-            this.ninjaAction.value().holdAction(user);
-        }
-    }
-
-    public void actionHold(LivingEntity target, LivingEntity user) {
-        if (getTickState(user) == TickState.START) {
-            this.ninjaAction.value().hitEffect(target, user);
+            this.currentAction.value().tickAction(user);
         }
     }
 
     public TickState getTickState(LivingEntity user) {
-        return ninjaAction.value().getNinjaActionTickType().getFunction().apply(user);
+        return currentAction.value().getNinjaActionTickType().apply(user);
     }
 
     public void tick(LivingEntity user) {
-        NinjaActionTickType tickType = getCurrentAction().value().getNinjaActionTickType();
         Holder<NinjaAction> origin = getCurrentAction().value().getOriginAction();
         ModifierType modifierType = getCurrentAction().value().getModifierType();
-        TickState tickState = tickType.getFunction().apply(user);
+        TickState tickState = getTickState(user);
         if (tickState == TickState.START) {
             if (origin != null && modifierType == ModifierType.INJECT) {
                 origin.value().tickAction(user);
-                origin.value().holdAction(user);
             }
 
             this.actionTick(user);
-            this.actionHold(user);
         }
         cooldownMap.replaceAll((key,value) -> value - 1);
         cooldownMap.entrySet().removeIf(entry -> entry.getValue() <= 0);
@@ -175,37 +137,21 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (tickState != TickState.STOP) {
             this.setActionTick(this.getActionTick() + 1);
         } else {
-            setAction(user, this.getCurrentAction().value().getNextOfTimeout().apply(user));
+            setAction(user, this.getCurrentAction().value().getNextOfTimeout(user));
         }
 
         if (tickState == TickState.START) {
-            Holder<NinjaAction> ninjaAction = this.getCurrentAction().value().getNext().apply(user);
+            Holder<NinjaAction> ninjaAction = this.getCurrentAction().value().getNext(user);
             if (ninjaAction != null) {
                 setAction(user, ninjaAction);
             }
         }
         if (user.isInFluidType() || user.isInWater()) {
-            this.inFluidTick = 5;
-        } else {
-            if (user.onGround()) {
-                this.inFluidTick = 0;
-            }
-
-            if (this.inFluidTick > 0) {
-                this.inFluidTick--;
-            }
-        }
-
-        if (user.isInFluidType() || user.isInWater()) {
             this.airTick = 3;
-        } else {
-            if (user.onGround()) {
-                this.airTick = 3;
-            } else {
-                if (this.airTick > 0) {
-                    this.airTick--;
-                }
-            }
+        } else if (user.onGround()) {
+            this.airTick = 3;
+        } else if (this.airTick > 0) {
+            this.airTick--;
         }
         if(user.onGround()){
             resetAirJumpCount();
@@ -215,31 +161,26 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void pretick(LivingEntity user) {
         if (getTickState(user) == TickState.START) {
-            if (!this.ninjaAction.value().isCanVanillaAction()) {
+            if (!this.currentAction.value().isCanVanillaAction()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
             }
-            if (this.ninjaAction.value().getHitBox().isPresent()) {
+            if (this.currentAction.value().getHitBox().isPresent()) {
                 user.setPose(Pose.STANDING);
             }
         }
 
 
-        if (user instanceof Player player && this.ninjaAction.value().isNoBob()) {
+        if (user instanceof Player player && this.currentAction.value().isNoBob()) {
             player.bob = 0.0F;
             player.oBob = 0.0F;
         }
     }
 
-
-    public Optional<EntityDimensions> hitBox(LivingEntity user) {
-        return getTickState(user) == TickState.START ? this.ninjaAction.value().getHitBox() : Optional.empty();
-    }
-
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
-        ResourceLocation resourceLocation = NinjaActions.getRegistry().getKey(this.ninjaAction.value());
+        ResourceLocation resourceLocation = NinjaActions.getRegistry().getKey(this.currentAction.value());
         if (resourceLocation != null) {
             nbt.putString("NinjaAction", resourceLocation.toString());
         }
@@ -253,7 +194,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
             String s = nbt.getString("NinjaAction");
             Optional<Holder.Reference<NinjaAction>> action = NinjaActions.getRegistry().getHolder(ResourceLocation.parse(s));
             if (action.isPresent()) {
-                this.ninjaAction = action.get();
+                this.currentAction = action.get();
             }
         }
 
@@ -277,7 +218,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public boolean canJump(LivingEntity livingEntity, Holder<NinjaAction> action) {
-        return isFullAir() &&
+        return airTick <= 0 &&
                 !previousInputs.contains(NinjaInput.JUMP) &&//今tickからジャンプキーを押し始めたか?
                 getCurrentAction().value() == action.value() &&
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);

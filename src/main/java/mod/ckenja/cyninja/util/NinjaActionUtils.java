@@ -5,6 +5,7 @@ import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAttachments;
+import mod.ckenja.cyninja.registry.ModDataComponents;
 import mod.ckenja.cyninja.registry.ModItems;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -198,5 +199,31 @@ public class NinjaActionUtils {
 
     public static boolean isEquipKatana(LivingEntity livingEntity) {
         return livingEntity.getMainHandItem().is(ModItems.KATANA);
+    }
+
+    public static boolean isEquipSickle(LivingEntity livingEntity) {
+        return livingEntity.getMainHandItem().is(ModItems.CHAIN_SICKLE) && livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) == null;
+    }
+
+    public static boolean isEquipKatanaTrim(LivingEntity livingEntity, Item item) {
+        if (livingEntity.getMainHandItem().is(ModItems.KATANA)) {
+            ArmorTrim armorTrim = livingEntity.getMainHandItem().get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isEquipSickleTrim(LivingEntity livingEntity, Item item) {
+        if (livingEntity.getMainHandItem().is(ModItems.CHAIN_SICKLE)) {
+            if (livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) == null) {
+                ArmorTrim armorTrim = livingEntity.getMainHandItem().get(DataComponents.TRIM);
+                if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

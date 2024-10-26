@@ -3,24 +3,37 @@ package mod.ckenja.cyninja.registry;
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.entity.SickleEntity;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.ModifierType;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -206,6 +219,150 @@ public class NinjaActions {
                 return null;
             })
             .build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_ATTACK = NINJA_ACTIONS.register("sickle_attack", () -> NinjaAction.Builder.newInstance()
+            .addNeedCondition(NinjaActionUtils::isEquipSickle)
+            .setStartInput(NinjaInput.LEFT_CLICK)
+            .instant()
+            .cooldown(5)
+            .addStartAction((living) -> {
+                ItemStack itemstack = living.getMainHandItem();
+                Level level = living.level();
+                level.playSound(
+                        null,
+                        living.getX(),
+                        living.getY(),
+                        living.getZ(),
+                        SoundEvents.SNOWBALL_THROW,
+                        SoundSource.NEUTRAL,
+                        0.5F,
+                        0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+                );
+                if (!level.isClientSide) {
+                    SickleEntity sickle = new SickleEntity(level, living, itemstack.copy());
+                    sickle.setItem(itemstack.copy());
+                    sickle.setNinjaAction(NinjaActionUtils.getActionData(living).getCurrentAction());
+                    sickle.shootFromRotation(living, living.getXRot(), living.getYRot(), 0.0F, 1.8F, 1.0F);
+                    level.addFreshEntity(sickle);
+                    itemstack.set(ModDataComponents.CHAIN_ONLY, sickle.getUUID());
+                }
+            })
+            .addHitAction((projectile, hitResult) -> {
+                if (projectile instanceof SickleEntity sickle) {
+                    if (hitResult instanceof BlockHitResult blockHitResult) {
+                        BlockPos pos = blockHitResult.getBlockPos();
+                        BlockState state = sickle.level().getBlockState(pos);
+                        SoundType soundType = state.getSoundType(sickle.level(), pos, sickle);
+                        if (!sickle.isReturning()) {
+                            sickle.level().playSound(null, sickle.getX(), sickle.getY(), sickle.getZ(), soundType.getHitSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
+                            sickle.setReturning(true);
+                        }
+                    }
+
+                    if (hitResult instanceof EntityHitResult entityHitResult) {
+                        Entity entity = entityHitResult.getEntity();
+                        Entity shooter = sickle.getOwner();
+                        if (entityHitResult.getEntity() != sickle.getOwner() && !sickle.isReturning() && sickle.canAttach()) {
+                            LivingEntity livingentity = shooter instanceof LivingEntity ? (LivingEntity) shooter : null;
+                            double d0 = 6;
+                            DamageSource damagesource = sickle.damageSources().mobProjectile(sickle, livingentity);
+
+                            if (sickle.getWeaponItem() != null && sickle.level() instanceof ServerLevel serverlevel) {
+                                d0 = (double) EnchantmentHelper.modifyDamage(serverlevel, sickle.getWeaponItem(), entity, damagesource, (float) d0);
+                            }
+                            if (entityHitResult.getEntity().hurt(damagesource, (float) d0)) {
+                                if (entity instanceof LivingEntity hurtEntity) {
+                                    if (sickle.level() instanceof ServerLevel serverlevel1) {
+                                        EnchantmentHelper.doPostAttackEffectsWithItemSource(serverlevel1, hurtEntity, damagesource, sickle.getWeaponItem());
+                                    }
+                                }
+                            } else {
+                                sickle.deflect(ProjectileDeflection.REVERSE, entity, sickle.getOwner(), false);
+                                sickle.setDeltaMovement(sickle.getDeltaMovement().scale(0.2));
+                            }
+
+                        }
+                    }
+                }
+            })
+            .build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_HOOK = NINJA_ACTIONS.register("sickle_hook", () -> NinjaAction.Builder.newInstance()
+            .addNeedCondition(livingEntity -> NinjaActionUtils.isEquipSickleTrim(livingEntity, Items.COPPER_INGOT))
+            .setStartInput(NinjaInput.LEFT_CLICK)
+            .instant()
+            .cooldown(5)
+            .addStartAction((living) -> {
+                ItemStack itemstack = living.getMainHandItem();
+                Level level = living.level();
+                level.playSound(
+                        null,
+                        living.getX(),
+                        living.getY(),
+                        living.getZ(),
+                        SoundEvents.SNOWBALL_THROW,
+                        SoundSource.NEUTRAL,
+                        0.5F,
+                        0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+                );
+                if (!level.isClientSide) {
+                    SickleEntity sickle = new SickleEntity(level, living, itemstack.copy());
+                    sickle.setItem(itemstack.copy());
+                    sickle.setNinjaAction(NinjaActionUtils.getActionData(living).getCurrentAction());
+                    sickle.shootFromRotation(living, living.getXRot(), living.getYRot(), 0.0F, 1.8F, 1.0F);
+                    level.addFreshEntity(sickle);
+                    itemstack.set(ModDataComponents.CHAIN_ONLY, sickle.getUUID());
+                }
+            })
+            .addHitAction((projectile, hitResult) -> {
+                if (projectile instanceof SickleEntity sickle) {
+                    if (hitResult instanceof BlockHitResult blockHitResult) {
+                        BlockPos pos = blockHitResult.getBlockPos();
+                        BlockState state = sickle.level().getBlockState(pos);
+                        SoundType soundType = state.getSoundType(sickle.level(), pos, sickle);
+                        if (!sickle.isReturning()) {
+                            if (!sickle.canAttach()) {
+                                sickle.level().playSound(null, sickle.getX(), sickle.getY(), sickle.getZ(), soundType.getHitSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
+                                sickle.setReturning(true);
+                            } else {
+                                Vec3 vec3 = blockHitResult.getLocation().subtract(sickle.getX(), sickle.getY(), sickle.getZ());
+                                sickle.setDeltaMovement(vec3);
+                                sickle.setInGround(true);
+                                Vec3 vec31 = vec3.normalize().scale((double) 0.05F);
+                                sickle.setPosRaw(sickle.getX() - vec31.x, sickle.getY() - vec31.y, sickle.getZ() - vec31.z);
+                            }
+                        }
+                    }
+
+                    if (hitResult instanceof EntityHitResult entityHitResult) {
+                        Entity entity = entityHitResult.getEntity();
+                        Entity shooter = sickle.getOwner();
+                        if (entityHitResult.getEntity() != sickle.getOwner() && !sickle.isReturning() && sickle.canAttach()) {
+                            LivingEntity livingentity = shooter instanceof LivingEntity ? (LivingEntity) shooter : null;
+                            double d0 = 6;
+                            DamageSource damagesource = sickle.damageSources().mobProjectile(sickle, livingentity);
+
+                            if (sickle.getWeaponItem() != null && sickle.level() instanceof ServerLevel serverlevel) {
+                                d0 = (double) EnchantmentHelper.modifyDamage(serverlevel, sickle.getWeaponItem(), entity, damagesource, (float) d0);
+                            }
+                            if (entityHitResult.getEntity().hurt(damagesource, (float) d0)) {
+                                if (entity instanceof LivingEntity hurtEntity) {
+                                    if (sickle.level() instanceof ServerLevel serverlevel1) {
+                                        EnchantmentHelper.doPostAttackEffectsWithItemSource(serverlevel1, hurtEntity, damagesource, sickle.getWeaponItem());
+                                    }
+                                }
+                            } else {
+                                sickle.deflect(ProjectileDeflection.REVERSE, entity, sickle.getOwner(), false);
+                                sickle.setDeltaMovement(sickle.getDeltaMovement().scale(0.2));
+                            }
+
+                        }
+                    }
+                }
+            })
+            .build(new NinjaAction.ModifierBuilder().setModifierType(ModifierType.OVERRIDE, NinjaActions.SICKLE_ATTACK))
     );
 
     private static Registry<NinjaAction> registry;

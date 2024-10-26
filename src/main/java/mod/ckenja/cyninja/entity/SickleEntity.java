@@ -1,8 +1,12 @@
 package mod.ckenja.cyninja.entity;
 
+import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModEntities;
+import mod.ckenja.cyninja.registry.ModEntityDataSerializer;
 import mod.ckenja.cyninja.registry.ModItems;
+import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -10,28 +14,25 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class SickleEntity extends ThrowableItemProjectile {
     private static final EntityDataAccessor<Boolean> ATTACH = SynchedEntityData.defineId(SickleEntity.class, EntityDataSerializers.BOOLEAN);
@@ -42,6 +43,8 @@ public class SickleEntity extends ThrowableItemProjectile {
     private ItemStack firedFromWeapon = null;
 
     private int flyTick;
+
+    private static final EntityDataAccessor<Holder<NinjaAction>> NINJA_ACTION = SynchedEntityData.defineId(SickleEntity.class, ModEntityDataSerializer.NINJA_ACTION.get());
 
     public SickleEntity(EntityType<? extends SickleEntity> entityType, Level level) {
         super(entityType, level);
@@ -72,6 +75,7 @@ public class SickleEntity extends ThrowableItemProjectile {
         builder.define(ATTACH, false);
         builder.define(RETURNING, false);
         builder.define(IN_GROUND, false);
+        builder.define(NINJA_ACTION, this.registryAccess().lookupOrThrow(NinjaActions.NINJA_ACTIONS_REGISTRY).getOrThrow(NinjaActions.SICKLE_ATTACK.getKey()));
     }
 
     @Override
@@ -101,54 +105,26 @@ public class SickleEntity extends ThrowableItemProjectile {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
-        Entity entity = result.getEntity();
-        Entity shooter = getOwner();
-        if (result.getEntity() != getOwner() && !this.isReturning() && this.canAttach()) {
-            LivingEntity livingentity = shooter instanceof LivingEntity ? (LivingEntity) shooter : null;
-            double d0 = 6;
-            DamageSource damagesource = this.damageSources().mobProjectile(this, livingentity);
-
-            if (this.getWeaponItem() != null && this.level() instanceof ServerLevel serverlevel) {
-                d0 = (double) EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entity, damagesource, (float) d0);
-            }
-            if (result.getEntity().hurt(damagesource, (float) d0)) {
-                if (entity instanceof LivingEntity hurtEntity) {
-                    if (this.level() instanceof ServerLevel serverlevel1) {
-                        EnchantmentHelper.doPostAttackEffectsWithItemSource(serverlevel1, hurtEntity, damagesource, this.getWeaponItem());
-                    }
-                }
-            } else {
-                this.deflect(ProjectileDeflection.REVERSE, entity, this.getOwner(), false);
-                this.setDeltaMovement(this.getDeltaMovement().scale(0.2));
-            }
-
+        if (this.getOwner() instanceof LivingEntity owner) {
+            this.getNinjaAction().value().hitAction(this, result);
         }
+
     }
 
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        BlockPos pos = result.getBlockPos();
-        BlockState state = this.level().getBlockState(pos);
-        SoundType soundType = state.getSoundType(this.level(), pos, this);
-        if (!isReturning()) {
-            if (!this.canAttach()) {
-                this.level().playSound(null, getX(), getY(), getZ(), soundType.getHitSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
-                this.setReturning(true);
-            } else {
-                Vec3 vec3 = result.getLocation().subtract(this.getX(), this.getY(), this.getZ());
-                this.setDeltaMovement(vec3);
-                this.setInGround(true);
-                Vec3 vec31 = vec3.normalize().scale((double) 0.05F);
-                this.setPosRaw(this.getX() - vec31.x, this.getY() - vec31.y, this.getZ() - vec31.z);
-            }
+        if (this.getOwner() instanceof LivingEntity owner) {
+            this.getNinjaAction().value().hitAction(this, result);
         }
+
     }
 
     @Override
     public void tick() {
-        super.tick();
-        this.flyTick++;
+        if (!this.isInGround()) {
+            this.flyTick++;
+        }
 
         Entity entity = getOwner();
 
@@ -186,8 +162,6 @@ public class SickleEntity extends ThrowableItemProjectile {
             this.onHit(hitresult);
         }
 
-        this.checkInsideBlocks();
-
         if (entity != null && entity.isAlive()) {
             if (this.isInGround() && canAttach()) {
                 Vec3 vec3d3 = new Vec3(getX() - entity.getX(), getY() - entity.getEyeY(), getZ() - entity.getZ());
@@ -205,7 +179,9 @@ public class SickleEntity extends ThrowableItemProjectile {
         }
 
         if (entity != null && !shouldReturnToThrower() && isReturning()) {
-            drop(getX(), getY(), getZ());
+            if (!this.level().isClientSide) {
+                this.discard();
+            }
         } else if (entity != null && isReturning()) {
             if (this.canAttach()) {
                 this.setAttach(false);
@@ -264,14 +240,9 @@ public class SickleEntity extends ThrowableItemProjectile {
     public void playerTouch(Player entityIn) {
         super.playerTouch(entityIn);
         if (this.flyTick >= 10 && entityIn == getOwner()) {
-            drop(getOwner().getX(), getOwner().getY(), getOwner().getZ());
-        }
-    }
-
-    public void drop(double x, double y, double z) {
-        if (!this.level().isClientSide) {
-            this.level().addFreshEntity(new ItemEntity(this.level(), x, y, z, getItem().split(1)));
-            this.discard();
+            if (!this.level().isClientSide) {
+                this.discard();
+            }
         }
     }
 
@@ -285,6 +256,8 @@ public class SickleEntity extends ThrowableItemProjectile {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("Attach", this.canAttach());
         nbt.putBoolean("Returning", this.isReturning());
+        nbt.putString("variant", this.getNinjaAction().unwrapKey().orElse(NinjaActions.SICKLE_ATTACK.getKey()).location().toString());
+
     }
 
     @Override
@@ -292,6 +265,10 @@ public class SickleEntity extends ThrowableItemProjectile {
         super.readAdditionalSaveData(nbt);
         this.setAttach(nbt.getBoolean("Attach"));
         this.setReturning(nbt.getBoolean("Returning"));
+        Optional.ofNullable(ResourceLocation.tryParse(nbt.getString("ninja_action")))
+                .map(location -> ResourceKey.create(NinjaActions.NINJA_ACTIONS_REGISTRY, location))
+                .flatMap(key -> this.registryAccess().lookupOrThrow(NinjaActions.NINJA_ACTIONS_REGISTRY).get(key))
+                .ifPresent(this::setNinjaAction);
     }
 
     public boolean canAttach() {
@@ -317,6 +294,16 @@ public class SickleEntity extends ThrowableItemProjectile {
     public boolean isInGround() {
         return this.entityData.get(IN_GROUND);
     }
+
+
+    public void setNinjaAction(Holder<NinjaAction> ninjaAction) {
+        this.entityData.set(NINJA_ACTION, ninjaAction);
+    }
+
+    public Holder<NinjaAction> getNinjaAction() {
+        return this.entityData.get(NINJA_ACTION);
+    }
+
 
     protected float getWaterInertia() {
         return 0.6F;

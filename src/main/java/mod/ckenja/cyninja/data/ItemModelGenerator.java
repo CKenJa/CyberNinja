@@ -29,13 +29,22 @@ public class ItemModelGenerator extends ItemModelProvider {
         this.singleTexTool(ModItems.SHURIKEN);
         this.singleTex(ModItems.CYBER_TRIM_SMITHING_TEMPLATE);
         this.singleTexTool(ModItems.KATANA);
-        this.singleTexTool(ModItems.CHAIN_SICKLE);
+        this.sickleItem(ModItems.CHAIN_SICKLE);
         this.egg(ModItems.CYBER_NINJA_SPAWN_EGG);
     }
 
     public ItemModelBuilder egg(Supplier<Item> item) {
         return withExistingParent(BuiltInRegistries.ITEM.getKey(item.get()).getPath(), mcLoc("item/template_spawn_egg"));
     }
+
+    public ItemModelBuilder sickleItem(Supplier<? extends Item> item) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item.get());
+        buildItem(id.getPath() + "_chain_only", mcLoc("item/handheld").toString(), 0, modLoc("item/" + id.getPath() + "_chain_only"));
+        return withExistingParent(id.getPath(), mcLoc("item/handheld"))
+                .texture("layer0", modLoc("item/" + id.getPath()))
+                .override().predicate(ResourceLocation.parse("chain_only"), 1).model(getExistingFile(modLoc("item/" + id.getPath() + "_chain_only"))).end();
+    }
+
 
 
     private ItemModelBuilder tool(String name, ResourceLocation... layers) {

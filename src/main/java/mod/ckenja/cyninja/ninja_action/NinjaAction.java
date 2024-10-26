@@ -6,8 +6,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.HitResult;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -42,6 +45,8 @@ public class NinjaAction {
 
     private final Consumer<LivingEntity> startAction;
     private final Consumer<LivingEntity> stopAction;
+    private final BiConsumer<Projectile, HitResult> hitAction;
+
     private final int priority;
 
     private final Optional<EntityDimensions> hitBox;
@@ -79,6 +84,7 @@ public class NinjaAction {
             NINJA_ACTIONS.add(Holder.direct(this));
         }
         this.tickAction = builder.tickAction;
+        this.hitAction = builder.hitAction;
         this.startAction = builder.startAction;
         this.stopAction = builder.stopAction;
 
@@ -162,6 +168,10 @@ public class NinjaAction {
         stopAction.accept(user);
     }
 
+    public void hitAction(Projectile projectile, HitResult hitResult) {
+        hitAction.accept(projectile, hitResult);
+    }
+
     public EnumSet<NinjaInput> getStartInputs() {
         return startInputs;
     }
@@ -190,6 +200,7 @@ public class NinjaAction {
 
         private Consumer<LivingEntity> startAction;
         private Consumer<LivingEntity> stopAction;
+        private BiConsumer<Projectile, HitResult> hitAction;
         private Consumer<LivingEntity> tickAction;
         private Optional<ResourceLocation> animationID;
         private Optional<EntityDimensions> hitBox = Optional.empty();
@@ -207,6 +218,9 @@ public class NinjaAction {
 
             });
             this.startAction = (livingEntity -> {
+
+            });
+            this.hitAction = ((projectile, hitResult) -> {
 
             });
             this.stopAction = (livingEntity -> {
@@ -306,6 +320,11 @@ public class NinjaAction {
 
         public Builder addStartAction(Consumer<LivingEntity> startAction) {
             this.startAction = this.startAction.andThen(startAction);
+            return this;
+        }
+
+        public Builder addHitAction(BiConsumer<Projectile, HitResult> hitAction) {
+            this.hitAction = this.hitAction.andThen(hitAction);
             return this;
         }
 

@@ -78,16 +78,16 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        executeActionWithModifier(ninjaAction, livingEntity, action -> action.stopAction(livingEntity));
+        executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.stopAction(livingEntity));
 
-        if (getActionOrOveride(livingEntity).getCooldown() > 0) {
-            executeActionWithModifier(currentAction, livingEntity, this::setCooldown);
+        if (currentAction.value().getCooldown() > 0) {
+            executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
         }
 
         currentAction = ninjaAction;
         setActionTick(0);
 
-        executeActionWithModifier(currentAction, livingEntity, action -> action.startAction(livingEntity));
+        executeActionWithModifier(currentAction.value(), livingEntity, action -> action.startAction(livingEntity));
         livingEntity.refreshDimensions();
     }
 
@@ -103,14 +103,14 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public TickState getTickState(LivingEntity user) {
-        return getActionOrOveride(user).getNinjaActionTickType().apply(user);
+        return currentAction.value().getNinjaActionTickType().apply(user);
     }
 
     public void tick(LivingEntity user) {
         TickState tickState = getTickState(user);
 
         if (tickState == TickState.STARTED) {
-            executeActionWithModifier(currentAction, user, action -> action.tickAction(user));
+            executeActionWithModifier(currentAction.value(), user, action -> action.tickAction(user));
         }
 
         cooldownMap.replaceAll((key,value) -> value - 1);
@@ -119,11 +119,11 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         if (tickState != TickState.STOPPED) {
             setActionTick(getActionTick() + 1);
         } else {
-            setAction(user, getActionOrOveride(user).getNextOfTimeout(user));
+            setAction(user, currentAction.value().getNextOfTimeout(user));
         }
 
         if (tickState == TickState.STARTED) {
-            Holder<NinjaAction> ninjaAction = getActionOrOveride(user).getNext(user);
+            Holder<NinjaAction> ninjaAction = currentAction.value().getNext(user);
             if (ninjaAction != null) {
                 setAction(user, ninjaAction);
             }
@@ -144,17 +144,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void pretick(LivingEntity user) {
         if (getTickState(user) == TickState.STARTED) {
-            if (!getActionOrOveride(user).isCanVanillaAction()) {
+            if (!currentAction.value().isCanVanillaAction()) {
                 user.setSprinting(false);
                 user.setShiftKeyDown(false);
             }
-            if (getActionOrOveride(user).getHitBox().isPresent()) {
+            if (currentAction.value().getHitBox().isPresent()) {
                 user.setPose(Pose.STANDING);
             }
         }
 
 
-        if (user instanceof Player player && getActionOrOveride(user).isNoBob()) {
+        if (user instanceof Player player && currentAction.value().isNoBob()) {
             player.bob = 0.0F;
             player.oBob = 0.0F;
         }
@@ -243,33 +243,29 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return airSlideCount > 0;
     }
 
-    public static Stream<NinjaAction> getModifiers(Holder<NinjaAction> ninjaAction, LivingEntity livingEntity) {
+    public static Stream<NinjaAction> getModifiers(NinjaAction ninjaAction, LivingEntity livingEntity) {
         return NINJA_ACTIONS.stream()
                 .map(Holder::value)
                 .filter(action -> action.isModifier() &&
                         action.needCondition(livingEntity) &&
-                        action.isOriginAction(ninjaAction.value()));
+                        action.isModifierOf(ninjaAction.isOverride() ? ninjaAction.getOriginAction() : ninjaAction));
     }
 
-    public static void executeActionWithModifier(Holder<NinjaAction> ninjaAction, LivingEntity livingEntity, Consumer<NinjaAction> consumer) {
+    public static void executeActionWithModifier(NinjaAction ninjaAction, LivingEntity livingEntity, Consumer<NinjaAction> consumer) {
         NinjaAction doAction = getModifiers(ninjaAction, livingEntity)
                 .filter(NinjaAction::isOverride)
                 .min(Comparator.comparingInt(NinjaAction::getPriority))
-                .orElse(ninjaAction.value());
+                .orElse(ninjaAction);
         consumer.accept(doAction);
         getModifiers(ninjaAction, livingEntity)
                 .filter(NinjaAction::isInject)
                 .forEach(consumer);
     }
 
-    public static NinjaAction getActionOrOveride(Holder<NinjaAction> ninjaAction, LivingEntity livingEntity) {
+    public static NinjaAction getActionOrOveride(NinjaAction ninjaAction, LivingEntity livingEntity) {
         return getModifiers(ninjaAction, livingEntity)
                 .filter(NinjaAction::isOverride)
                 .min(Comparator.comparingInt(NinjaAction::getPriority))
-                .orElse(ninjaAction.value());
-    }
-
-    public NinjaAction getActionOrOveride(LivingEntity entity){
-        return getActionOrOveride(currentAction, entity);
+                .orElse(ninjaAction);
     }
 }

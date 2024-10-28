@@ -29,10 +29,8 @@ public class CommonEvents {
         if (event.getEntity() instanceof Player player && player.getInventory() != null) {
             NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
             Holder<NinjaAction> currentAction = data.getCurrentAction();
-            if (currentAction != NinjaActions.NONE.value() && event.getEntity() instanceof LivingEntity livingEntity) {
-                data.getActionOrOveride(livingEntity)
-                        .getHitBox()
-                        .ifPresent(event::setNewSize);
+            if (currentAction != NinjaActions.NONE.value() && event.getEntity() instanceof LivingEntity) {
+                data.getCurrentAction().value().getHitBox().ifPresent(event::setNewSize);
             }
         }
     }
@@ -48,7 +46,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void impact(ProjectileImpactEvent event) {
         if (event.getRayTraceResult() instanceof EntityHitResult entityHitResult && entityHitResult.getEntity() instanceof LivingEntity living) {
-            if (NinjaActionUtils.getActionData(living).getActionOrOveride(living).getReduceDamage() >= 1.0F) {
+            if (NinjaActionUtils.getActionData(living).getCurrentAction().value().getReduceDamage() >= 1.0F) {
                 living.playSound(SoundEvents.BREEZE_DEFLECT);
                 event.getProjectile().deflect(ProjectileDeflection.MOMENTUM_DEFLECT, event.getProjectile().getOwner(), event.getProjectile().getOwner(), true);
                 event.setCanceled(true);
@@ -82,7 +80,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onKnockBack(LivingKnockBackEvent event) {
-        float reduceKnockback = event.getEntity().getData(ModAttachments.NINJA_ACTION).getActionOrOveride(event.getEntity()).getReduceKnockback();
+        float reduceKnockback = event.getEntity().getData(ModAttachments.NINJA_ACTION).getCurrentAction().value().getReduceKnockback();
         event.setStrength(event.getStrength() * (1.0F - reduceKnockback));
         if (reduceKnockback >= 1.0F) {
             event.setCanceled(true);
@@ -91,7 +89,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onHurt(LivingIncomingDamageEvent event) {
-        float reduceDamage = event.getEntity().getData(ModAttachments.NINJA_ACTION).getActionOrOveride(event.getEntity()).getReduceDamage();
+        float reduceDamage = event.getEntity().getData(ModAttachments.NINJA_ACTION).getCurrentAction().value().getReduceDamage();
         if (event.getSource().isDirect() && event.getSource().getDirectEntity() != null && !event.getSource().is(DamageTypeTags.IS_EXPLOSION) && !event.getSource().is(DamageTypeTags.IS_PROJECTILE)) {
             event.setAmount(event.getAmount() * (1.0F - reduceDamage));
             if (reduceDamage >= 1.0F) {

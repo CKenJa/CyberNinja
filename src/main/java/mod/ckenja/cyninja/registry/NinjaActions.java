@@ -49,8 +49,8 @@ public class NinjaActions {
             .addNeedCondition(livingEntity ->
                     !(livingEntity.isInFluidType() || livingEntity.isInWater()) &&
                     getActionData(livingEntity).canAirSlideCount() &&
-                            (getActionData(livingEntity).getCurrentAction().value() == NinjaActions.NONE.value() ||
-                                    getActionData(livingEntity).getCurrentAction().value() == NinjaActions.SPIN.value())
+                            (getActionData(livingEntity).getCurrentAction() == NinjaActions.NONE ||
+                                    getActionData(livingEntity).getCurrentAction() == NinjaActions.SPIN)
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)

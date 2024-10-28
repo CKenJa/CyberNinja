@@ -19,6 +19,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,8 +49,10 @@ public class ClientEvents {
                 .map(Holder::value)
                 .filter(action -> !action.isModifier() && data.canAction(action, player))
                 .min(Comparator.comparingInt(NinjaAction::getPriority))
-                .map(action -> NinjaActions.getRegistry().getKey(action))
-                .ifPresent(action -> PacketDistributor.sendToServer(new SetActionToServerPacket(action)));
+                .ifPresent(action -> {
+                    ResourceLocation sendAction = NinjaActions.getRegistry().getKey(NinjaActionAttachment.getActionOrOveride(action, player));
+                    PacketDistributor.sendToServer(new SetActionToServerPacket(sendAction));
+                });
     }
 
     @SubscribeEvent
@@ -73,7 +76,7 @@ public class ClientEvents {
                 NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
                 BaguAnimationController animationController = AnimationUtil.getAnimationController(bagusModelEvent.getEntity());
 
-                if (actionHolder.getActionOrOveride(livingEntity) == NinjaActions.AIR_ROCKET.value()) {
+                if (actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
                     if (animationController.getAnimationState(ModAnimations.AIR_ROCKET).isStarted()) {
                         rootModel.getBagusRoot().getAllParts().forEach(ModelPart::resetPose);
 
@@ -96,7 +99,7 @@ public class ClientEvents {
             if (actionHolder.getCurrentAction().value() == NinjaActions.SPIN.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees((bagusModelEvent.getPartialTick() + entity.tickCount) * 60F));
             }
-            if (actionHolder.getActionOrOveride(livingEntity) == NinjaActions.AIR_ROCKET.value()) {
+            if (actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot()));
 
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);

@@ -86,9 +86,11 @@ public class NinjaAction {
         return ninjaActionTickType;
     }
 
-    public boolean isOriginAction(NinjaAction action) {
+    public boolean isModifierOf(NinjaAction action) {
+        if (!isModifier())
+            return false;
         ResourceLocation resourceLocation = NinjaActions.getRegistry().getKey(action);
-        if(resourceLocation == null)
+        if (resourceLocation == null)
             return false;
         return originAction.is(resourceLocation);
     }
@@ -175,6 +177,10 @@ public class NinjaAction {
 
     public boolean isOverride() {
         return modifierType == ModifierType.OVERRIDE;
+    }
+
+    NinjaAction getOriginAction() {
+        return originAction.value();
     }
 
     public static class Builder {

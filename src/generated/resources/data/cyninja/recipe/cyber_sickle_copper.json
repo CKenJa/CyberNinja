@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing_trim",
+  "addition": {
+    "item": "minecraft:copper_ingot"
+  },
+  "base": {
+    "item": "cyninja:chain_sickle"
+  },
+  "template": {
+    "item": "cyninja:cyber_trim_smithing_template"
+  }
+}

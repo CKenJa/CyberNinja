@@ -5,7 +5,7 @@ import bagu_chan.bagus_lib.api.client.IRootModel;
 import bagu_chan.bagus_lib.client.event.BagusModelEvent;
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import bagu_chan.bagus_lib.util.client.VectorUtil;
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.client.animation.AnimationDefinition;

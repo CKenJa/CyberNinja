@@ -1,7 +1,7 @@
 package mod.ckenja.cyninja.ninja_action;
 
 public enum TickState {
-    START,
-    STOP,
+    STARTED,
+    STOPPED,
     NOT_START
 }

@@ -2,9 +2,8 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
-import mod.ckenja.cyninja.ninja_action.ModifierType;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
@@ -145,6 +144,7 @@ public class NinjaActions {
                 livingEntity.resetFallDistance();
                 getActionData(livingEntity).resetAirJumpCount();
             })
+            .priority(800)
             .build()
     );
 
@@ -162,11 +162,11 @@ public class NinjaActions {
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.IRON_INGOT))
             .addStartAction(NinjaActionUtils::tickHeavyAirJump)
             .priority(900)
-            .build(new NinjaAction.ModifierBuilder().setModifierType(ModifierType.INJECT, AIR_JUMP))
+            .inject(AIR_JUMP)
+            .build()
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_ROCKET = NINJA_ACTIONS.register("air_rocket", () -> NinjaAction.Builder.newInstance()
-            .setStartInput(NinjaInput.JUMP)
             .startAndEnd(0, 20)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addStartAction(livingEntity -> {
@@ -182,7 +182,8 @@ public class NinjaActions {
                     AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
             })
             .priority(900)
-            .build(new NinjaAction.ModifierBuilder().setModifierType(ModifierType.OVERRIDE, AIR_JUMP))
+            .override(AIR_JUMP)
+            .build()
     );
 
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> NinjaAction.Builder.newInstance()

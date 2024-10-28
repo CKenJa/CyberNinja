@@ -1,6 +1,6 @@
 package mod.ckenja.cyninja.util;
 
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
@@ -149,7 +149,7 @@ public class NinjaActionUtils {
     public static boolean isWearingFullNinjaSuit(LivingEntity livingEntity) {
         int i = 0;
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
-            if ((itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
+            if ((itemstack.getItem() instanceof NinjaArmorItem)) {
                 i++;
             }
         }
@@ -159,7 +159,7 @@ public class NinjaActionUtils {
 
     public static boolean isWearingNinjaTrim(LivingEntity livingEntity, Item item) {
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
-            if ((itemstack.getItem() instanceof NinjaArmorItem ninjaArmorItem)) {
+            if ((itemstack.getItem() instanceof NinjaArmorItem)) {
                 ArmorTrim armorTrim = itemstack.get(DataComponents.TRIM);
                 if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
                     return true;

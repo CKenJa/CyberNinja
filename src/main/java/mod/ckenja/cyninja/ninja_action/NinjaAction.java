@@ -254,6 +254,10 @@ public class NinjaAction {
             return new NinjaAction(this);
         }
 
+        public Builder transform(Function<Builder, Builder> transformer){
+            return transformer.apply(this);
+        }
+
         //This is set start action and stop action
         public Builder startAndEnd(int start, int end) {
             this.startTick = start;

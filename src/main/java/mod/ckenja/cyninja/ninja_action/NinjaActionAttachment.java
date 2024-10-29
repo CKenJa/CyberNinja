@@ -78,16 +78,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.stopAction(livingEntity));
+        if (ninjaAction.value().getNinjaActionTickType() != NinjaActionTickType.INSTANT){
+            executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.stopAction(livingEntity));
 
-        if (currentAction.value().getCooldown() > 0) {
-            executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
+            if (currentAction.value().getCooldown() > 0) {
+                executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
+            }
+
+            currentAction = ninjaAction;
+            setActionTick(0);
         }
-
-        currentAction = ninjaAction;
-        setActionTick(0);
-
-        executeActionWithModifier(currentAction.value(), livingEntity, action -> action.startAction(livingEntity));
+        executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.startAction(livingEntity));
         livingEntity.refreshDimensions();
     }
 

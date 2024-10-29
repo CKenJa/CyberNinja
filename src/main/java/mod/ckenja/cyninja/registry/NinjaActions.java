@@ -2,9 +2,9 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Registry;
@@ -199,6 +199,10 @@ public class NinjaActions {
                 NinjaActionUtils.attackEntities(attacker, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);
                 attacker.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
                 attacker.level().addParticle(ParticleTypes.SWEEP_ATTACK, attacker.getX(), attacker.getY(), attacker.getZ(), 0,0,0);
+            })
+            .addStartAction(attacker -> {
+                NinjaActionUtils.setEntityWithSummonShadow(attacker, new Vec3(-1.0F, 0.0, 0.0F), -30F, NinjaActions.SPIN);
+                NinjaActionUtils.setEntityWithSummonShadow(attacker, new Vec3(1.0F, 0.0, 0.0F), 30F, NinjaActions.SPIN);
             })
             .next(livingEntity -> {
                 if (livingEntity.onGround() || livingEntity.horizontalCollision) {

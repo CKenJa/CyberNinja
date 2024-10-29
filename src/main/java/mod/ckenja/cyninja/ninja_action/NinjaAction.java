@@ -374,6 +374,14 @@ public class NinjaAction {
             return this;
         }
 
+        /**
+         * このメソッドは、現在のアクションを引数の指定したアクションの「オーバーライドアクション」にします。
+         * 「オーバーライドアクション」は、「オリジナルアクション」を発動しようとしたとき、addNeedActionで指定した条件を満たしていれば発動します。
+         * 条件以外は通常のアクション同様の設定が必要です。
+         *
+         * @param holder 上書き先に指定する{@link NinjaAction} のホルダー
+         * @return 現在の {@link Builder} インスタンス
+         */
         public Builder override(Holder<NinjaAction> holder) {
             this.modifierType = ModifierType.OVERRIDE;
             this.originAction = holder;

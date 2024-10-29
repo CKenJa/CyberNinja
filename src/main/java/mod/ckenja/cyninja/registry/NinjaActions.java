@@ -200,10 +200,6 @@ public class NinjaActions {
                 attacker.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
                 attacker.level().addParticle(ParticleTypes.SWEEP_ATTACK, attacker.getX(), attacker.getY(), attacker.getZ(), 0,0,0);
             })
-            .addStartAction(attacker -> {
-                NinjaActionUtils.setEntityWithSummonShadow(attacker, new Vec3(-1.0F, 0.0, 0.0F), -30F, NinjaActions.SPIN);
-                NinjaActionUtils.setEntityWithSummonShadow(attacker, new Vec3(1.0F, 0.0, 0.0F), 30F, NinjaActions.SPIN);
-            })
             .next(livingEntity -> {
                 if (livingEntity.onGround() || livingEntity.horizontalCollision) {
                     return NONE;

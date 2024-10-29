@@ -204,7 +204,7 @@ public class NinjaActionUtils {
         return livingEntity.getMainHandItem().is(ModItems.KATANA.asItem());
     }
 
-    public static boolean setEntityWithSummonShadow(LivingEntity living, Vec3 offset, float yRot, Holder<NinjaAction> actionHolder) {
+    public static boolean setEntityWithSummonShadow(LivingEntity living, Vec3 pos, Vec3 offset, float yRot, Holder<NinjaAction> actionHolder) {
         if (!(living instanceof NinjaFaker)) {
             CompoundTag compoundtag = new CompoundTag();
             living.saveWithoutId(compoundtag);
@@ -221,7 +221,7 @@ public class NinjaActionUtils {
                 faker.setDataUuid(living.getUUID());
                 faker.setXRot(living.getXRot());
                 faker.setYRot(living.getYRot() + yRot);
-                faker.setPos(living.position().add(VectorUtil.getInputVector(offset, 0, faker.getYRot())));
+                faker.setPos(pos.add(VectorUtil.getInputVector(offset, 0, faker.getYRot())));
                 VectorUtil.moveRelativeActionY(faker, 0.5F, offset);
                 faker.setOnGround(false);
 

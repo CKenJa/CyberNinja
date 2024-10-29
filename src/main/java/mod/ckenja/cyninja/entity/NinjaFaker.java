@@ -1,6 +1,5 @@
 package mod.ckenja.cyninja.entity;
 
-import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -32,11 +31,17 @@ public class NinjaFaker extends PathfinderMob {
     @Override
     public void tick() {
         super.tick();
-        if (this.tickCount > 2) {
-            if (NinjaActionUtils.getActionData(this).getCurrentAction().value() == NinjaActions.NONE.value()) {
-                if (!this.level().isClientSide()) {
-                    this.discard();
+        if (this.getOwner() != null) {
+            if (!this.level().isClientSide()) {
+                if (NinjaActionUtils.getActionData(this).getCurrentAction().value() != NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction().value()) {
+                    NinjaActionUtils.getActionData(this).syncAction(this, NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction());
                 }
+            }
+        }
+        if (this.tickCount > 300) {
+
+            if (!this.level().isClientSide()) {
+                this.discard();
             }
         }
     }

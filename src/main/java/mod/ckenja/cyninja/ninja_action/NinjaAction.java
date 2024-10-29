@@ -30,12 +30,13 @@ public class NinjaAction {
     private final boolean canVanillaAction;
 
     private final ModifierType modifierType;
-    private Holder<NinjaAction> originAction;
+    private final Holder<NinjaAction> originAction;
   
     private final boolean noBob;
 
     // Next input acceptance period *ms
-    public int timeout;
+    //TODO: add timeout map
+    private final int timeout;
 
     private final Function<LivingEntity, Holder<NinjaAction>> next;
     private final Function<LivingEntity, Holder<NinjaAction>> nextOfTimeout;
@@ -54,10 +55,6 @@ public class NinjaAction {
     private final EnumSet<NinjaInput> startInputs;
 
     private NinjaAction(Builder builder) {
-        this(builder, new ModifierBuilder());
-    }
-
-    private NinjaAction(Builder builder, ModifierBuilder builder2) {
         this.startTick = builder.startTick;
         this.endTick = builder.endTick;
         this.cooldown = builder.cooldown;
@@ -69,8 +66,8 @@ public class NinjaAction {
       
         this.canVanillaAction = builder.canVanillaAction;
 
-        this.modifierType = builder2.modifierType;
-        this.originAction = builder2.originAction;
+        this.modifierType = builder.modifierType;
+        this.originAction = builder.originAction;
 
         this.noBob = builder.noBob;
 
@@ -91,29 +88,33 @@ public class NinjaAction {
         this.priority = builder.priority;
     }
 
-    public NinjaActionTickType getNinjaActionTickType() {
+    NinjaActionTickType getNinjaActionTickType() {
         return ninjaActionTickType;
     }
 
-    public ModifierType getModifierType() {
-        return modifierType;
+    public boolean isModifierOf(NinjaAction action) {
+        if (!isModifier())
+            return false;
+        ResourceLocation resourceLocation = NinjaActions.getRegistry().getKey(action);
+        if (resourceLocation == null)
+            return false;
+        return originAction.is(resourceLocation);
     }
 
-    //Modifierを実行するために置き換えるNinjaAction
-    public Holder<NinjaAction> getOriginAction() {
-        return originAction;
-    }
-
-    public int getStartTick() {
+    int getStartTick() {
         return startTick;
     }
 
-    public int getEndTick() {
+    int getEndTick() {
         return endTick;
     }
 
-    public int getCooldown() {
+    int getCooldown() {
         return cooldown;
+    }
+
+    int getTimeout() {
+        return timeout;
     }
 
     public float getMoveSpeed() {
@@ -128,10 +129,6 @@ public class NinjaAction {
         return reduceKnockback;
     }
 
-    public int getTimeout() {
-        return timeout;
-    }
-
     public int getPriority() {
         return priority;
     }
@@ -140,31 +137,35 @@ public class NinjaAction {
         return canVanillaAction;
     }
 
+    public boolean isNoBob() {
+        return noBob;
+    }
+
     public Optional<EntityDimensions> getHitBox() {
         return hitBox;
     }
 
-    public Holder<NinjaAction> getNext(LivingEntity entity) {
+    Holder<NinjaAction> getNext(LivingEntity entity) {
         return next.apply(entity);
     }
 
-    public Holder<NinjaAction> getNextOfTimeout(LivingEntity entity) {
+    Holder<NinjaAction> getNextOfTimeout(LivingEntity entity) {
         return nextOfTimeout.apply(entity);
     }
 
-    public boolean needCondition(LivingEntity entity) {
+    boolean needCondition(LivingEntity entity) {
         return needCondition.test(entity);
     }
 
-    public void tickAction(LivingEntity user) {
+    void tickAction(LivingEntity user) {
         tickAction.accept(user);
     }
 
-    public void startAction(LivingEntity user) {
+    void startAction(LivingEntity user) {
         startAction.accept(user);
     }
 
-    public void stopAction(LivingEntity user) {
+    void stopAction(LivingEntity user) {
         stopAction.accept(user);
     }
 
@@ -172,13 +173,24 @@ public class NinjaAction {
         hitAction.accept(projectile, hitResult);
     }
 
-    public EnumSet<NinjaInput> getStartInputs() {
+    EnumSet<NinjaInput> getStartInputs() {
         return startInputs;
     }
 
+    public boolean isModifier() {
+        return isInject() || isOverride();
+    }
 
-    public boolean isNoBob() {
-        return noBob;
+    public boolean isInject() {
+        return modifierType == ModifierType.INJECT;
+    }
+
+    public boolean isOverride() {
+        return modifierType == ModifierType.OVERRIDE;
+    }
+
+    NinjaAction getOriginAction() {
+        return originAction.value();
     }
 
     public static class Builder {
@@ -204,6 +216,9 @@ public class NinjaAction {
         private Consumer<LivingEntity> tickAction;
         private Optional<ResourceLocation> animationID;
         private Optional<EntityDimensions> hitBox = Optional.empty();
+
+        private ModifierType modifierType = ModifierType.NONE;
+        private Holder<NinjaAction> originAction;
 
         private Builder() {
             this.priority = 1000;
@@ -237,11 +252,6 @@ public class NinjaAction {
 
         public NinjaAction build() {
             return new NinjaAction(this);
-        }
-
-
-        public NinjaAction build(ModifierBuilder modifierBuilder) {
-            return new NinjaAction(this, modifierBuilder);
         }
 
         //This is set start action and stop action
@@ -357,18 +367,15 @@ public class NinjaAction {
             this.noBob = noBob;
             return this;
         }
-    }
 
-    public static class ModifierBuilder {
-        private ModifierType modifierType = ModifierType.NONE;
-        private Holder<NinjaAction> originAction;
-
-        public ModifierBuilder() {
-            this.modifierType = ModifierType.NONE;
+        public Builder inject(Holder<NinjaAction> holder) {
+            this.modifierType = ModifierType.INJECT;
+            this.originAction = holder;
+            return this;
         }
 
-        public ModifierBuilder setModifierType(ModifierType modifierType, Holder<NinjaAction> holder) {
-            this.modifierType = modifierType;
+        public Builder override(Holder<NinjaAction> holder) {
+            this.modifierType = ModifierType.OVERRIDE;
             this.originAction = holder;
             return this;
         }

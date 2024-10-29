@@ -1,6 +1,5 @@
 package mod.ckenja.cyninja.ninja_action;
 
-import mod.ckenja.cyninja.attachment.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -11,19 +10,15 @@ public enum NinjaActionTickType {
         NinjaActionAttachment ninjaActionAttachment = NinjaActionUtils.getActionData(livingEntity);
         NinjaAction ninjaAction = ninjaActionAttachment.getCurrentAction().value();
         if (ninjaActionAttachment.getActionTick() >= ninjaAction.getStartTick() && ninjaActionAttachment.getActionTick() < ninjaAction.getEndTick()) {
-            return TickState.START;
+            return TickState.STARTED;
         }
         if (ninjaActionAttachment.getActionTick() < ninjaAction.getStartTick()) {
             return TickState.NOT_START;
         }
-        return TickState.STOP;
+        return TickState.STOPPED;
     }),
-    LOOP(livingEntity -> {
-        return TickState.START;
-    }),
-    INSTANT(livingEntity -> {
-        return TickState.STOP;
-    });
+    LOOP(livingEntity -> TickState.STARTED),
+    INSTANT(livingEntity -> TickState.STOPPED);
 
     private final Function<LivingEntity, TickState> function;
 
@@ -31,7 +26,7 @@ public enum NinjaActionTickType {
         this.function = function;
     }
 
-    public TickState apply(LivingEntity user) {
+    TickState apply(LivingEntity user) {
         return function.apply(user);
     }
 }

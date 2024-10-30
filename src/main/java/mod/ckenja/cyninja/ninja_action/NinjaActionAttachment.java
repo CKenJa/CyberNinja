@@ -26,8 +26,8 @@ import static mod.ckenja.cyninja.ninja_action.NinjaAction.NINJA_ACTIONS;
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private final Map<NinjaAction, Integer> cooldownMap = Maps.newHashMap();
 
-    private EnumSet<NinjaInput> previousInputs;
-    private EnumSet<NinjaInput> inputs;
+    private EnumSet<NinjaInput> previousInputs = EnumSet.noneOf(NinjaInput.class);
+    private EnumSet<NinjaInput> currentInputs = EnumSet.noneOf(NinjaInput.class);
 
     private Holder<NinjaAction> currentAction = NinjaActions.NONE;
     private int actionTick;
@@ -40,17 +40,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private float actionYRot;
 
     public void checkKeyDown(ClientTickEvent.Pre event) {
-        previousInputs = inputs;
-        inputs = EnumSet.noneOf(NinjaInput.class);
+        previousInputs = currentInputs;
+        currentInputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
         if (options.keyShift.isDown())
-            inputs.add(NinjaInput.SNEAK);
+            currentInputs.add(NinjaInput.SNEAK);
         if (options.keyJump.isDown())
-            inputs.add(NinjaInput.JUMP);
+            currentInputs.add(NinjaInput.JUMP);
         if (options.keySprint.isDown())
-            inputs.add(NinjaInput.SPRINT);
+            currentInputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
-            inputs.add(NinjaInput.LEFT_CLICK);
+            currentInputs.add(NinjaInput.LEFT_CLICK);
     }
 
     public int getActionTick() {
@@ -190,7 +190,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         return action != NinjaActions.NONE.get() &&
                 //入力が必要ないもの or 必要で、一致するもの
                 (action.getStartInputs() == null ||
-                        action.getStartInputs() != null && inputs.containsAll(action.getStartInputs())) &&
+                        action.getStartInputs() != null && currentInputs.containsAll(action.getStartInputs())) &&
                 action != currentAction &&
                 action.needCondition(player) &&
                 !cooldownMap.containsKey(action);
@@ -216,8 +216,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }
 
-    public EnumSet<NinjaInput> getInputs() {
-        return inputs;
+    public EnumSet<NinjaInput> getCurrentInputs() {
+        return currentInputs;
     }
 
     public EnumSet<NinjaInput> getPreviousInputs() {

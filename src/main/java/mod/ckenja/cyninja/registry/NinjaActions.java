@@ -114,14 +114,14 @@ public class NinjaActions {
                     return NONE;
                 }
                 // jumpで止まる
-                if (livingEntity.level().isClientSide && attachment.getInputs() != null) {
+                if (livingEntity.level().isClientSide && attachment.getCurrentInputs() != null) {
                     //sneakを押してなければnone
-                    if (!attachment.getInputs().contains(NinjaInput.SNEAK)) {
+                    if (!attachment.getCurrentInputs().contains(NinjaInput.SNEAK)) {
                         PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         return NONE;
                     }
 
-                    if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
+                    if (attachment.getCurrentInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
                         PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         return NONE;
                     }

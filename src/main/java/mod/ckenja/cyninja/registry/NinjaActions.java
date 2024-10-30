@@ -287,10 +287,6 @@ public class NinjaActions {
     }
 
     private static void handleBlockHit(SickleEntity sickle, BlockHitResult blockHitResult, boolean isHook) {
-        BlockPos pos = blockHitResult.getBlockPos();
-        Level level = sickle.level();
-        BlockState state = level.getBlockState(pos);
-        SoundType soundType = state.getSoundType(sickle.level(), pos, sickle);
         if (!sickle.isReturning()) {
             if (sickle.canAttach() && isHook) {
                 Vec3 vec3 = blockHitResult.getLocation().subtract(sickle.getX(), sickle.getY(), sickle.getZ());
@@ -299,6 +295,10 @@ public class NinjaActions {
                 Vec3 vec31 = vec3.normalize().scale(0.05F);
                 sickle.setPosRaw(sickle.getX() - vec31.x, sickle.getY() - vec31.y, sickle.getZ() - vec31.z);
             } else {
+                BlockPos pos = blockHitResult.getBlockPos();
+                Level level = sickle.level();
+                BlockState state = level.getBlockState(pos);
+                SoundType soundType = state.getSoundType(sickle.level(), pos, sickle);
                 level.playSound(null, sickle.getX(), sickle.getY(), sickle.getZ(), soundType.getHitSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
                 sickle.setReturning(true);
             }
@@ -312,13 +312,14 @@ public class NinjaActions {
             LivingEntity livingentity = shooter instanceof LivingEntity ? (LivingEntity) shooter : null;
             double damage = 6;
             DamageSource damagesource = sickle.damageSources().mobProjectile(sickle, livingentity);
+            Level level = sickle.level();
 
-            if (sickle.getWeaponItem() != null && sickle.level() instanceof ServerLevel serverlevel) {
+            if (sickle.getWeaponItem() != null && level instanceof ServerLevel serverlevel) {
                 damage = EnchantmentHelper.modifyDamage(serverlevel, sickle.getWeaponItem(), entity, damagesource, (float) damage);
             }
             if (entity.hurt(damagesource, (float) damage)) {
                 if (entity instanceof LivingEntity hurtEntity) {
-                    if (sickle.level() instanceof ServerLevel serverlevel1) {
+                    if (level instanceof ServerLevel serverlevel1) {
                         EnchantmentHelper.doPostAttackEffectsWithItemSource(serverlevel1, hurtEntity, damagesource, sickle.getWeaponItem());
                     }
                 }

@@ -186,6 +186,10 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         cooldownMap.putIfAbsent(ninjaAction, ninjaAction.getCooldown());
     }
 
+    public boolean isCooldownFinished(NinjaAction action){
+        return !cooldownMap.containsKey(action);
+    }
+
     public boolean canAction(NinjaAction action, Player player) {
         return action != NinjaActions.NONE.get() &&
                 //入力が必要ないもの or 必要で、一致するもの
@@ -193,7 +197,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                         action.getStartInputs() != null && currentInputs.containsAll(action.getStartInputs())) &&
                 action != currentAction &&
                 action.needCondition(player) &&
-                !cooldownMap.containsKey(action);
+                isCooldownFinished(action);
     }
 
 

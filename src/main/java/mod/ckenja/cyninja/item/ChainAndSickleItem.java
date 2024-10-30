@@ -23,20 +23,17 @@ public class ChainAndSickleItem extends Item {
         }
     }
 
-
     @Nullable
-    private SickleEntity getThrownEntity(Level level, ItemStack stack) {
-        if (level instanceof ServerLevel server) {
-            UUID id = stack.get(ModDataComponents.CHAIN_ONLY);
-            if (id != null) {
-                Entity e = server.getEntity(id);
-                if (e instanceof SickleEntity) {
-                    return (SickleEntity) e;
-                }
-            }
-        }
-
-        return null;
+    public SickleEntity getThrownEntity(Level level, ItemStack stack) {
+        if (!(level instanceof ServerLevel server))
+            return null;
+        UUID id = stack.get(ModDataComponents.CHAIN_ONLY);
+        if (id == null)
+            return null;
+        Entity e = server.getEntity(id);
+        if (!(e instanceof SickleEntity))
+            return null;
+        return (SickleEntity) e;
     }
 
     private static boolean isTooDamagedToUse(ItemStack p_353073_) {

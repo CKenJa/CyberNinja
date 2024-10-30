@@ -2,7 +2,6 @@ package mod.ckenja.cyninja;
 
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
-import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.Holder;
@@ -80,7 +79,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onKnockBack(LivingKnockBackEvent event) {
-        float reduceKnockback = event.getEntity().getData(ModAttachments.NINJA_ACTION).getCurrentAction().value().getReduceKnockback();
+        float reduceKnockback = NinjaActionUtils.getActionData(event.getEntity()).getCurrentAction().value().getReduceKnockback();
         event.setStrength(event.getStrength() * (1.0F - reduceKnockback));
         if (reduceKnockback >= 1.0F) {
             event.setCanceled(true);
@@ -89,7 +88,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onHurt(LivingIncomingDamageEvent event) {
-        float reduceDamage = event.getEntity().getData(ModAttachments.NINJA_ACTION).getCurrentAction().value().getReduceDamage();
+        float reduceDamage = NinjaActionUtils.getActionData(event.getEntity()).getCurrentAction().value().getReduceDamage();
         if (event.getSource().isDirect() && event.getSource().getDirectEntity() != null && !event.getSource().is(DamageTypeTags.IS_EXPLOSION) && !event.getSource().is(DamageTypeTags.IS_PROJECTILE)) {
             event.setAmount(event.getAmount() * (1.0F - reduceDamage));
             if (reduceDamage >= 1.0F) {

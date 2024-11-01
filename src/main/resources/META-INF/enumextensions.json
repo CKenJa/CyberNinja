@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/world/entity/raid/Raid$RaiderType",
+      "name": "CYNINJA_CYBER_ILLAGER",
+      "constructor": "(Ljava/util/function/Supplier;[I)V",
+      "parameters": {
+        "class": "ckenja/cyninja/registry/RaiderEnumParams",
+        "field": "CYBER_ILLAGER"
+      }
+    }
+  ]
+}

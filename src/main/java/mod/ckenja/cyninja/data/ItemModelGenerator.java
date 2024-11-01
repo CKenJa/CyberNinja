@@ -27,6 +27,7 @@ public class ItemModelGenerator extends ItemModelProvider {
     @Override
     protected void registerModels() {
         this.singleTexTool(ModItems.SHURIKEN);
+        this.singleTex(ModItems.SMOKE_BOMB);
         this.singleTex(ModItems.CYBER_TRIM_SMITHING_TEMPLATE);
         this.singleTexTool(ModItems.KATANA);
         this.singleTexTool(ModItems.CHAIN_SICKLE);

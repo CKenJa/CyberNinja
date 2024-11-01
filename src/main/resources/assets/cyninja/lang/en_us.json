@@ -4,6 +4,7 @@
   "item.cyninja.ninja_leggings": "Ninja Leggings",
   "item.cyninja.ninja_boots": "Ninja Boots",
   "item.cyninja.shuriken": "Shuriken",
+  "item.cyninja.smoke_bomb": "Smoke Bomb",
   "item.cyninja.katana": "Katana",
   "item.cyninja.chain_sickle": "Chain Sickle",
   "item.cyninja.cyber_ninja_spawn_egg": "Cyber Ninja Spawn Egg",
@@ -12,5 +13,6 @@
   "entity.cyninja.cyber_ninja": "Cyber Ninja",
   "entity.cyninja.thrown_item": "Thrown Item",
   "entity.cyninja.sickle": "Chain Sickle",
+  "entity.cyninja.ninja_faker": "Ninja Faker",
   "itemGroup.cyninja.main_tab": "Cyninja"
 }

@@ -25,6 +25,7 @@ public class ModCreativeTabs {
                         ModItems.NINJA_BOOTS,
                         ModItems.CYBER_TRIM_SMITHING_TEMPLATE,
                         ModItems.SHURIKEN,
+                                ModItems.SMOKE_BOMB,
                                 ModItems.KATANA,
                                 ModItems.CHAIN_SICKLE,
                                 ModItems.CYBER_NINJA_SPAWN_EGG

@@ -2,9 +2,9 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.core.Registry;

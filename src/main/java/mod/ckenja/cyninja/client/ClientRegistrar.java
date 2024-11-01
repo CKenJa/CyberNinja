@@ -3,6 +3,7 @@ package mod.ckenja.cyninja.client;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.client.model.CyberIllagerModel;
 import mod.ckenja.cyninja.client.render.CyberIllagerRender;
+import mod.ckenja.cyninja.client.render.NinjaFakerRenderer;
 import mod.ckenja.cyninja.client.render.SickleEntityRenderer;
 import mod.ckenja.cyninja.client.render.ThrownItemEntityRenderer;
 import mod.ckenja.cyninja.registry.ModEntities;
@@ -19,6 +20,7 @@ public class ClientRegistrar {
     @SubscribeEvent
     public static void registerEntityRenders(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.CYBER_ILLAGER.get(), CyberIllagerRender::new);
+        event.registerEntityRenderer(ModEntities.NINJA_FAKER.get(), NinjaFakerRenderer::new);
 
         event.registerEntityRenderer(ModEntities.THROWN_ITEM.get(), ThrownItemEntityRenderer::new);
         event.registerEntityRenderer(ModEntities.SICKLE.get(), SickleEntityRenderer::new);

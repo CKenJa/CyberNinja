@@ -1,10 +1,7 @@
 package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.item.ChainAndSickleItem;
-import mod.ckenja.cyninja.item.KatanaItem;
-import mod.ckenja.cyninja.item.NinjaArmorItem;
-import mod.ckenja.cyninja.item.ShurikenItem;
+import mod.ckenja.cyninja.item.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
@@ -25,6 +22,7 @@ public class ModItems {
     public static final DeferredItem<Item> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(22))));
     public static final DeferredItem<Item> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(22))));
     public static final DeferredItem<Item> SHURIKEN = ITEMS.register("shuriken", () -> new ShurikenItem((new Item.Properties())));
+    public static final DeferredItem<Item> SMOKE_BOMB = ITEMS.register("smoke_bomb", () -> new SmokebombItem((new Item.Properties())));
     //createAttributesの引数は、tier、攻撃力補正、攻撃速度補正
     public static final DeferredItem<Item> KATANA = ITEMS.register("katana", () -> new KatanaItem(new Item.Properties().durability(100).attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
     public static final DeferredItem<Item> CHAIN_SICKLE = ITEMS.register("chain_sickle", () -> new ChainAndSickleItem(new Item.Properties().durability(200)));

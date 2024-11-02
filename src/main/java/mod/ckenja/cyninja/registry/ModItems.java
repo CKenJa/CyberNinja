@@ -17,10 +17,10 @@ import java.util.List;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Cyninja.MODID);
 
-    public static final DeferredItem<Item> NINJA_HELMET = ITEMS.register("ninja_helmet", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.HELMET, (new Item.Properties()).durability(ArmorItem.Type.HELMET.getDurability(22))));
-    public static final DeferredItem<Item> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).durability(ArmorItem.Type.CHESTPLATE.getDurability(22))));
-    public static final DeferredItem<Item> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(22))));
-    public static final DeferredItem<Item> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(22))));
+    public static final DeferredItem<NinjaArmorItem> NINJA_HELMET = ITEMS.register("ninja_helmet", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.HELMET, (new Item.Properties()).durability(ArmorItem.Type.HELMET.getDurability(22))));
+    public static final DeferredItem<NinjaArmorItem> NINJA_CHESTPLATE = ITEMS.register("ninja_chestplate", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.CHESTPLATE, (new Item.Properties()).durability(ArmorItem.Type.CHESTPLATE.getDurability(22))));
+    public static final DeferredItem<NinjaArmorItem> NINJA_LEGGINGS = ITEMS.register("ninja_leggings", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.LEGGINGS, (new Item.Properties()).durability(ArmorItem.Type.LEGGINGS.getDurability(22))));
+    public static final DeferredItem<NinjaArmorItem> NINJA_BOOTS = ITEMS.register("ninja_boots", () -> new NinjaArmorItem(ModArmorMaterials.NINJA, ArmorItem.Type.BOOTS, (new Item.Properties()).durability(ArmorItem.Type.BOOTS.getDurability(22))));
     public static final DeferredItem<Item> SHURIKEN = ITEMS.register("shuriken", () -> new ShurikenItem((new Item.Properties())));
     public static final DeferredItem<Item> SMOKE_BOMB = ITEMS.register("smoke_bomb", () -> new SmokebombItem((new Item.Properties())));
     //createAttributesの引数は、tier、攻撃力補正、攻撃速度補正

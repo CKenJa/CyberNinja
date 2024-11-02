@@ -1,12 +1,12 @@
 package mod.ckenja.cyninja.data;
 
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.registry.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
@@ -14,6 +14,7 @@ import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.ItemLayerModelBuilder;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
 
@@ -31,6 +32,10 @@ public class ItemModelGenerator extends ItemModelProvider {
         this.singleTex(ModItems.CYBER_TRIM_SMITHING_TEMPLATE);
         this.singleTexTool(ModItems.KATANA);
         this.singleTexTool(ModItems.CHAIN_SICKLE);
+        this.trimmedArmor(ModItems.NINJA_BOOTS);
+        this.trimmedArmor(ModItems.NINJA_LEGGINGS);
+        this.trimmedArmor(ModItems.NINJA_CHESTPLATE);
+        this.trimmedArmor(ModItems.NINJA_HELMET);
         this.egg(ModItems.CYBER_NINJA_SPAWN_EGG);
     }
 
@@ -80,7 +85,7 @@ public class ItemModelGenerator extends ItemModelProvider {
         return BuiltInRegistries.ITEM.getKey(item.get().asItem());
     }
 
-    private void trimmedArmor(Supplier<ArmorItem> armor) {
+    private void trimmedArmor(DeferredItem<NinjaArmorItem> armor) {
         ItemModelBuilder base = this.singleTex(armor);
         for (ItemModelGenerators.TrimModelData trim : ItemModelGenerators.GENERATED_TRIM_MODELS) {
             String material = trim.name();

@@ -1,16 +1,24 @@
 package mod.ckenja.cyninja;
 
+import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
+import net.minecraft.Util;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,10 +27,34 @@ import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber(modid = Cyninja.MODID)
 public class CommonEvents {
+    @SubscribeEvent
+    public static void toolTipEvent(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        ArmorTrim armorTrim = stack.get(DataComponents.TRIM);
+        if (armorTrim != null) {
+            String rawStr = Util.makeDescriptionId("trim_material", armorTrim.material().unwrapKey().get().location());
+            boolean flag = stack.getItem() instanceof NinjaArmorItem;
+            String itemNameStr = BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace();
+            String itemPathStr = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+
+            if (flag) {
+                itemNameStr = Cyninja.MODID;
+                itemPathStr = "ninja_armor";
+            }
+
+            String totalName = rawStr + ".ninja." + itemNameStr + "." + itemPathStr;
+            if (I18n.exists(totalName)) {
+                event.getToolTip().add(Component.translatable(totalName));
+            }
+        }
+
+    }
+
     @SubscribeEvent
     public static void scaleEvent(EntityEvent.Size event) {
         //If Player's inventory is null. don't check

@@ -7,6 +7,7 @@ import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -102,12 +103,16 @@ public class NinjaActions {
                 if (livingEntity.level().isClientSide && attachment.getInputs() != null) {
                     //sneakを押してなければnone
                     if (!attachment.getInputs().contains(NinjaInput.SNEAK)) {
-                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        if (livingEntity instanceof LocalPlayer localPlayer) {
+                            PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        }
                         return NONE;
                     }
 
                     if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
-                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        if (livingEntity instanceof LocalPlayer localPlayer) {
+                            PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        }
                         return NONE;
                     }
                 }

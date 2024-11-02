@@ -134,6 +134,26 @@ public class NinjaActions {
             .build()
     );
 
+    public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_FALL = NINJA_ACTIONS.register("heavy_fall", () -> NinjaAction.Builder.newInstance()
+            .addNeedCondition(livingEntity ->
+                    !livingEntity.onGround() &&
+                            !(livingEntity.isInFluidType() || livingEntity.isInWater()) && NinjaActionUtils.getActionData(livingEntity).getCurrentAction().value() == NinjaActions.NONE.value()
+            )
+            .setStartInput(NinjaInput.SNEAK)
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.NETHERITE_INGOT))
+            .loop()
+            .setReduceDamage(1.0F)
+            .setReduceKnockback(1.0F)
+            .addStartAction(NinjaActionUtils::startHeavyFall)
+            .addTickAction(NinjaActionUtils::tickHeavyFall)
+            .addStopAction(NinjaActionUtils::stopFall)
+            .cooldown(4)
+            .next(livingEntity ->
+                    livingEntity.onGround() || livingEntity.isInFluidType() || livingEntity.isInWater() ? NONE : null)
+            .build()
+    );
+
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity ->
                     !livingEntity.onGround() &&

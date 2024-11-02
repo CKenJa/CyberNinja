@@ -72,6 +72,9 @@ public class CommonEvents {
     public static void fallEvent(LivingFallEvent event) {
         if (NinjaActionUtils.isWearingFullNinjaSuit(event.getEntity())) {
             event.setDistance(event.getDistance() - 4);
+            if (NinjaActionUtils.getActionData(event.getEntity()).getCurrentAction().value() == NinjaActions.HEAVY_FALL.value()) {
+                event.setCanceled(true);
+            }
         }
     }
 

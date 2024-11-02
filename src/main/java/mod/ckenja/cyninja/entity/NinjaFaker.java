@@ -10,6 +10,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
 
@@ -33,8 +34,10 @@ public class NinjaFaker extends PathfinderMob {
         super.tick();
         if (this.getOwner() != null) {
             if (!this.level().isClientSide()) {
-                if (NinjaActionUtils.getActionData(this).getCurrentAction().value() != NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction().value()) {
-                    NinjaActionUtils.getActionData(this).syncAction(this, NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction());
+                if (NinjaActionUtils.isWearingNinjaTrim(this.getOwner(), Items.AMETHYST_SHARD)) {
+                    if (NinjaActionUtils.getActionData(this).getCurrentAction().value() != NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction().value()) {
+                        NinjaActionUtils.getActionData(this).syncAction(this, NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction());
+                    }
                 }
             }
         }

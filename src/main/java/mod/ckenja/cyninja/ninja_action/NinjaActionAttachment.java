@@ -17,7 +17,10 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -78,7 +81,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.stopAction(livingEntity));
+        executeActionWithModifier(currentAction.value(), livingEntity, action -> action.stopAction(livingEntity));
 
         if (currentAction.value().getCooldown() > 0) {
             executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);

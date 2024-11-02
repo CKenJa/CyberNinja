@@ -23,12 +23,11 @@ public class CraftingGenerator extends CraftingDataHelper {
     @Override
     protected void buildRecipes(RecipeOutput consumer) {
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.CYBER_TRIM_SMITHING_TEMPLATE, 2)
-                .pattern("DMD")
-                .pattern("RTR")
-                .pattern("DMD")
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.CYBER_TRIM_SMITHING_TEMPLATE, 4)
+                .pattern("MDM")
+                .pattern("MTM")
+                .pattern("MMM")
                 .define('D', Items.DIAMOND)
-                .define('R', Items.REDSTONE)
                 .define('M', Items.COPPER_INGOT)
                 .define('T', ModItems.CYBER_TRIM_SMITHING_TEMPLATE)
                 .unlockedBy("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE))

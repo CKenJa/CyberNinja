@@ -8,20 +8,17 @@
     "M": {
       "item": "minecraft:copper_ingot"
     },
-    "R": {
-      "item": "minecraft:redstone"
-    },
     "T": {
       "item": "cyninja:cyber_trim_smithing_template"
     }
   },
   "pattern": [
-    "DMD",
-    "RTR",
-    "DMD"
+    "MDM",
+    "MTM",
+    "MMM"
   ],
   "result": {
-    "count": 2,
+    "count": 4,
     "id": "cyninja:cyber_trim_smithing_template"
   }
 }

@@ -337,6 +337,7 @@ public class NinjaAction {
             return this;
         }
 
+        //※instantアクションで動作しない
         public Builder addHitAction(BiConsumer<Projectile, HitResult> hitAction) {
             this.hitAction = this.hitAction.andThen(hitAction);
             return this;

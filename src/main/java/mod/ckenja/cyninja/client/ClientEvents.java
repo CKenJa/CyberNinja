@@ -8,8 +8,6 @@ import com.mojang.math.Axis;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
-import mod.ckenja.cyninja.network.SetActionToServerPacket;
-import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.ModAnimations;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
@@ -18,8 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,11 +24,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-
-import java.util.Comparator;
-
-import static mod.ckenja.cyninja.ninja_action.NinjaAction.NINJA_ACTIONS;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT)
@@ -45,14 +36,7 @@ public class ClientEvents {
 
         NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
         data.checkKeyDown(event);
-        NINJA_ACTIONS.stream()
-                .map(Holder::value)
-                .filter(action -> !action.isModifier() && data.canAction(action, player))
-                .min(Comparator.comparingInt(NinjaAction::getPriority))
-                .ifPresent(action -> {
-                    ResourceLocation sendAction = NinjaActions.getRegistry().getKey(NinjaActionAttachment.getActionOrOveride(action, player));
-                    PacketDistributor.sendToServer(new SetActionToServerPacket(sendAction));
-                });
+        data.selectAndSendAction(player);
     }
 
     @SubscribeEvent

@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.ninja_action;
 
 import com.google.common.collect.Maps;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
+import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
@@ -94,7 +95,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         setAction(livingEntity, ninjaAction);
-        if (!livingEntity.level().isClientSide()) {
+        if (!livingEntity.level().isClientSide) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(livingEntity, new SetActionToClientPacket(livingEntity, ninjaAction));
         }
     }
@@ -272,5 +273,25 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 .filter(NinjaAction::isOverride)
                 .min(Comparator.comparingInt(NinjaAction::getPriority))
                 .orElse(ninjaAction);
+    }
+
+    public void selectAndSendAction(Player player) {
+        NINJA_ACTIONS.stream()
+                .map(Holder::value)
+                .filter(action -> !action.isModifier() && canAction(action, player))
+                .filter(action -> {
+                    if (action.getNinjaActionTickType() == NinjaActionTickType.INSTANT){
+                        sendAction(action, player);
+                        return false;
+                    }
+                    return true;
+                })
+                .min(Comparator.comparingInt(NinjaAction::getPriority))
+                .ifPresent(action -> sendAction(action, player));
+    }
+
+    private void sendAction(NinjaAction action, Player player) {
+        ResourceLocation sendAction = NinjaActions.getRegistry().getKey(NinjaActionAttachment.getActionOrOveride(action, player));
+        PacketDistributor.sendToServer(new SetActionToServerPacket(sendAction));
     }
 }

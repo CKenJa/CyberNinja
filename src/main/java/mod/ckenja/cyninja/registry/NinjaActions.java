@@ -2,21 +2,19 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.item.ChainAndSickleItem;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.entity.SickleEntity;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -24,16 +22,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -44,7 +35,6 @@ import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
 import java.util.List;
-import java.util.function.Function;
 
 import static mod.ckenja.cyninja.util.NinjaActionUtils.getActionData;
 import static mod.ckenja.cyninja.util.VectorUtil.moveToLookingWay;
@@ -64,8 +54,8 @@ public class NinjaActions {
             .addNeedCondition(livingEntity ->
                     !(livingEntity.isInFluidType() || livingEntity.isInWater()) &&
                     getActionData(livingEntity).canAirSlideCount() &&
-                            (getActionData(livingEntity).getCurrentAction() == NinjaActions.NONE ||
-                                    getActionData(livingEntity).getCurrentAction() == NinjaActions.SPIN)
+                            (getActionData(livingEntity).getCurrentAction().is(NinjaActions.NONE) ||
+                                    getActionData(livingEntity).getCurrentAction().is(NinjaActions.SPIN))
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
@@ -79,7 +69,7 @@ public class NinjaActions {
             .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
             .addTickAction(slider->{
                 Level level = slider.level();
-                if (level.isClientSide()) {
+                if (level.isClientSide) {
                     NinjaActionUtils.spawnSprintParticle(slider);
                 } else {
                     List<Entity> entities = level.getEntities(slider, slider.getBoundingBox());
@@ -184,7 +174,7 @@ public class NinjaActions {
             .startAndEnd(0, 20)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addStartAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide())
+                if (!livingEntity.level().isClientSide)
                     AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_ROCKET);
                 getActionData(livingEntity).decreaseAirJumpCount();
                 getActionData(livingEntity).setActionXRot(livingEntity.getXRot());
@@ -192,7 +182,7 @@ public class NinjaActions {
             })
             .addTickAction(NinjaActionUtils::tickAirRocket)
             .addStopAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide())
+                if (!livingEntity.level().isClientSide)
                     AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
             })
             .priority(900)
@@ -224,34 +214,45 @@ public class NinjaActions {
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_ATTACK = NINJA_ACTIONS.register("sickle_attack", () -> NinjaAction.Builder.newInstance()
-            .transform(sickleAction())
-            .addNeedCondition(NinjaActionUtils::isEquipSickle)
-            .addHitAction((projectile, hitresult) -> handleHitAction(projectile, hitresult, false))
-            .setStartInput(NinjaInput.LEFT_CLICK)
+            .instant()
+            .cooldown(5)
+            .addStartAction(entity -> throwSickle(entity, false))
+            .addNeedCondition(NinjaActionUtils::isEquipSickleNotOnlySickle)
+            .addNeedCondition(entity -> NinjaActionUtils.keyUp(entity, NinjaInput.LEFT_CLICK))
             .build()
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_HOOK = NINJA_ACTIONS.register("sickle_hook", () -> NinjaAction.Builder.newInstance()
-            .transform(sickleAction())
+            .instant()
+            .cooldown(5)
+            .addStartAction(entity -> throwSickle(entity, true))
             .addNeedCondition(livingEntity -> NinjaActionUtils.isEquipSickleTrim(livingEntity, Items.COPPER_INGOT))
-            .addHitAction((projectile, hitresult) -> handleHitAction(projectile, hitresult, true))
             .override(SICKLE_ATTACK)
             .build()
     );
 
-    private static Function<NinjaAction.Builder,NinjaAction.Builder> sickleAction() {
-        return builder -> builder
-                    .instant()
-                    .cooldown(5)
-                    .addStartAction(living -> {
-                        ItemStack itemstack = living.getMainHandItem();
-                        Level level = living.level();
-                        playThrowSound(level, living);
-                        if (!level.isClientSide) {
-                            spawnSickleEntity(living, itemstack);
-                        }
-                    });
-    }
+    public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_RETURN = NINJA_ACTIONS.register("sickle_return", () -> NinjaAction.Builder.newInstance()
+            .instant()
+            .setStartInput(NinjaInput.LEFT_CLICK)
+            .addStartAction(living -> {
+                ItemStack item = living.getMainHandItem();
+                Level level = living.level();
+                if (level.isClientSide)
+                    return;
+                if(!(item.getItem() instanceof ChainAndSickleItem sickle))
+                    return;
+                SickleEntity entity = sickle.getThrownEntity(level, item);
+                if (entity == null)
+                    return;
+                entity.setReturning(true);
+                entity.setAttach(false);
+                entity.setInGround(false);
+                entity.setDeltaMovement(Vec3.ZERO);
+            })
+            .addNeedCondition(NinjaActionUtils::isEquipSickleOnlySickle)
+            .addNeedCondition(entity -> NinjaActionUtils.getActionData(entity).isCooldownFinished(NinjaActionAttachment.getActionOrOveride(SICKLE_ATTACK.value(),entity)))
+            .build()
+    );
 
     private static void playThrowSound(Level level, LivingEntity living) {
         level.playSound(
@@ -266,68 +267,24 @@ public class NinjaActions {
         );
     }
 
-    private static void spawnSickleEntity(LivingEntity living, ItemStack itemstack) {
+    private static void throwSickle(LivingEntity living, boolean isHook) {
+        ItemStack itemstack = living.getMainHandItem();
+        Level level = living.level();
+        playThrowSound(level, living);
+        if (!level.isClientSide) {
+            spawnSickleEntity(living, itemstack, isHook);
+        }
+    }
+
+    private static void spawnSickleEntity(LivingEntity living, ItemStack itemstack, boolean isHook) {
         Level level = living.level();
         SickleEntity sickle = new SickleEntity(level, living, itemstack.copy());
         sickle.setItem(itemstack.copy());
-        sickle.setNinjaAction(NinjaActionUtils.getActionData(living).getCurrentAction());
         sickle.shootFromRotation(living, living.getXRot(), living.getYRot(), 0.0F, 1.8F, 1.0F);
+        sickle.setAttach(isHook);
+        if (isHook) sickle.setChainLength(128);
         level.addFreshEntity(sickle);
         itemstack.set(ModDataComponents.CHAIN_ONLY, sickle.getUUID());
-    }
-
-    private static void handleHitAction(Entity projectile, HitResult hitResult, boolean isHook) {
-        if (projectile instanceof SickleEntity sickle) {
-            if (hitResult instanceof BlockHitResult blockHitResult) {
-                handleBlockHit(sickle, blockHitResult, isHook);
-            } else if (hitResult instanceof EntityHitResult entityHitResult) {
-                handleEntityHit(sickle, entityHitResult, isHook);
-            }
-        }
-    }
-
-    private static void handleBlockHit(SickleEntity sickle, BlockHitResult blockHitResult, boolean isHook) {
-        if (!sickle.isReturning()) {
-            if (sickle.canAttach() && isHook) {
-                Vec3 vec3 = blockHitResult.getLocation().subtract(sickle.getX(), sickle.getY(), sickle.getZ());
-                sickle.setDeltaMovement(vec3);
-                sickle.setInGround(true);
-                Vec3 vec31 = vec3.normalize().scale(0.05F);
-                sickle.setPosRaw(sickle.getX() - vec31.x, sickle.getY() - vec31.y, sickle.getZ() - vec31.z);
-            } else {
-                BlockPos pos = blockHitResult.getBlockPos();
-                Level level = sickle.level();
-                BlockState state = level.getBlockState(pos);
-                SoundType soundType = state.getSoundType(sickle.level(), pos, sickle);
-                level.playSound(null, sickle.getX(), sickle.getY(), sickle.getZ(), soundType.getHitSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
-                sickle.setReturning(true);
-            }
-        }
-    }
-
-    private static void handleEntityHit(SickleEntity sickle, EntityHitResult entityHitResult, boolean isHook) {
-        Entity entity = entityHitResult.getEntity();
-        Entity shooter = sickle.getOwner();
-        if (entity != shooter && !sickle.isReturning() && sickle.canAttach()) {
-            LivingEntity livingentity = shooter instanceof LivingEntity ? (LivingEntity) shooter : null;
-            double damage = 6;
-            DamageSource damagesource = sickle.damageSources().mobProjectile(sickle, livingentity);
-            Level level = sickle.level();
-
-            if (sickle.getWeaponItem() != null && level instanceof ServerLevel serverlevel) {
-                damage = EnchantmentHelper.modifyDamage(serverlevel, sickle.getWeaponItem(), entity, damagesource, (float) damage);
-            }
-            if (entity.hurt(damagesource, (float) damage)) {
-                if (entity instanceof LivingEntity hurtEntity) {
-                    if (level instanceof ServerLevel serverlevel1) {
-                        EnchantmentHelper.doPostAttackEffectsWithItemSource(serverlevel1, hurtEntity, damagesource, sickle.getWeaponItem());
-                    }
-                }
-            } else {
-                sickle.deflect(ProjectileDeflection.REVERSE, entity, sickle.getOwner(), false);
-                sickle.setDeltaMovement(sickle.getDeltaMovement().scale(0.2));
-            }
-        }
     }
 
     private static Registry<NinjaAction> registry;

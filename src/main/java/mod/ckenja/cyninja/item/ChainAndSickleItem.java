@@ -18,7 +18,7 @@ public class ChainAndSickleItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity holder, int slot, boolean isSelected) {
-        if (!level.isClientSide() && stack.get(ModDataComponents.CHAIN_ONLY) != null && this.getThrownEntity(level, stack) == null) {
+        if (!level.isClientSide && stack.get(ModDataComponents.CHAIN_ONLY) != null && this.getThrownEntity(level, stack) == null) {
             stack.remove(ModDataComponents.CHAIN_ONLY);
         }
     }

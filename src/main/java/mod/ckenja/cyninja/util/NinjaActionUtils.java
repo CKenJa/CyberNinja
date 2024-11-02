@@ -58,7 +58,7 @@ public class NinjaActionUtils {
         livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
 
-        if (!level.isClientSide()) {
+        if (!level.isClientSide) {
             List<Entity> list = level.getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
@@ -84,7 +84,7 @@ public class NinjaActionUtils {
         livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.WIND_CHARGE_BURST.value());
 
-        if (level.isClientSide()) {
+        if (level.isClientSide) {
             Vec3 delta = livingEntity.getDeltaMovement();
 
             level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), delta.x * -2, delta.y * -2, delta.z * -2);
@@ -202,7 +202,15 @@ public class NinjaActionUtils {
     }
 
     public static boolean isEquipSickle(LivingEntity livingEntity) {
-        return livingEntity.getMainHandItem().is(ModItems.CHAIN_SICKLE) && livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) == null;
+        return livingEntity.getMainHandItem().is(ModItems.CHAIN_SICKLE);
+    }
+
+    public static boolean isEquipSickleNotOnlySickle(LivingEntity livingEntity) {
+        return isEquipSickle(livingEntity) && livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) == null;
+    }
+
+    public static boolean isEquipSickleOnlySickle(LivingEntity livingEntity) {
+        return isEquipSickle(livingEntity) && livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) != null;
     }
 
     public static boolean isEquipKatanaTrim(LivingEntity livingEntity, Item item) {
@@ -225,5 +233,11 @@ public class NinjaActionUtils {
             }
         }
         return false;
+    }
+
+    public static boolean keyUp(LivingEntity livingEntity, NinjaInput input) {
+        NinjaActionAttachment data = getActionData(livingEntity);
+        return data.getPreviousInputs().contains(input) &&
+                !data.getCurrentInputs().contains(input);
     }
 }

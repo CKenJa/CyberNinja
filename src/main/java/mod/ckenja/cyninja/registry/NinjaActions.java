@@ -136,7 +136,7 @@ public class NinjaActions {
 
     public static final DeferredHolder<NinjaAction, NinjaAction> HEAVY_FALL = NINJA_ACTIONS.register("heavy_fall", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity ->
-                    !livingEntity.onGround() &&
+                    livingEntity.fallDistance > 2.0F && !livingEntity.onGround() &&
                             !(livingEntity.isInFluidType() || livingEntity.isInWater()) && NinjaActionUtils.getActionData(livingEntity).getCurrentAction().value() == NinjaActions.NONE.value()
             )
             .setStartInput(NinjaInput.SNEAK)

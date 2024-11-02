@@ -126,6 +126,7 @@ public class NinjaActionUtils {
         livingEntity.resetFallDistance();
 
         livingEntity.playSound(SoundEvents.ANVIL_PLACE, 1.0F, 1.5F);
+        livingEntity.playSound(SoundEvents.MACE_SMASH_GROUND_HEAVY, 2.0F, 1.25F);
     }
 
     public static void startHeavyFall(LivingEntity livingEntity) {

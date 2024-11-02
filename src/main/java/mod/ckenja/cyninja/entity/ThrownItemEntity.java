@@ -1,9 +1,13 @@
 package mod.ckenja.cyninja.entity;
 
 import mod.ckenja.cyninja.registry.ModEntities;
+import mod.ckenja.cyninja.registry.ModItems;
+import mod.ckenja.cyninja.registry.NinjaActions;
+import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class ThrownItemEntity extends ThrowableItemProjectile {
     public ThrownItemEntity(EntityType<? extends ThrownItemEntity> entityType, Level level) {
@@ -52,6 +57,11 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
                 this.level().addParticle(particleoptions, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
             }
         }
+        if (id == 4) {
+            for (int i = 0; i < 8; i++) {
+                this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
+            }
+        }
     }
 
     /**
@@ -71,8 +81,19 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
     @Override
     protected void onHit(HitResult result) {
         super.onHit(result);
+        if (this.getItem().is(ModItems.SMOKE_BOMB)) {
+            this.playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.0F, 1.5F);
+        }
+
         if (!this.level().isClientSide) {
             this.level().broadcastEntityEvent(this, (byte) 3);
+            if (this.getItem().is(ModItems.SMOKE_BOMB)) {
+                this.level().broadcastEntityEvent(this, (byte) 4);
+                if (this.getOwner() instanceof LivingEntity attacker) {
+                    NinjaActionUtils.setEntityWithSummonShadow(attacker, this.position(), new Vec3(-2.0F, 0.0, 0.0F), -30F, NinjaActions.NONE);
+                    NinjaActionUtils.setEntityWithSummonShadow(attacker, this.position(), new Vec3(2.0F, 0.0, 0.0F), 30F, NinjaActions.NONE);
+                }
+            }
             this.discard();
         }
     }

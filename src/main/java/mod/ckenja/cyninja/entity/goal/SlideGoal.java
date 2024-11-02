@@ -26,7 +26,7 @@ public class SlideGoal extends TimeConditionGoal {
             this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
             return false;
         } else if (this.cooldown > this.maxCooldown && this.isMatchCondition()) {
-            this.cooldown = this.maxCooldown;
+            this.cooldown = 0;
             this.maxCooldown = this.timeBetweenCooldown.sample(this.mob.getRandom());
             return true;
         } else {

@@ -1,24 +1,29 @@
 package mod.ckenja.cyninja.util;
 
-import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
+import mod.ckenja.cyninja.entity.NinjaFaker;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.ModDataComponents;
+import mod.ckenja.cyninja.registry.ModEntities;
 import mod.ckenja.cyninja.registry.ModItems;
+import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
@@ -43,6 +48,10 @@ public class NinjaActionUtils {
 
         livingEntity.resetFallDistance();
         getActionData(livingEntity).decreaseAirJumpCount();
+    }
+
+    public static void mirrorImageDo(LivingEntity living) {
+        NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -180F, NinjaActions.SLIDE);
     }
 
     public static void tickHeavyAirJump(LivingEntity livingEntity) {
@@ -198,7 +207,40 @@ public class NinjaActionUtils {
     }
 
     public static boolean isEquipKatana(LivingEntity livingEntity) {
-        return livingEntity.getMainHandItem().is(ModItems.KATANA);
+        return livingEntity.getMainHandItem().is(ModItems.KATANA.asItem());
+    }
+
+    public static boolean setEntityWithSummonShadow(LivingEntity living, Vec3 pos, Vec3 offset, float yRot, Holder<NinjaAction> actionHolder) {
+        if (!(living instanceof NinjaFaker)) {
+            CompoundTag compoundtag = new CompoundTag();
+            living.saveWithoutId(compoundtag);
+            if (!living.level().isClientSide()) {
+                NinjaFaker faker = ModEntities.NINJA_FAKER.get().create(living.level());
+                for (EquipmentSlot equipmentslot : EquipmentSlot.values()) {
+                    ItemStack itemstack = living.getItemBySlot(equipmentslot);
+                    if (!itemstack.isEmpty()) {
+                        faker.setItemSlot(equipmentslot, itemstack.copy());
+                        faker.setDropChance(equipmentslot, 0.0F);
+                    }
+                }
+                faker.readAdditionalSaveData(compoundtag);
+                faker.setDataUuid(living.getUUID());
+                faker.setXRot(living.getXRot());
+                faker.setYRot(living.getYRot() + yRot);
+                faker.setPos(pos.add(VectorUtil.getInputVector(offset, 0, faker.getYRot())));
+                VectorUtil.moveRelativeActionY(faker, 0.5F, offset);
+                faker.setOnGround(false);
+
+                if (living.level().addFreshEntity(faker)) {
+                    syncAction(faker, actionHolder);
+
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     public static boolean isEquipSickle(LivingEntity livingEntity) {

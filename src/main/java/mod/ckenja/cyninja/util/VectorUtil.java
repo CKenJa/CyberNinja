@@ -34,7 +34,7 @@ public class VectorUtil {
         livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(vec3));
     }
 
-    private static Vec3 getInputVector(Vec3 p_20016_, float p_20017_, float p_20018_) {
+    public static Vec3 getInputVector(Vec3 p_20016_, float p_20017_, float p_20018_) {
         double d0 = p_20016_.lengthSqr();
         if (d0 < 1.0E-7) {
             return Vec3.ZERO;

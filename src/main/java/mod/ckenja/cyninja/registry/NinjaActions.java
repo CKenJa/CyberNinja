@@ -7,8 +7,10 @@ import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.entity.SickleEntity;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -107,12 +109,16 @@ public class NinjaActions {
                 if (livingEntity.level().isClientSide && attachment.getCurrentInputs() != null) {
                     //sneakを押してなければnone
                     if (!attachment.getCurrentInputs().contains(NinjaInput.SNEAK)) {
-                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        if (livingEntity instanceof LocalPlayer localPlayer) {
+                            PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        }
                         return NONE;
                     }
 
                     if (attachment.getCurrentInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
-                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        if (livingEntity instanceof LocalPlayer localPlayer) {
+                            PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                        }
                         return NONE;
                     }
                 }
@@ -122,6 +128,16 @@ public class NinjaActions {
                 }
                 return null;
             }).build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> MIRROR_IMAGE = NINJA_ACTIONS.register("mirror_image", () -> NinjaAction.Builder.newInstance()
+            .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
+            .instant()
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.QUARTZ))
+            .addStartAction(NinjaActionUtils::mirrorImageDo)
+            .priority(900)
+            .inject(SLIDE)
+            .build()
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () -> NinjaAction.Builder.newInstance()

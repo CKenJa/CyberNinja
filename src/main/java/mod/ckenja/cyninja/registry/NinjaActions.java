@@ -124,6 +124,16 @@ public class NinjaActions {
             }).build()
     );
 
+    public static final DeferredHolder<NinjaAction, NinjaAction> MIRROR_IMAGE = NINJA_ACTIONS.register("mirror_image", () -> NinjaAction.Builder.newInstance()
+            .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
+            .instant()
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.QUARTZ))
+            .addStartAction(NinjaActionUtils::mirrorImageDo)
+            .priority(900)
+            .inject(SLIDE)
+            .build()
+    );
+
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_SLIDE = NINJA_ACTIONS.register("wall_slide", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity ->
                     !livingEntity.onGround() &&

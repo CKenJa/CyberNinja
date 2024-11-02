@@ -8,6 +8,7 @@ import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.registry.ModAttachments;
 import mod.ckenja.cyninja.registry.ModEntities;
 import mod.ckenja.cyninja.registry.ModItems;
+import mod.ckenja.cyninja.registry.NinjaActions;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -46,6 +47,10 @@ public class NinjaActionUtils {
 
         livingEntity.resetFallDistance();
         getActionData(livingEntity).decreaseAirJumpCount();
+    }
+
+    public static void mirrorImageDo(LivingEntity living) {
+        NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -180F, NinjaActions.SLIDE);
     }
 
     public static void tickHeavyAirJump(LivingEntity livingEntity) {

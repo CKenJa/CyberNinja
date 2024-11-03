@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing_trim",
+  "addition": {
+    "tag": "minecraft:trim_materials"
+  },
+  "base": {
+    "item": "cyninja:smoke_bomb"
+  },
+  "template": {
+    "item": "cyninja:cyber_trim_smithing_template"
+  }
+}

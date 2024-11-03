@@ -1,6 +1,7 @@
 package mod.ckenja.cyninja.util;
 
 import mod.ckenja.cyninja.entity.NinjaFaker;
+import mod.ckenja.cyninja.item.KatanaItem;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
@@ -266,6 +267,28 @@ public class NinjaActionUtils {
         }
 
         return i >= 4;
+    }
+
+    public static boolean isWearingKatanaTrim(LivingEntity livingEntity, Item item) {
+        if ((livingEntity.getMainHandItem().getItem() instanceof KatanaItem)) {
+            ArmorTrim armorTrim = livingEntity.getMainHandItem().get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isSmokeBombTrim(ItemStack stack, Item item) {
+        if ((stack.getItem() instanceof KatanaItem)) {
+            ArmorTrim armorTrim = stack.get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static boolean isWearingNinjaTrim(LivingEntity livingEntity, Item item) {

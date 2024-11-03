@@ -8,9 +8,12 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class ThrownItemEntity extends ThrowableItemProjectile {
     public ThrownItemEntity(EntityType<? extends ThrownItemEntity> entityType, Level level) {
@@ -58,8 +63,8 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
             }
         }
         if (id == 4) {
-            for (int i = 0; i < 8; i++) {
-                this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
+            for (int i = 0; i < 16; i++) {
+                this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY(), this.getZ(), this.random.nextDouble() - this.random.nextDouble(), this.random.nextDouble() - this.random.nextDouble(), this.random.nextDouble() - this.random.nextDouble());
             }
         }
     }
@@ -88,8 +93,19 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
         if (!this.level().isClientSide) {
             this.level().broadcastEntityEvent(this, (byte) 3);
             if (this.getItem().is(ModItems.SMOKE_BOMB)) {
+                List<Entity> entities = NinjaActionUtils.getEnemiesInSphere(this.level(), this.position(), 6);
+                entities.forEach(entity -> {
+                    if (entity instanceof LivingEntity living) {
+                        living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200));
+                    }
+
+                    if (entity instanceof Mob living) {
+                        living.setTarget(null);
+                    }
+                });
+
                 this.level().broadcastEntityEvent(this, (byte) 4);
-                if (this.getOwner() instanceof LivingEntity attacker) {
+                if (this.getOwner() instanceof LivingEntity attacker && NinjaActionUtils.isSmokeBombTrim(this.getItem(), Items.QUARTZ)) {
                     NinjaActionUtils.setEntityWithSummonShadow(attacker, this.position(), new Vec3(-2.0F, 0.0, 0.0F), -30F, NinjaActions.NONE);
                     NinjaActionUtils.setEntityWithSummonShadow(attacker, this.position(), new Vec3(2.0F, 0.0, 0.0F), 30F, NinjaActions.NONE);
                 }

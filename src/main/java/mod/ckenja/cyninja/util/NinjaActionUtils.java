@@ -8,6 +8,7 @@ import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.registry.ModAttachments;
+import mod.ckenja.cyninja.registry.ModDataComponents;
 import mod.ckenja.cyninja.registry.ModEntities;
 import mod.ckenja.cyninja.registry.ModItems;
 import mod.ckenja.cyninja.registry.NinjaActions;
@@ -170,7 +171,7 @@ public class NinjaActionUtils {
         livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.BREEZE_WIND_CHARGE_BURST.value());
 
-        if (!level.isClientSide()) {
+        if (!level.isClientSide) {
             List<Entity> list = level.getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
             if (!list.isEmpty()) {
                 for (Entity entity : list) {
@@ -196,7 +197,7 @@ public class NinjaActionUtils {
         livingEntity.resetFallDistance();
         livingEntity.playSound(SoundEvents.WIND_CHARGE_BURST.value());
 
-        if (level.isClientSide()) {
+        if (level.isClientSide) {
             Vec3 delta = livingEntity.getDeltaMovement();
 
             level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), delta.x * -2, delta.y * -2, delta.z * -2);
@@ -366,5 +367,45 @@ public class NinjaActionUtils {
             }
         }
         return false;
+    }
+
+    public static boolean isEquipSickle(LivingEntity livingEntity) {
+        return livingEntity.getMainHandItem().is(ModItems.CHAIN_SICKLE);
+    }
+
+    public static boolean isEquipSickleNotOnlySickle(LivingEntity livingEntity) {
+        return isEquipSickle(livingEntity) && livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) == null;
+    }
+
+    public static boolean isEquipSickleOnlySickle(LivingEntity livingEntity) {
+        return isEquipSickle(livingEntity) && livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) != null;
+    }
+
+    public static boolean isEquipKatanaTrim(LivingEntity livingEntity, Item item) {
+        if (livingEntity.getMainHandItem().is(ModItems.KATANA)) {
+            ArmorTrim armorTrim = livingEntity.getMainHandItem().get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isEquipSickleTrim(LivingEntity livingEntity, Item item) {
+        if (livingEntity.getMainHandItem().is(ModItems.CHAIN_SICKLE)) {
+            if (livingEntity.getMainHandItem().get(ModDataComponents.CHAIN_ONLY) == null) {
+                ArmorTrim armorTrim = livingEntity.getMainHandItem().get(DataComponents.TRIM);
+                if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean keyUp(LivingEntity livingEntity, NinjaInput input) {
+        NinjaActionAttachment data = getActionData(livingEntity);
+        return data.getPreviousInputs().contains(input) &&
+                !data.getCurrentInputs().contains(input);
     }
 }

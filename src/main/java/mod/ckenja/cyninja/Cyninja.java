@@ -29,6 +29,7 @@ public class Cyninja
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
+        ModEntityDataSerializer.DATA_SERIALIZERS.register(modEventBus);
         modEventBus.addListener(this::setupPackets);
     }
 

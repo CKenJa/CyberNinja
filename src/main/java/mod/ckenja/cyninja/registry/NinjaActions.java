@@ -2,6 +2,9 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
+import mod.ckenja.cyninja.item.ChainAndSickleItem;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
+import mod.ckenja.cyninja.entity.SickleEntity;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
@@ -13,12 +16,15 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -50,8 +56,8 @@ public class NinjaActions {
             .addNeedCondition(livingEntity ->
                     !(livingEntity.isInFluidType() || livingEntity.isInWater()) &&
                     getActionData(livingEntity).canAirSlideCount() &&
-                            (getActionData(livingEntity).getCurrentAction() == NinjaActions.NONE ||
-                                    getActionData(livingEntity).getCurrentAction() == NinjaActions.SPIN)
+                            (getActionData(livingEntity).getCurrentAction().is(NinjaActions.NONE) ||
+                                    getActionData(livingEntity).getCurrentAction().is(NinjaActions.SPIN))
             )
             .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
@@ -65,7 +71,7 @@ public class NinjaActions {
             .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
             .addTickAction(slider->{
                 Level level = slider.level();
-                if (level.isClientSide()) {
+                if (level.isClientSide) {
                     NinjaActionUtils.spawnSprintParticle(slider);
                 } else {
                     List<Entity> entities = level.getEntities(slider, slider.getBoundingBox());
@@ -100,16 +106,16 @@ public class NinjaActions {
                     return NONE;
                 }
                 // jumpで止まる
-                if (livingEntity.level().isClientSide && attachment.getInputs() != null) {
+                if (livingEntity.level().isClientSide && attachment.getCurrentInputs() != null) {
                     //sneakを押してなければnone
-                    if (!attachment.getInputs().contains(NinjaInput.SNEAK)) {
+                    if (!attachment.getCurrentInputs().contains(NinjaInput.SNEAK)) {
                         if (livingEntity instanceof LocalPlayer localPlayer) {
                             PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         }
                         return NONE;
                     }
 
-                    if (attachment.getInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
+                    if (attachment.getCurrentInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
                         if (livingEntity instanceof LocalPlayer localPlayer) {
                             PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         }
@@ -179,7 +185,6 @@ public class NinjaActions {
                 livingEntity.resetFallDistance();
                 getActionData(livingEntity).resetAirJumpCount();
             })
-            .priority(800)
             .build()
     );
 
@@ -205,7 +210,7 @@ public class NinjaActions {
             .startAndEnd(0, 20)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.GOLD_INGOT))
             .addStartAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide())
+                if (!livingEntity.level().isClientSide)
                     AnimationUtil.sendAnimation(livingEntity, ModAnimations.AIR_ROCKET);
                 getActionData(livingEntity).decreaseAirJumpCount();
                 getActionData(livingEntity).setActionXRot(livingEntity.getXRot());
@@ -213,7 +218,7 @@ public class NinjaActions {
             })
             .addTickAction(NinjaActionUtils::tickAirRocket)
             .addStopAction(livingEntity -> {
-                if (!livingEntity.level().isClientSide())
+                if (!livingEntity.level().isClientSide)
                     AnimationUtil.sendStopAnimation(livingEntity, ModAnimations.AIR_ROCKET);
             })
             .priority(900)
@@ -243,6 +248,80 @@ public class NinjaActions {
             })
             .build()
     );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_ATTACK = NINJA_ACTIONS.register("sickle_attack", () -> NinjaAction.Builder.newInstance()
+            .instant()
+            .cooldown(5)
+            .addStartAction(entity -> throwSickle(entity, false))
+            .addNeedCondition(NinjaActionUtils::isEquipSickleNotOnlySickle)
+            .addNeedCondition(entity -> NinjaActionUtils.keyUp(entity, NinjaInput.LEFT_CLICK))
+            .build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_HOOK = NINJA_ACTIONS.register("sickle_hook", () -> NinjaAction.Builder.newInstance()
+            .instant()
+            .cooldown(5)
+            .addStartAction(entity -> throwSickle(entity, true))
+            .addNeedCondition(livingEntity -> NinjaActionUtils.isEquipSickleTrim(livingEntity, Items.COPPER_INGOT))
+            .override(SICKLE_ATTACK)
+            .build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> SICKLE_RETURN = NINJA_ACTIONS.register("sickle_return", () -> NinjaAction.Builder.newInstance()
+            .instant()
+            .setStartInput(NinjaInput.LEFT_CLICK)
+            .addStartAction(living -> {
+                ItemStack item = living.getMainHandItem();
+                Level level = living.level();
+                if (level.isClientSide)
+                    return;
+                if(!(item.getItem() instanceof ChainAndSickleItem sickle))
+                    return;
+                SickleEntity entity = sickle.getThrownEntity(level, item);
+                if (entity == null)
+                    return;
+                entity.setReturning(true);
+                entity.setAttach(false);
+                entity.setInGround(false);
+                entity.setDeltaMovement(Vec3.ZERO);
+            })
+            .addNeedCondition(NinjaActionUtils::isEquipSickleOnlySickle)
+            .addNeedCondition(entity -> NinjaActionUtils.getActionData(entity).isCooldownFinished(NinjaActionAttachment.getActionOrOveride(SICKLE_ATTACK.value(),entity)))
+            .build()
+    );
+
+    private static void playThrowSound(Level level, LivingEntity living) {
+        level.playSound(
+                null,
+                living.getX(),
+                living.getY(),
+                living.getZ(),
+                SoundEvents.SNOWBALL_THROW,
+                SoundSource.NEUTRAL,
+                0.5F,
+                0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+        );
+    }
+
+    private static void throwSickle(LivingEntity living, boolean isHook) {
+        ItemStack itemstack = living.getMainHandItem();
+        Level level = living.level();
+        playThrowSound(level, living);
+        if (!level.isClientSide) {
+            spawnSickleEntity(living, itemstack, isHook);
+        }
+    }
+
+    private static void spawnSickleEntity(LivingEntity living, ItemStack itemstack, boolean isHook) {
+        Level level = living.level();
+        SickleEntity sickle = new SickleEntity(level, living, itemstack.copy());
+        sickle.setItem(itemstack.copy());
+        sickle.shootFromRotation(living, living.getXRot(), living.getYRot(), 0.0F, 1.8F, 1.0F);
+        sickle.setAttach(isHook);
+        if (isHook) sickle.setChainLength(128);
+        level.addFreshEntity(sickle);
+        itemstack.set(ModDataComponents.CHAIN_ONLY, sickle.getUUID());
+    }
 
     private static Registry<NinjaAction> registry;
 

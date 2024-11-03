@@ -6,8 +6,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.HitResult;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -43,6 +46,8 @@ public class NinjaAction {
 
     private final Consumer<LivingEntity> startAction;
     private final Consumer<LivingEntity> stopAction;
+    private final BiConsumer<Projectile, HitResult> hitAction;
+
     private final int priority;
 
     private final Optional<EntityDimensions> hitBox;
@@ -76,6 +81,7 @@ public class NinjaAction {
             NINJA_ACTIONS.add(Holder.direct(this));
         }
         this.tickAction = builder.tickAction;
+        this.hitAction = builder.hitAction;
         this.startAction = builder.startAction;
         this.stopAction = builder.stopAction;
 
@@ -163,6 +169,10 @@ public class NinjaAction {
         stopAction.accept(user);
     }
 
+    public void hitAction(Projectile projectile, HitResult hitResult) {
+        hitAction.accept(projectile, hitResult);
+    }
+
     EnumSet<NinjaInput> getStartInputs() {
         return startInputs;
     }
@@ -202,6 +212,7 @@ public class NinjaAction {
 
         private Consumer<LivingEntity> startAction;
         private Consumer<LivingEntity> stopAction;
+        private BiConsumer<Projectile, HitResult> hitAction;
         private Consumer<LivingEntity> tickAction;
         private Optional<ResourceLocation> animationID;
         private Optional<EntityDimensions> hitBox = Optional.empty();
@@ -224,6 +235,9 @@ public class NinjaAction {
             this.startAction = (livingEntity -> {
 
             });
+            this.hitAction = ((projectile, hitResult) -> {
+
+            });
             this.stopAction = (livingEntity -> {
 
             });
@@ -238,6 +252,10 @@ public class NinjaAction {
 
         public NinjaAction build() {
             return new NinjaAction(this);
+        }
+
+        public Builder transform(Function<Builder, Builder> transformer){
+            return transformer.apply(this);
         }
 
         //This is set start action and stop action
@@ -319,6 +337,12 @@ public class NinjaAction {
             return this;
         }
 
+        //※instantアクションで動作しない
+        public Builder addHitAction(BiConsumer<Projectile, HitResult> hitAction) {
+            this.hitAction = this.hitAction.andThen(hitAction);
+            return this;
+        }
+
         public Builder addStopAction(Consumer<LivingEntity> stopAction) {
             this.stopAction = this.stopAction.andThen(stopAction);
             return this;
@@ -355,6 +379,14 @@ public class NinjaAction {
             return this;
         }
 
+        /**
+         * 現在のアクションを引数の指定したアクションの「オーバーライドアクション」にする。
+         * 「オーバーライドアクション」は、「オリジナルアクション」を発動しようとしたとき、addNeedActionで指定した条件を満たしていれば発動する。
+         * 条件以外は通常のアクション同様の設定が必要。
+         *
+         * @param holder 上書き先に指定する{@link NinjaAction} のホルダー
+         * @return 現在の {@link Builder} インスタンス
+         */
         public Builder override(Holder<NinjaAction> holder) {
             this.modifierType = ModifierType.OVERRIDE;
             this.originAction = holder;

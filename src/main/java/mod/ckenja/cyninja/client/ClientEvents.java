@@ -77,14 +77,7 @@ public class ClientEvents {
 
         NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
         data.checkKeyDown(event);
-        NINJA_ACTIONS.stream()
-                .map(Holder::value)
-                .filter(action -> !action.isModifier() && data.canAction(action, player))
-                .min(Comparator.comparingInt(NinjaAction::getPriority))
-                .ifPresent(action -> {
-                    ResourceLocation sendAction = NinjaActions.getRegistry().getKey(NinjaActionAttachment.getActionOrOveride(action, player));
-                    PacketDistributor.sendToServer(new SetActionToServerPacket(sendAction));
-                });
+        data.selectAndSendAction(player);
     }
 
     @SubscribeEvent

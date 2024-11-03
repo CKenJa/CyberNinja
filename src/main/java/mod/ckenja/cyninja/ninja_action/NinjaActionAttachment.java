@@ -2,6 +2,7 @@ package mod.ckenja.cyninja.ninja_action;
 
 import com.google.common.collect.Maps;
 import mod.ckenja.cyninja.network.SetActionToClientPacket;
+import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.registry.NinjaActions;
 import mod.ckenja.cyninja.util.NinjaInput;
 import net.minecraft.client.Minecraft;
@@ -29,8 +30,8 @@ import static mod.ckenja.cyninja.ninja_action.NinjaAction.NINJA_ACTIONS;
 public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private final Map<NinjaAction, Integer> cooldownMap = Maps.newHashMap();
 
-    private EnumSet<NinjaInput> previousInputs;
-    private EnumSet<NinjaInput> inputs;
+    private EnumSet<NinjaInput> previousInputs = EnumSet.noneOf(NinjaInput.class);
+    private EnumSet<NinjaInput> currentInputs = EnumSet.noneOf(NinjaInput.class);
 
     private Holder<NinjaAction> currentAction = NinjaActions.NONE;
     private int actionTick;
@@ -43,17 +44,17 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     private float actionYRot;
 
     public void checkKeyDown(ClientTickEvent.Pre event) {
-        previousInputs = inputs;
-        inputs = EnumSet.noneOf(NinjaInput.class);
+        previousInputs = currentInputs;
+        currentInputs = EnumSet.noneOf(NinjaInput.class);
         Options options = Minecraft.getInstance().options;
         if (options.keyShift.isDown())
-            inputs.add(NinjaInput.SNEAK);
+            currentInputs.add(NinjaInput.SNEAK);
         if (options.keyJump.isDown())
-            inputs.add(NinjaInput.JUMP);
+            currentInputs.add(NinjaInput.JUMP);
         if (options.keySprint.isDown())
-            inputs.add(NinjaInput.SPRINT);
+            currentInputs.add(NinjaInput.SPRINT);
         if (options.keyUse.isDown())
-            inputs.add(NinjaInput.LEFT_CLICK);
+            currentInputs.add(NinjaInput.LEFT_CLICK);
     }
 
     public int getActionTick() {
@@ -81,22 +82,23 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
-        executeActionWithModifier(currentAction.value(), livingEntity, action -> action.stopAction(livingEntity));
+      executeActionWithModifier(currentAction.value(), livingEntity, action -> action.stopAction(livingEntity));
 
-        if (currentAction.value().getCooldown() > 0) {
-            executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
+
+            if (currentAction.value().getCooldown() > 0) {
+                executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
+            }
+
+            currentAction = ninjaAction;
+            setActionTick(0);
         }
-
-        currentAction = ninjaAction;
-        setActionTick(0);
-
-        executeActionWithModifier(currentAction.value(), livingEntity, action -> action.startAction(livingEntity));
+        executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.startAction(livingEntity));
         livingEntity.refreshDimensions();
     }
 
     public void syncAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         setAction(livingEntity, ninjaAction);
-        if (!livingEntity.level().isClientSide()) {
+        if (!livingEntity.level().isClientSide) {
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(livingEntity, new SetActionToClientPacket(livingEntity, ninjaAction));
         }
     }
@@ -188,14 +190,18 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
         cooldownMap.putIfAbsent(ninjaAction, ninjaAction.getCooldown());
     }
 
+    public boolean isCooldownFinished(NinjaAction action){
+        return !cooldownMap.containsKey(action);
+    }
+
     public boolean canAction(NinjaAction action, Player player) {
         return action != NinjaActions.NONE.get() &&
                 //入力が必要ないもの or 必要で、一致するもの
                 (action.getStartInputs() == null ||
-                        action.getStartInputs() != null && inputs.containsAll(action.getStartInputs())) &&
+                        action.getStartInputs() != null && currentInputs.containsAll(action.getStartInputs())) &&
                 action != currentAction &&
                 action.needCondition(player) &&
-                !cooldownMap.containsKey(action);
+                isCooldownFinished(action);
     }
 
 
@@ -218,8 +224,8 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 (!(livingEntity instanceof Player player) || !player.getAbilities().flying);
     }
 
-    public EnumSet<NinjaInput> getInputs() {
-        return inputs;
+    public EnumSet<NinjaInput> getCurrentInputs() {
+        return currentInputs;
     }
 
     public EnumSet<NinjaInput> getPreviousInputs() {
@@ -270,5 +276,25 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
                 .filter(NinjaAction::isOverride)
                 .min(Comparator.comparingInt(NinjaAction::getPriority))
                 .orElse(ninjaAction);
+    }
+
+    public void selectAndSendAction(Player player) {
+        NINJA_ACTIONS.stream()
+                .map(Holder::value)
+                .filter(action -> !action.isModifier() && canAction(action, player))
+                .filter(action -> {
+                    if (action.getNinjaActionTickType() == NinjaActionTickType.INSTANT){
+                        sendAction(action, player);
+                        return false;
+                    }
+                    return true;
+                })
+                .min(Comparator.comparingInt(NinjaAction::getPriority))
+                .ifPresent(action -> sendAction(action, player));
+    }
+
+    private void sendAction(NinjaAction action, Player player) {
+        ResourceLocation sendAction = NinjaActions.getRegistry().getKey(NinjaActionAttachment.getActionOrOveride(action, player));
+        PacketDistributor.sendToServer(new SetActionToServerPacket(sendAction));
     }
 }

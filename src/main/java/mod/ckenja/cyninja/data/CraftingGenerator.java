@@ -44,7 +44,11 @@ public class CraftingGenerator extends CraftingDataHelper {
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.NINJA_CHESTPLATE), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_chestplate"));
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.NINJA_LEGGINGS), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_leggings"));
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.NINJA_BOOTS), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_boots"));
+      
+        SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.CHAIN_SICKLE), Ingredient.of(Items.COPPER_INGOT), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_sickle_copper"));
+
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.KATANA), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_katana"));
         SmithingTrimRecipeBuilder.smithingTrim(Ingredient.of(ModItems.CYBER_TRIM_SMITHING_TEMPLATE), Ingredient.of(ModItems.SMOKE_BOMB), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.COMBAT).unlocks("has_item", has(ModItems.CYBER_TRIM_SMITHING_TEMPLATE)).save(consumer, prefix("cyber_smoke_bomb"));
+
     }
 }

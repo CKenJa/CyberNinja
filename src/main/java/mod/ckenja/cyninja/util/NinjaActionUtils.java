@@ -1,7 +1,9 @@
 package mod.ckenja.cyninja.util;
 
 import mod.ckenja.cyninja.entity.NinjaFaker;
+import mod.ckenja.cyninja.item.KatanaItem;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
+import mod.ckenja.cyninja.item.SmokebombItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
@@ -17,15 +19,16 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.armortrim.ArmorTrim;
@@ -37,6 +40,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class NinjaActionUtils {
 
@@ -52,6 +56,106 @@ public class NinjaActionUtils {
 
     public static void mirrorImageDo(LivingEntity living) {
         NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -180F, NinjaActions.SLIDE);
+    }
+
+    private static void knockback(Level p_335716_, LivingEntity attacker) {
+        p_335716_.levelEvent(2013, attacker.getOnPos(), 750);
+        p_335716_.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(3.5), knockbackPredicate(attacker))
+                .forEach(p_347296_ -> {
+                    Vec3 vec3 = p_347296_.position().subtract(attacker.position());
+                    double d0 = getKnockbackPower(attacker, p_347296_, vec3);
+                    Vec3 vec31 = vec3.normalize().scale(d0);
+                    if (d0 > 0.0) {
+                        p_347296_.push(vec31.x, 0.7F, vec31.z);
+                        if (p_347296_ instanceof ServerPlayer serverplayer) {
+                            serverplayer.connection.send(new ClientboundSetEntityMotionPacket(serverplayer));
+                        }
+                    }
+                });
+    }
+
+    private static Predicate<LivingEntity> knockbackPredicate(LivingEntity owner) {
+        return p_344407_ -> {
+            boolean flag;
+            boolean flag1;
+            boolean flag2;
+            boolean flag6;
+            label62:
+            {
+                flag = !p_344407_.isSpectator();
+                flag1 = p_344407_ != owner;
+                flag2 = !owner.isAlliedTo(p_344407_);
+                if (p_344407_ instanceof TamableAnimal tamableanimal && tamableanimal.isTame() && owner.getUUID().equals(tamableanimal.getOwnerUUID())) {
+                    flag6 = true;
+                    break label62;
+                }
+
+                flag6 = false;
+            }
+
+            boolean flag3;
+            label55:
+            {
+                flag3 = !flag6;
+                if (p_344407_ instanceof ArmorStand armorstand && armorstand.isMarker()) {
+                    flag6 = false;
+                    break label55;
+                }
+
+                flag6 = true;
+            }
+
+            boolean flag4 = flag6;
+            boolean flag5 = owner.distanceToSqr(p_344407_) <= Math.pow(3.5, 2.0);
+            return flag && flag1 && flag2 && flag3 && flag4 && flag5;
+        };
+    }
+
+    private static double getKnockbackPower(LivingEntity owner, LivingEntity p_338630_, Vec3 p_338866_) {
+        return (3.5 - p_338866_.length())
+                * 0.7F
+                * (double) (owner.fallDistance > 5.0F ? 2 : 1)
+                * (1.0 - p_338630_.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+    }
+
+    public static void stopFall(LivingEntity livingEntity) {
+        Level level = livingEntity.level();
+        Vec3 delta = livingEntity.getDeltaMovement();
+        Vec3 look = livingEntity.getLookAngle();
+
+        if (!level.isClientSide()) {
+            knockback(level, livingEntity);
+        }
+        livingEntity.resetFallDistance();
+
+        livingEntity.playSound(SoundEvents.ANVIL_PLACE, 1.0F, 1.5F);
+        livingEntity.playSound(SoundEvents.MACE_SMASH_GROUND_HEAVY, 2.0F, 1.25F);
+    }
+
+    public static void startHeavyFall(LivingEntity livingEntity) {
+        Level level = livingEntity.level();
+        Vec3 delta = livingEntity.getDeltaMovement();
+        Vec3 look = livingEntity.getLookAngle();
+        NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
+
+        livingEntity.playSound(SoundEvents.SMITHING_TABLE_USE, 1.0F, 1.0F);
+    }
+
+    public static void tickHeavyFall(LivingEntity livingEntity) {
+        Level level = livingEntity.level();
+        Vec3 delta = livingEntity.getDeltaMovement();
+        Vec3 look = livingEntity.getLookAngle();
+
+        if (!level.isClientSide()) {
+            List<Entity> list = level.getEntities(livingEntity, livingEntity.getBoundingBox().inflate(1.0F).move(look.reverse().scale(2.0F)));
+            if (!list.isEmpty()) {
+                for (Entity entity : list) {
+                    if (entity.isAttackable() && !entity.isAlliedTo(livingEntity)) {
+                        entity.hurt(livingEntity.damageSources().source(DamageTypes.MOB_ATTACK, livingEntity), 8F);
+                    }
+                }
+            }
+        }
     }
 
     public static void tickHeavyAirJump(LivingEntity livingEntity) {
@@ -165,6 +269,28 @@ public class NinjaActionUtils {
         }
 
         return i >= 4;
+    }
+
+    public static boolean isKatanaTrim(ItemStack stack, Item item) {
+        if ((stack.getItem() instanceof KatanaItem)) {
+            ArmorTrim armorTrim = stack.get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isSmokeBombTrim(ItemStack stack, Item item) {
+        if ((stack.getItem() instanceof SmokebombItem)) {
+            ArmorTrim armorTrim = stack.get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static boolean isWearingNinjaTrim(LivingEntity livingEntity, Item item) {

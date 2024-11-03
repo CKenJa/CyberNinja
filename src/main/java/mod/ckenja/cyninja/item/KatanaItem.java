@@ -1,11 +1,13 @@
 package mod.ckenja.cyninja.item;
 
+import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -21,6 +23,12 @@ public class KatanaItem extends Item {
 
     @Override
     public boolean hurtEnemy(ItemStack p_43278_, LivingEntity p_43279_, LivingEntity p_43280_) {
+        if (NinjaActionUtils.isKatanaTrim(p_43278_, Items.REDSTONE)) {
+            if (!p_43279_.isAlive()) {
+                p_43280_.heal(2);
+            }
+        }
+
         return true;
     }
 

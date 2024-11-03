@@ -14,12 +14,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityEvent;
@@ -86,7 +91,57 @@ public class CommonEvents {
                 event.getProjectile().deflect(ProjectileDeflection.MOMENTUM_DEFLECT, event.getProjectile().getOwner(), event.getProjectile().getOwner(), true);
                 event.setCanceled(true);
             }
+
+            if (isDamageSourceBlocked(living, event.getEntity())) {
+                if (NinjaActionUtils.isKatanaTrim(living.getMainHandItem(), Items.IRON_INGOT)) {
+                    if (living.attackAnim > 0.0F) {
+                        living.playSound(SoundEvents.BREEZE_DEFLECT);
+                        event.getProjectile().deflect(ProjectileDeflection.MOMENTUM_DEFLECT, event.getProjectile().getOwner(), event.getProjectile().getOwner(), true);
+
+                        event.setCanceled(true);
+                    }
+                }
+            }
         }
+    }
+
+    public static boolean isDamageSourceBlocked(LivingEntity owner, Entity entity) {
+        boolean flag = false;
+        if (entity instanceof AbstractArrow abstractarrow && abstractarrow.getPierceLevel() > 0) {
+            flag = true;
+        }
+
+        if (!flag) {
+            Vec3 vec32 = entity.position();
+            if (vec32 != null) {
+                Vec3 vec3 = owner.calculateViewVector(0.0F, owner.getYHeadRot());
+                Vec3 vec31 = vec32.vectorTo(owner.position());
+                vec31 = new Vec3(vec31.x, 0.0, vec31.z).normalize();
+                return vec31.dot(vec3) < 0.0;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isDamageSourceBlocked(LivingEntity living, DamageSource p_21276_) {
+        Entity entity = p_21276_.getDirectEntity();
+        boolean flag = false;
+        if (entity instanceof AbstractArrow abstractarrow && abstractarrow.getPierceLevel() > 0) {
+            flag = true;
+        }
+
+        if (!p_21276_.is(DamageTypeTags.BYPASSES_SHIELD) && living.isBlocking() && !flag) {
+            Vec3 vec32 = p_21276_.getSourcePosition();
+            if (vec32 != null) {
+                Vec3 vec3 = living.calculateViewVector(0.0F, living.getYHeadRot());
+                Vec3 vec31 = vec32.vectorTo(living.position());
+                vec31 = new Vec3(vec31.x, 0.0, vec31.z).normalize();
+                return vec31.dot(vec3) < 0.0;
+            }
+        }
+
+        return false;
     }
 
 
@@ -129,6 +184,17 @@ public class CommonEvents {
             event.setAmount(event.getAmount() * (1.0F - reduceDamage));
             if (reduceDamage >= 1.0F) {
                 event.setCanceled(true);
+            }
+        }
+
+        if (NinjaActionUtils.isKatanaTrim(event.getEntity().getMainHandItem(), Items.IRON_INGOT)) {
+            if (event.getEntity().attackAnim > 0.0F) {
+                if (event.getSource().isDirect() && event.getSource().getDirectEntity() != null && !event.getSource().is(DamageTypeTags.IS_EXPLOSION) && !event.getSource().is(DamageTypeTags.IS_PROJECTILE)) {
+                    if (isDamageSourceBlocked(event.getEntity(), event.getSource())) {
+                        event.setAmount(0.0F);
+                        event.setCanceled(true);
+                    }
+                }
             }
         }
     }

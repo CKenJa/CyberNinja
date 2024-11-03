@@ -2,15 +2,13 @@ package mod.ckenja.cyninja.registry;
 
 import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.item.ChainAndSickleItem;
-import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.entity.SickleEntity;
+import mod.ckenja.cyninja.item.ChainAndSickleItem;
 import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -109,14 +107,14 @@ public class NinjaActions {
                 if (livingEntity.level().isClientSide && attachment.getCurrentInputs() != null) {
                     //sneakを押してなければnone
                     if (!attachment.getCurrentInputs().contains(NinjaInput.SNEAK)) {
-                        if (livingEntity instanceof LocalPlayer localPlayer) {
+                        if (livingEntity.level().isClientSide()) {
                             PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         }
                         return NONE;
                     }
 
                     if (attachment.getCurrentInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
-                        if (livingEntity instanceof LocalPlayer localPlayer) {
+                        if (livingEntity.level().isClientSide()) {
                             PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
                         }
                         return NONE;

@@ -7,12 +7,7 @@ import mod.ckenja.cyninja.item.SmokebombItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
-import mod.ckenja.cyninja.registry.ModAttachments;
-import mod.ckenja.cyninja.registry.ModDataComponents;
-import mod.ckenja.cyninja.registry.ModEntities;
-import mod.ckenja.cyninja.registry.ModItems;
-import mod.ckenja.cyninja.registry.NinjaActions;
-import net.minecraft.client.player.LocalPlayer;
+import mod.ckenja.cyninja.registry.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -209,7 +204,7 @@ public class NinjaActionUtils {
         //slide to looking way
         if (vec3.y < 0.0F) {
             livingEntity.setDeltaMovement(vec3.x, vec3.y * 0.6F, vec3.z);
-            if (livingEntity instanceof LocalPlayer localPlayer) {
+            if (livingEntity.level().isClientSide()) {
                 PacketDistributor.sendToServer(new ResetFallServerPacket());
             }
             livingEntity.resetFallDistance();

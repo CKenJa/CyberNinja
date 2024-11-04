@@ -30,7 +30,8 @@ public class ModArmorMaterials {
             List.of(
                     new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "ninja"), "", true),
                     new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "ninja"), "_overlay", false)
-            ));
+            )
+    );
 
     private static Holder<ArmorMaterial> register(
             String name,

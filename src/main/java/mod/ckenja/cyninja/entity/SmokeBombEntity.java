@@ -20,7 +20,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Random;
@@ -121,8 +124,12 @@ public class SmokeBombEntity extends ThrowableItemProjectile {
                         .map(entity -> (LivingEntity)entity)
                                 .toList();
                 livings.forEach(entity -> {
-                    if (entity instanceof Mob mob)
-                        mob.setTarget(livings.get(random.nextInt(livings.size())));
+                    if (entity instanceof Mob mob) {
+                        LivingEntity target = livings.get(random.nextInt(livings.size()));
+                        if (mob != target) {
+                            mob.setTarget(target);
+                        }
+                    }
                 });
             }
 

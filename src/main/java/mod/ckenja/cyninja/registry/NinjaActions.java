@@ -171,6 +171,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> WALL_JUMP = NINJA_ACTIONS.register("wall_jump", () -> NinjaAction.Builder.newInstance()
             .setStartInput(NinjaInput.JUMP)
             .instant()
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .addNeedCondition(livingEntity -> getActionData(livingEntity).canJump(livingEntity, NinjaActions.WALL_SLIDE))
             .addStartAction(livingEntity -> {
                 Vec3 delta = livingEntity.getDeltaMovement();
@@ -184,6 +185,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction, NinjaAction> AIR_JUMP = NINJA_ACTIONS.register("air_jump", () -> NinjaAction.Builder.newInstance()
             .setStartInput(NinjaInput.JUMP)
             .instant()
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .addNeedCondition(NinjaActionUtils::canAirJump)
             .addStartAction(NinjaActionUtils::doAirJump)
             .build()
@@ -222,6 +224,7 @@ public class NinjaActions {
     public static final DeferredHolder<NinjaAction,NinjaAction> SPIN = NINJA_ACTIONS.register("spin", () -> NinjaAction.Builder.newInstance()
             .addNeedCondition(livingEntity -> !livingEntity.onGround())
             .addNeedCondition(NinjaActionUtils::isEquipKatana)
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .setStartInput(NinjaInput.LEFT_CLICK)
             .startAndEnd(2, 12)
             .setReduceDamage(1.0F)
@@ -261,6 +264,7 @@ public class NinjaActions {
                 NinjaActionUtils.attackEntities(living, list, 1F, 0F, DamageTypes.MOB_ATTACK);
             })
             .addNeedCondition(living -> !living.onGround())
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living,Items.LAPIS_LAZULI))
             .build()
     );
@@ -269,6 +273,7 @@ public class NinjaActions {
             .instant()
             .cooldown(5)
             .addStartAction(entity -> throwSickle(entity, false))
+            .addNeedCondition(NinjaActionUtils::isWearingFullNinjaSuit)
             .addNeedCondition(NinjaActionUtils::isEquipSickleNotOnlySickle)
             .addNeedCondition(entity -> NinjaActionUtils.keyUp(entity, NinjaInput.LEFT_CLICK))
             .build()

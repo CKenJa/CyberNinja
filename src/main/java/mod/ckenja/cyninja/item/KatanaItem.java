@@ -31,8 +31,7 @@ public class KatanaItem extends Item {
         if(item == null || !(source.getDirectEntity() instanceof LivingEntity player))
             return 0;
 
-        if (NinjaActionUtils.isKatanaTrim(item, Items.COPPER_INGOT) && enemy instanceof Mob mob && mob.getTarget() == player) {
-
+        if (NinjaActionUtils.isKatanaTrim(item, Items.COPPER_INGOT) && enemy instanceof Mob mob && mob.getTarget() != player) {
             return (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
         }
         if (NinjaActionUtils.isKatanaTrim(item, Items.DIAMOND)) {

@@ -6,6 +6,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -30,7 +31,8 @@ public class KatanaItem extends Item {
         if(item == null || !(source.getDirectEntity() instanceof LivingEntity player))
             return 0;
 
-        if (NinjaActionUtils.isKatanaTrim(item, Items.COPPER_INGOT)) {
+        if (NinjaActionUtils.isKatanaTrim(item, Items.COPPER_INGOT) && enemy instanceof Mob mob && mob.getTarget() == player) {
+
             return (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
         }
         if (NinjaActionUtils.isKatanaTrim(item, Items.DIAMOND)) {

@@ -1,10 +1,13 @@
 package mod.ckenja.cyninja.util;
 
+import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.entity.NinjaFaker;
 import mod.ckenja.cyninja.item.KatanaItem;
 import mod.ckenja.cyninja.item.NinjaArmorItem;
+import mod.ckenja.cyninja.item.ShurikenItem;
 import mod.ckenja.cyninja.item.SmokebombItem;
 import mod.ckenja.cyninja.network.ResetFallServerPacket;
+import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.registry.*;
@@ -16,16 +19,20 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -37,7 +44,13 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static mod.ckenja.cyninja.registry.NinjaActions.NONE;
+import static mod.ckenja.cyninja.util.VectorUtil.moveToLookingWay;
+
 public class NinjaActionUtils {
+
+    private static final ResourceLocation SLIDE_STEP_ID = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "slide_step");
+    private static final ResourceLocation HEAVY_GRAVITY_ID = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "heavy_gravity");
 
     public static void doAirJump(LivingEntity livingEntity) {
         Vec3 delta = livingEntity.getDeltaMovement();
@@ -50,7 +63,12 @@ public class NinjaActionUtils {
     }
 
     public static void mirrorImageDo(LivingEntity living) {
-        NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -180F, NinjaActions.SLIDE);
+        NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -180F, NinjaActions.SLIDE,20);
+        if(NinjaActionUtils.isWearingNinjaTrim(living, Items.COPPER_INGOT)){
+            NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, 120F, NinjaActions.SLIDE, 20);
+            NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -120F, NinjaActions.SLIDE, 20);
+        }
+
     }
 
     private static void knockback(Level p_335716_, LivingEntity attacker) {
@@ -67,6 +85,15 @@ public class NinjaActionUtils {
                         }
                     }
                 });
+    }
+
+    public static void resetEntitiesTarget(Level level, Vec3 position){
+        List<Entity> entities = NinjaActionUtils.getEnemiesInSphere(level, position, 6);
+        entities.forEach(entity -> {
+            if (entity instanceof Mob mob)
+                mob.setTarget(null);
+        });
+
     }
 
     private static Predicate<LivingEntity> knockbackPredicate(LivingEntity owner) {
@@ -113,10 +140,18 @@ public class NinjaActionUtils {
                 * (1.0 - p_338630_.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
     }
 
-    public static void stopFall(LivingEntity livingEntity) {
+    public static void startHeavyFall(LivingEntity livingEntity) {
+        NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
+
+        livingEntity.playSound(SoundEvents.SMITHING_TABLE_USE, 1.0F, 1.0F);
+        AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.GRAVITY);
+        if (attributeinstance != null && !attributeinstance.hasModifier(HEAVY_GRAVITY_ID)) {
+            attributeinstance.addTransientModifier(new AttributeModifier(HEAVY_GRAVITY_ID, 0.08F, AttributeModifier.Operation.ADD_VALUE));
+        }
+    }
+
+    public static void stopHeavyFall(LivingEntity livingEntity) {
         Level level = livingEntity.level();
-        Vec3 delta = livingEntity.getDeltaMovement();
-        Vec3 look = livingEntity.getLookAngle();
 
         if (!level.isClientSide()) {
             knockback(level, livingEntity);
@@ -125,20 +160,14 @@ public class NinjaActionUtils {
 
         livingEntity.playSound(SoundEvents.ANVIL_PLACE, 1.0F, 1.5F);
         livingEntity.playSound(SoundEvents.MACE_SMASH_GROUND_HEAVY, 2.0F, 1.25F);
-    }
-
-    public static void startHeavyFall(LivingEntity livingEntity) {
-        Level level = livingEntity.level();
-        Vec3 delta = livingEntity.getDeltaMovement();
-        Vec3 look = livingEntity.getLookAngle();
-        NinjaActionUtils.getActionData(livingEntity).decreaseAirJumpCount();
-
-        livingEntity.playSound(SoundEvents.SMITHING_TABLE_USE, 1.0F, 1.0F);
+        AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.GRAVITY);
+        if (attributeinstance != null && !attributeinstance.hasModifier(HEAVY_GRAVITY_ID)) {
+            attributeinstance.removeModifier(HEAVY_GRAVITY_ID);
+        }
     }
 
     public static void tickHeavyFall(LivingEntity livingEntity) {
         Level level = livingEntity.level();
-        Vec3 delta = livingEntity.getDeltaMovement();
         Vec3 look = livingEntity.getLookAngle();
 
         if (!level.isClientSide()) {
@@ -288,6 +317,17 @@ public class NinjaActionUtils {
         return false;
     }
 
+    public static boolean isShurikenBombtrim(ItemStack stack, Item item) {
+        if ((stack.getItem() instanceof ShurikenItem)) {
+            ArmorTrim armorTrim = stack.get(DataComponents.TRIM);
+            if (armorTrim != null && armorTrim.material().value().ingredient().value() == item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static boolean isWearingNinjaTrim(LivingEntity livingEntity, Item item) {
         for (ItemStack itemstack : livingEntity.getArmorAndBodyArmorSlots()) {
             if ((itemstack.getItem() instanceof NinjaArmorItem)) {
@@ -312,7 +352,8 @@ public class NinjaActionUtils {
     public static List<Entity> getEnemiesInSphere(Level level, Vec3 position, double r) {
         AABB aabb = new AABB(position.x-r,position.y-r,position.z-r,position.x+r,position.y+r,position.z+r);
         return level.getEntitiesOfClass(Entity.class,aabb).stream()
-                .filter(entity -> entity.position().distanceTo(position) <= r).toList();
+                .filter(entity -> entity.position().distanceTo(position) <= r)
+                .toList();
     }
 
     public static boolean canAirJump(LivingEntity livingEntity) {
@@ -332,6 +373,10 @@ public class NinjaActionUtils {
     }
 
     public static boolean setEntityWithSummonShadow(LivingEntity living, Vec3 pos, Vec3 offset, float yRot, Holder<NinjaAction> actionHolder) {
+        return setEntityWithSummonShadow(living, pos, offset, yRot, actionHolder, 300);
+    }
+
+    public static boolean setEntityWithSummonShadow(LivingEntity living, Vec3 pos, Vec3 offset, float yRot, Holder<NinjaAction> actionHolder, int duration) {
         if (!(living instanceof NinjaFaker)) {
             CompoundTag compoundtag = new CompoundTag();
             living.saveWithoutId(compoundtag);
@@ -351,6 +396,7 @@ public class NinjaActionUtils {
                 faker.setPos(pos.add(VectorUtil.getInputVector(offset, 0, faker.getYRot())));
                 VectorUtil.moveRelativeActionY(faker, 0.5F, offset);
                 faker.setOnGround(false);
+                faker.setDuration(duration);
 
                 if (living.level().addFreshEntity(faker)) {
                     syncAction(faker, actionHolder);
@@ -402,5 +448,58 @@ public class NinjaActionUtils {
         NinjaActionAttachment data = getActionData(livingEntity);
         return data.getPreviousInputs().contains(input) &&
                 !data.getCurrentInputs().contains(input);
+    }
+
+    public static void startSlide(LivingEntity livingEntity) {
+        AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
+        if (attributeinstance != null && !attributeinstance.hasModifier(SLIDE_STEP_ID)) {
+            livingEntity.getAttribute(Attributes.STEP_HEIGHT).addTransientModifier(new AttributeModifier(SLIDE_STEP_ID, 0.5F, AttributeModifier.Operation.ADD_VALUE));
+        }
+        getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
+
+        getActionData(livingEntity).decreaseAirSlideCount();
+        Vec3 vec3 = livingEntity.getDeltaMovement();
+        livingEntity.setDeltaMovement(vec3.x, 0, vec3.z);
+        livingEntity.resetFallDistance();
+        moveToLookingWay(livingEntity, 1F, NinjaActions.SLIDE);
+    }
+
+    public static void stopSlide(LivingEntity livingEntity) {
+        AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
+        if (attributeinstance != null) {
+            attributeinstance.removeModifier(SLIDE_STEP_ID);
+        }
+    }
+
+    public static Holder<NinjaAction> nextSlide(LivingEntity livingEntity) {
+            NinjaActionAttachment attachment = getActionData(livingEntity);
+            //壁にぶつかったら止まる。そして減速
+            if (livingEntity.horizontalCollision) {
+                Vec3 delta = livingEntity.getDeltaMovement();
+                livingEntity.setDeltaMovement(delta.x * 0.45F, delta.y, delta.z * 0.45F);
+                return NONE;
+            }
+            // jumpで止まる
+            if (livingEntity.level().isClientSide && attachment.getCurrentInputs() != null) {
+                //sneakを押してなければnone
+                if (!attachment.getCurrentInputs().contains(NinjaInput.SNEAK)) {
+                    if (livingEntity.level().isClientSide()) {
+                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                    }
+                    return NONE;
+                }
+
+                if (attachment.getCurrentInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
+                    if (livingEntity.level().isClientSide()) {
+                        PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
+                    }
+                    return NONE;
+                }
+            }
+            // 一定時間経過かつ減速で止まる
+            if (livingEntity.getDeltaMovement().horizontalDistance() < 0.2F) {
+                return NONE;
+            }
+            return null;
     }
 }

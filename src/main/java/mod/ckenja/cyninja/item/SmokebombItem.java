@@ -1,6 +1,6 @@
 package mod.ckenja.cyninja.item;
 
-import mod.ckenja.cyninja.entity.ThrownItemEntity;
+import mod.ckenja.cyninja.entity.SmokeBombEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.sounds.SoundEvents;
@@ -35,7 +35,7 @@ public class SmokebombItem extends Item implements ProjectileItem {
                 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
         );
         if (!level.isClientSide) {
-            ThrownItemEntity snowball = new ThrownItemEntity(level, player);
+            SmokeBombEntity snowball = new SmokeBombEntity(level, player);
             snowball.setItem(itemstack);
             snowball.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 1.0F);
             level.addFreshEntity(snowball);
@@ -48,7 +48,7 @@ public class SmokebombItem extends Item implements ProjectileItem {
 
     @Override
     public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
-        ThrownItemEntity snowball = new ThrownItemEntity(level, pos.x(), pos.y(), pos.z());
+        SmokeBombEntity snowball = new SmokeBombEntity(level, pos.x(), pos.y(), pos.z());
         snowball.setItem(stack);
         return snowball;
     }

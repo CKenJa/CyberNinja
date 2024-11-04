@@ -83,15 +83,16 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
 
     public void setAction(LivingEntity livingEntity, Holder<NinjaAction> ninjaAction) {
         executeActionWithModifier(currentAction.value(), livingEntity, action -> action.stopAction(livingEntity));
+        if (ninjaAction.value().getNinjaActionTickType() != NinjaActionTickType.INSTANT){
+            if (currentAction.value().getCooldown() > 0) {
+                executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
+            }
 
-        if (currentAction.value().getCooldown() > 0) {
-            executeActionWithModifier(currentAction.value(), livingEntity, this::setCooldown);
+            currentAction = ninjaAction;
+            setActionTick(0);
         }
 
-        currentAction = ninjaAction;
-        setActionTick(0);
-
-        executeActionWithModifier(currentAction.value(), livingEntity, action -> action.startAction(livingEntity));
+        executeActionWithModifier(ninjaAction.value(), livingEntity, action -> action.startAction(livingEntity));
         livingEntity.refreshDimensions();
     }
 
@@ -209,7 +210,7 @@ public class NinjaActionAttachment implements INBTSerializable<CompoundTag> {
     }
 
     public boolean canAirJump(LivingEntity livingEntity, Holder<NinjaAction> action) {
-        return airJumpCount>0 && canJump(livingEntity, action);
+        return airJumpCount > 0 && canJump(livingEntity, action);
     }
 
     public boolean canJump(LivingEntity livingEntity, Holder<NinjaAction> needAction) {

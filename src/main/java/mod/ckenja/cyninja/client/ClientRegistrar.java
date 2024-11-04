@@ -10,6 +10,7 @@ import mod.ckenja.cyninja.registry.ModDataComponents;
 import mod.ckenja.cyninja.registry.ModEntities;
 import mod.ckenja.cyninja.registry.ModItems;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -27,6 +28,7 @@ public class ClientRegistrar {
         event.registerEntityRenderer(ModEntities.CYBER_ILLAGER.get(), CyberIllagerRender::new);
         event.registerEntityRenderer(ModEntities.NINJA_FAKER.get(), NinjaFakerRenderer::new);
 
+        event.registerEntityRenderer(ModEntities.SMOKE_BOMB.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(ModEntities.THROWN_ITEM.get(), ThrownItemEntityRenderer::new);
         event.registerEntityRenderer(ModEntities.SICKLE.get(), SickleEntityRenderer::new);
     }

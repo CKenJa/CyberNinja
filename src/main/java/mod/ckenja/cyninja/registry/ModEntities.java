@@ -1,10 +1,7 @@
 package mod.ckenja.cyninja.registry;
 
 import mod.ckenja.cyninja.Cyninja;
-import mod.ckenja.cyninja.entity.CyberIllager;
-import mod.ckenja.cyninja.entity.NinjaFaker;
-import mod.ckenja.cyninja.entity.SickleEntity;
-import mod.ckenja.cyninja.entity.ThrownItemEntity;
+import mod.ckenja.cyninja.entity.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -27,6 +24,7 @@ public class ModEntities {
     public static final Supplier<EntityType<NinjaFaker>> NINJA_FAKER = ENTITIES_REGISTRY.register("ninja_faker", () -> EntityType.Builder.of(NinjaFaker::new, MobCategory.MONSTER).sized(0.6F, 1.95F).build(prefix("ninja_faker")));
 
     public static final Supplier<EntityType<ThrownItemEntity>> THROWN_ITEM = ENTITIES_REGISTRY.register("thrown_item", () -> EntityType.Builder.<ThrownItemEntity>of(ThrownItemEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).clientTrackingRange(8).setUpdateInterval(20).build(prefix("thrown_item")));
+    public static final Supplier<EntityType<SmokeBombEntity>> SMOKE_BOMB = ENTITIES_REGISTRY.register("smoke_bomb", () -> EntityType.Builder.<SmokeBombEntity>of(SmokeBombEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).clientTrackingRange(8).setUpdateInterval(20).build(prefix("smoke_bomb")));
     public static final Supplier<EntityType<SickleEntity>> SICKLE = ENTITIES_REGISTRY.register("sickle", () -> EntityType.Builder.<SickleEntity>of(SickleEntity::new, MobCategory.MISC).sized(0.3F, 0.3F).clientTrackingRange(8).setUpdateInterval(1).build(prefix("sickle")));
 
     private static String prefix(String path) {

@@ -4,11 +4,11 @@ import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.entity.SickleEntity;
 import mod.ckenja.cyninja.item.ChainAndSickleItem;
-import mod.ckenja.cyninja.network.SetActionToServerPacket;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import mod.ckenja.cyninja.util.NinjaInput;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -16,19 +16,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
@@ -37,14 +36,10 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 import java.util.List;
 
 import static mod.ckenja.cyninja.util.NinjaActionUtils.getActionData;
-import static mod.ckenja.cyninja.util.VectorUtil.moveToLookingWay;
 import static net.minecraft.resources.ResourceKey.createRegistryKey;
 
 @EventBusSubscriber(modid = Cyninja.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class NinjaActions {
-    private static final ResourceLocation SLIDE_STEP_ID = ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "slide_step");
-
-
     public static final ResourceKey<Registry<NinjaAction>> NINJA_ACTIONS_REGISTRY = createRegistryKey(ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "ninja_skill"));
 
     public static final DeferredRegister<NinjaAction> NINJA_ACTIONS = DeferredRegister.create(NINJA_ACTIONS_REGISTRY, Cyninja.MODID);
@@ -76,63 +71,63 @@ public class NinjaActions {
                     NinjaActionUtils.attackEntities(slider, entities, 6F, 0.8F, DamageTypes.MOB_ATTACK);
                 }
             })
-            .addStartAction(livingEntity -> {
-                AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
-                if (attributeinstance != null && !attributeinstance.hasModifier(SLIDE_STEP_ID)) {
-                    livingEntity.getAttribute(Attributes.STEP_HEIGHT).addTransientModifier(new AttributeModifier(SLIDE_STEP_ID, (double) 0.5F, AttributeModifier.Operation.ADD_VALUE));
-                }
-                getActionData(livingEntity).setActionYRot(livingEntity.yHeadRot);
+            .addStartAction(NinjaActionUtils::startSlide)
+            .addStopAction(NinjaActionUtils::stopSlide)
+            .next(NinjaActionUtils::nextSlide)
+            .build()
+    );
 
-                getActionData(livingEntity).decreaseAirSlideCount();
-                Vec3 vec3 = livingEntity.getDeltaMovement();
-                livingEntity.setDeltaMovement(vec3.x, 0, vec3.z);
-                livingEntity.resetFallDistance();
-                moveToLookingWay(livingEntity, 1F, NinjaActions.SLIDE);
-            })
-            .addStopAction(livingEntity -> {
-                AttributeInstance attributeinstance = livingEntity.getAttribute(Attributes.STEP_HEIGHT);
-                if (attributeinstance != null) {
-                    livingEntity.getAttribute(Attributes.STEP_HEIGHT).removeModifier(SLIDE_STEP_ID);
+    public static final DeferredHolder<NinjaAction, NinjaAction> VANISH = NINJA_ACTIONS.register("vanish", () -> NinjaAction.Builder.newInstance()
+            .addNeedCondition(livingEntity ->
+                    !(livingEntity.isInFluidType() || livingEntity.isInWater()) &&
+                            getActionData(livingEntity).canAirSlideCount() &&
+                            (getActionData(livingEntity).getCurrentAction().is(NinjaActions.NONE) ||
+                                    getActionData(livingEntity).getCurrentAction().is(NinjaActions.SPIN))
+            )
+            .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.REDSTONE))
+            .cooldown(4)
+            .loop()
+            .speed(3F)
+            .setReduceDamage(1.0F)
+            .setReduceKnockback(1.0F)
+            .setCanVanillaAction(false)
+            .setNoBob(true)
+            .setHitBox(EntityDimensions.scalable(0.6F, 0.6F))
+            .addTickAction(slider->{
+                Level level = slider.level();
+                if (level.isClientSide) {
+                    NinjaActionUtils.spawnSprintParticle(slider);
                 }
             })
-            .next(livingEntity -> {
-                NinjaActionAttachment attachment = getActionData(livingEntity);
-                //壁にぶつかったら止まる。そして減速
-                if (livingEntity.horizontalCollision) {
-                    Vec3 delta = livingEntity.getDeltaMovement();
-                    livingEntity.setDeltaMovement(delta.x * 0.45F, delta.y, delta.z * 0.45F);
-                    return NONE;
-                }
-                // jumpで止まる
-                if (livingEntity.level().isClientSide && attachment.getCurrentInputs() != null) {
-                    //sneakを押してなければnone
-                    if (!attachment.getCurrentInputs().contains(NinjaInput.SNEAK)) {
-                        if (livingEntity.level().isClientSide()) {
-                            PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
-                        }
-                        return NONE;
-                    }
+            .addStartAction(NinjaActionUtils::startSlide)
+            .addStartAction(living -> NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, 0F, NinjaActions.NONE))
+            .addStartAction(living -> living.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100)))
+            .addStopAction(NinjaActionUtils::stopSlide)
+            .addStartAction(living -> NinjaActionUtils.resetEntitiesTarget(living.level(), living.position()))
+            .next(NinjaActionUtils::nextSlide)
+            .build()
+    );
 
-                    if (attachment.getCurrentInputs().contains(NinjaInput.JUMP) && livingEntity.onGround()) {
-                        if (livingEntity.level().isClientSide()) {
-                            PacketDistributor.sendToServer(new SetActionToServerPacket(NONE));
-                        }
-                        return NONE;
-                    }
-                }
-                // 一定時間経過かつ減速で止まる
-                if (livingEntity.getDeltaMovement().horizontalDistance() < 0.2F) {
-                    return NONE;
-                }
-                return null;
-            }).build()
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> SHADOW_SLIDE = NINJA_ACTIONS.register("shadow_slide", () -> NinjaAction.Builder.newInstance()
+            .instant()
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.COPPER_INGOT))
+            .addStartAction(living -> {
+                NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, 30F, NinjaActions.SLIDE, 20);
+                NinjaActionUtils.setEntityWithSummonShadow(living, living.position(), Vec3.ZERO, -30F, NinjaActions.SLIDE, 20);
+            })
+            .addStartAction(living -> NinjaActionUtils.resetEntitiesTarget(living.level(), living.position()))
+            .priority(900)
+            .inject(SLIDE)
+            .build()
     );
 
     public static final DeferredHolder<NinjaAction, NinjaAction> MIRROR_IMAGE = NINJA_ACTIONS.register("mirror_image", () -> NinjaAction.Builder.newInstance()
-            .setStartInput(NinjaInput.SNEAK, NinjaInput.SPRINT)
             .instant()
             .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living, Items.QUARTZ))
             .addStartAction(NinjaActionUtils::mirrorImageDo)
+            .addStartAction(living -> NinjaActionUtils.resetEntitiesTarget(living.level(), living.position()))
             .priority(900)
             .inject(SLIDE)
             .build()
@@ -151,7 +146,7 @@ public class NinjaActions {
             .setReduceKnockback(1.0F)
             .addStartAction(NinjaActionUtils::startHeavyFall)
             .addTickAction(NinjaActionUtils::tickHeavyFall)
-            .addStopAction(NinjaActionUtils::stopFall)
+            .addStopAction(NinjaActionUtils::stopHeavyFall)
             .cooldown(4)
             .next(livingEntity ->
                     livingEntity.onGround() || livingEntity.isInFluidType() || livingEntity.isInWater() ? NONE : null)
@@ -244,6 +239,29 @@ public class NinjaActions {
                 }
                 return null;
             })
+            .build()
+    );
+
+    public static final DeferredHolder<NinjaAction, NinjaAction> RAIN = NINJA_ACTIONS.register("rain", () -> NinjaAction.Builder.newInstance()
+            .instant()
+            .addStartAction(living -> {
+                Vec3 position = living.position();
+                double width = living.getBbWidth();
+                AABB aabb = new AABB(position.x-width,position.y-100,position.z-width,position.x+width,position.y,position.z+width);
+                List<Entity> list = living.level().getEntitiesOfClass(Entity.class,aabb)
+                        .stream().filter(entity -> {
+                            for(double y = position.y; y > entity.getY();y--){
+                                if(!entity.level().isEmptyBlock(new BlockPos((int)(position.x+width/2),(int)y,(int)(position.z+width/2)))){
+                                    return false;
+                                }
+                            }
+                            return true;
+                        })
+                        .toList();
+                NinjaActionUtils.attackEntities(living, list, 1F, 0F, DamageTypes.MOB_ATTACK);
+            })
+            .addNeedCondition(living -> !living.onGround())
+            .addNeedCondition(living -> NinjaActionUtils.isWearingNinjaTrim(living,Items.LAPIS_LAZULI))
             .build()
     );
 

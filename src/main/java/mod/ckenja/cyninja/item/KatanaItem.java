@@ -2,8 +2,11 @@ package mod.ckenja.cyninja.item;
 
 import mod.ckenja.cyninja.util.NinjaActionUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,19 +25,33 @@ public class KatanaItem extends Item {
     }
 
     @Override
-    public boolean hurtEnemy(ItemStack p_43278_, LivingEntity p_43279_, LivingEntity p_43280_) {
+    public float getAttackDamageBonus(Entity enemy, float damage, DamageSource source){
+        ItemStack item = source.getWeaponItem();
+        if(item == null || !(source.getDirectEntity() instanceof LivingEntity player))
+            return 0;
+
+        if (NinjaActionUtils.isKatanaTrim(item, Items.COPPER_INGOT)) {
+            return (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        }
+        if (NinjaActionUtils.isKatanaTrim(item, Items.DIAMOND)) {
+            return (float) (player.getAttributeValue(Attributes.ATTACK_DAMAGE) * player.getDeltaMovement().length());
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean hurtEnemy(ItemStack p_43278_, LivingEntity enemy, LivingEntity player) {
         if (NinjaActionUtils.isKatanaTrim(p_43278_, Items.REDSTONE)) {
-            if (!p_43279_.isAlive()) {
-                p_43280_.heal(2);
+            if (!enemy.isAlive()) {
+                player.heal(2);
             }
         }
-
         return true;
     }
 
     @Override
-    public void postHurtEnemy(ItemStack p_345553_, LivingEntity p_345771_, LivingEntity p_346282_) {
-        p_345553_.hurtAndBreak(1, p_346282_, EquipmentSlot.MAINHAND);
+    public void postHurtEnemy(ItemStack p_345553_, LivingEntity enemy, LivingEntity player) {
+        p_345553_.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package mod.ckenja.cyninja.entity;
 
-import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.ninja_action.NinjaAction;
 import mod.ckenja.cyninja.registry.*;
 import net.minecraft.core.BlockPos;
@@ -358,6 +357,7 @@ public class SickleEntity extends ThrowableItemProjectile {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("Attach", canAttach());
         nbt.putBoolean("Returning", isReturning());
+        nbt.putBoolean("InGround", isInGround());
         nbt.putString("variant", getNinjaAction().unwrapKey().orElse(NinjaActions.SICKLE_ATTACK.getKey()).location().toString());
     }
 
@@ -366,6 +366,7 @@ public class SickleEntity extends ThrowableItemProjectile {
         super.readAdditionalSaveData(nbt);
         setAttach(nbt.getBoolean("Attach"));
         setReturning(nbt.getBoolean("Returning"));
+        setInGround(nbt.getBoolean("InGround"));
         Optional.ofNullable(ResourceLocation.tryParse(nbt.getString("ninja_action")))
                 .map(location -> ResourceKey.create(NinjaActions.NINJA_ACTIONS_REGISTRY, location))
                 .flatMap(key -> registryAccess().lookupOrThrow(NinjaActions.NINJA_ACTIONS_REGISTRY).get(key))

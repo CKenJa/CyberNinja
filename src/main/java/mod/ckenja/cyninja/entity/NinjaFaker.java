@@ -1,6 +1,9 @@
 package mod.ckenja.cyninja.entity;
 
+import mod.ckenja.cyninja.ninja_action.NinjaAction;
+import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
 import mod.ckenja.cyninja.util.NinjaActionUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -20,6 +23,7 @@ import java.util.UUID;
 
 public class NinjaFaker extends PathfinderMob {
     protected static final EntityDataAccessor<Optional<UUID>> DATA_UUID = SynchedEntityData.defineId(NinjaFaker.class, EntityDataSerializers.OPTIONAL_UUID);
+    private int duration = 300;
 
     public NinjaFaker(EntityType<? extends NinjaFaker> p_21683_, Level p_21684_) {
         super(p_21683_, p_21684_);
@@ -32,17 +36,15 @@ public class NinjaFaker extends PathfinderMob {
     @Override
     public void tick() {
         super.tick();
-        if (this.getOwner() != null) {
-            if (!this.level().isClientSide()) {
-                if (NinjaActionUtils.isWearingNinjaTrim(this.getOwner(), Items.AMETHYST_SHARD)) {
-                    if (NinjaActionUtils.getActionData(this).getCurrentAction().value() != NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction().value()) {
-                        NinjaActionUtils.getActionData(this).syncAction(this, NinjaActionUtils.getActionData(this.getOwner()).getCurrentAction());
-                    }
-                }
+        LivingEntity owner = this.getOwner();
+        if (owner != null && !this.level().isClientSide() && NinjaActionUtils.isWearingNinjaTrim(owner, Items.AMETHYST_SHARD)) {
+            NinjaActionAttachment data = NinjaActionUtils.getActionData(this);
+            Holder<NinjaAction> ownerAction = NinjaActionUtils.getActionData(owner).getCurrentAction();
+            if (data.getCurrentAction().value() != ownerAction.value()) {
+                data.syncAction(this, ownerAction);
             }
         }
-        if (this.tickCount > 300) {
-
+        if (this.tickCount > duration) {
             if (!this.level().isClientSide()) {
                 this.discard();
             }
@@ -58,6 +60,7 @@ public class NinjaFaker extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag p_21450_) {
         super.readAdditionalSaveData(p_21450_);
+        duration = p_21450_.getInt("Duration");
 
         UUID uuid;
         if (p_21450_.hasUUID("Owner")) {
@@ -78,6 +81,7 @@ public class NinjaFaker extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag p_21484_) {
         super.addAdditionalSaveData(p_21484_);
+        p_21484_.putInt("Duration", duration);
         if (this.getDataUuid().isPresent()) {
             p_21484_.putUUID("Owner", this.getDataUuid().get());
         }
@@ -134,5 +138,11 @@ public class NinjaFaker extends PathfinderMob {
     public LivingEntity getOwner() {
         Optional<UUID> uuid = this.getDataUuid();
         return uuid.isEmpty() ? null : this.level().getPlayerByUUID(uuid.orElse(null));
+    }
+
+    public void setDuration(int d){
+        if(d>0){
+            duration = d;
+        }
     }
 }

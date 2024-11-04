@@ -40,14 +40,14 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
 
     @Override
     protected Item getDefaultItem() {
-        return Items.SNOWBALL;
+        return ModItems.SHURIKEN.value();
     }
 
     private ParticleOptions getParticle() {
         ItemStack itemstack = this.getItem();
-        return (ParticleOptions) (!itemstack.isEmpty() && !itemstack.is(this.getDefaultItem())
+        return !itemstack.isEmpty()
                 ? new ItemParticleOption(ParticleTypes.ITEM, itemstack)
-                : ParticleTypes.ITEM_SNOWBALL);
+                : ParticleTypes.ITEM_SNOWBALL;
     }
 
     /**
@@ -60,11 +60,6 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
 
             for (int i = 0; i < 8; i++) {
                 this.level().addParticle(particleoptions, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
-            }
-        }
-        if (id == 4) {
-            for (int i = 0; i < 16; i++) {
-                this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getX(), this.getY(), this.getZ(), this.random.nextDouble() - this.random.nextDouble(), this.random.nextDouble() - this.random.nextDouble(), this.random.nextDouble() - this.random.nextDouble());
             }
         }
     }
@@ -86,31 +81,7 @@ public class ThrownItemEntity extends ThrowableItemProjectile {
     @Override
     protected void onHit(HitResult result) {
         super.onHit(result);
-        if (this.getItem().is(ModItems.SMOKE_BOMB)) {
-            this.playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.0F, 1.5F);
-        }
-
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide)
             this.level().broadcastEntityEvent(this, (byte) 3);
-            if (this.getItem().is(ModItems.SMOKE_BOMB)) {
-                List<Entity> entities = NinjaActionUtils.getEnemiesInSphere(this.level(), this.position(), 6);
-                entities.forEach(entity -> {
-                    if (entity instanceof LivingEntity living) {
-                        living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200));
-                    }
-
-                    if (entity instanceof Mob living) {
-                        living.setTarget(null);
-                    }
-                });
-
-                this.level().broadcastEntityEvent(this, (byte) 4);
-                if (this.getOwner() instanceof LivingEntity attacker && NinjaActionUtils.isSmokeBombTrim(this.getItem(), Items.QUARTZ)) {
-                    NinjaActionUtils.setEntityWithSummonShadow(attacker, this.position(), new Vec3(-2.0F, 0.0, 0.0F), -30F, NinjaActions.NONE);
-                    NinjaActionUtils.setEntityWithSummonShadow(attacker, this.position(), new Vec3(2.0F, 0.0, 0.0F), 30F, NinjaActions.NONE);
-                }
-            }
-            this.discard();
-        }
     }
 }

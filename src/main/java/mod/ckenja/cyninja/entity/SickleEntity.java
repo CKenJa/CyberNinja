@@ -109,7 +109,7 @@ public class SickleEntity extends ThrowableItemProjectile {
         super.onHitEntity(result);
         Entity entity = result.getEntity();
         Entity owner = getOwner();
-        if (entity != owner && !isReturning() && canAttach() && !level().isClientSide) {
+        if (entity != owner && !isReturning() && !level().isClientSide) {
             LivingEntity livingentity = owner instanceof LivingEntity ? (LivingEntity) owner : null;
             double damage = 6;
             DamageSource damagesource = damageSources().mobProjectile(this, livingentity);

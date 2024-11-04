@@ -9,15 +9,17 @@ import mod.ckenja.cyninja.client.render.ThrownItemEntityRenderer;
 import mod.ckenja.cyninja.registry.ModDataComponents;
 import mod.ckenja.cyninja.registry.ModEntities;
 import mod.ckenja.cyninja.registry.ModItems;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Cyninja.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
@@ -45,4 +47,12 @@ public class ClientRegistrar {
         });
     }
 
+    @SubscribeEvent
+    public static void modelBake(RegisterColorHandlersEvent.Item event) {
+        event.register((p_329705_, p_329706_) -> p_329706_ > 0 ? -1 : DyedItemColor.getOrDefault(p_329705_, 0xFFFFFFFF),
+                ModItems.NINJA_HELMET,
+                ModItems.NINJA_CHESTPLATE,
+                ModItems.NINJA_LEGGINGS,
+                ModItems.NINJA_BOOTS);
+    }
 }

@@ -115,6 +115,7 @@ public class CyberIllagerModel<T extends CyberIllager> extends HierarchicalModel
     public void translateToChest(ModelPart modelPart, PoseStack poseStack) {
         this.roots.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
+        poseStack.scale(1.05F, 1.05F, 1.05F);
     }
 
     @Override

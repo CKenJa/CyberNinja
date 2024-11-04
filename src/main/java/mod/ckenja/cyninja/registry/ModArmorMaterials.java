@@ -26,7 +26,11 @@ public class ModArmorMaterials {
         p_323378_.put(ArmorItem.Type.CHESTPLATE, 7);
         p_323378_.put(ArmorItem.Type.HELMET, 3);
         p_323378_.put(ArmorItem.Type.BODY, 6);
-    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 1.0F, 0.05F, () -> Ingredient.of(Items.PHANTOM_MEMBRANE));
+            }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 1.0F, 0.05F, () -> Ingredient.of(Items.PHANTOM_MEMBRANE),
+            List.of(
+                    new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "ninja"), "", true),
+                    new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Cyninja.MODID, "ninja"), "_overlay", false)
+            ));
 
     private static Holder<ArmorMaterial> register(
             String name,

@@ -2,7 +2,7 @@ package mod.ckenja.cyninja.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import mod.ckenja.cyninja.entity.ThrownItemEntity;
+import mod.ckenja.cyninja.content.shuriken.ThrownItemEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;

@@ -1,6 +1,6 @@
 package mod.ckenja.cyninja.client.render;
 
-import mod.ckenja.cyninja.entity.NinjaFaker;
+import mod.ckenja.cyninja.content.entity.NinjaFaker;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;

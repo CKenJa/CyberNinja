@@ -3,7 +3,7 @@ package mod.ckenja.cyninja.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import mod.ckenja.cyninja.entity.SickleEntity;
+import mod.ckenja.cyninja.content.sickle.SickleEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

@@ -6,7 +6,7 @@ package mod.ckenja.cyninja.client.model;// Made with Blockbench 4.11.1
 import bagu_chan.bagus_lib.client.layer.IArmor;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.ckenja.cyninja.entity.CyberIllager;
+import mod.ckenja.cyninja.content.entity.CyberIllager;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.HeadedModel;

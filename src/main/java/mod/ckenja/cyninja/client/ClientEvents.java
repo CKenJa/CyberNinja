@@ -7,12 +7,13 @@ import bagu_chan.bagus_lib.util.client.AnimationUtil;
 import com.mojang.math.Axis;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.client.animation.PlayerAnimations;
-import mod.ckenja.cyninja.item.NinjaArmorItem;
-import mod.ckenja.cyninja.ninja_action.NinjaActionAttachment;
-import mod.ckenja.cyninja.registry.ModAnimations;
-import mod.ckenja.cyninja.registry.NinjaActions;
-import mod.ckenja.cyninja.util.NinjaActionUtils;
-import mod.ckenja.cyninja.util.client.ActionAnimationUtil;
+import mod.ckenja.cyninja.content.item.NinjaArmorItem;
+import mod.ckenja.cyninja.core.action.ActionAttachment;
+import mod.ckenja.cyninja.infrastructure.attachment.ActionStatesAttachment;
+import mod.ckenja.cyninja.infrastructure.registry.ModAnimations;
+import mod.ckenja.cyninja.infrastructure.registry.ModAttachments;
+import mod.ckenja.cyninja.infrastructure.registry.NinjaActions;
+import mod.ckenja.cyninja.core.util.client.ActionAnimationUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
@@ -66,11 +67,9 @@ public class ClientEvents {
         if (player == null || player.isSpectator())
             return;
 
-        NinjaActionAttachment data = NinjaActionUtils.getActionData(player);
-        if (NinjaActionUtils.isWearingFullNinjaSuit(player)) {
-            data.checkKeyDown(event);
-            data.selectAndSendAction(player);
-        }
+        ActionAttachment data = player.getData(ModAttachments.ACTION);
+        player.getData(ModAttachments.INPUT).update(event);
+        data.selectAndSendAction(player);
     }
 
     @SubscribeEvent
@@ -91,7 +90,7 @@ public class ClientEvents {
 
         if (entity instanceof LivingEntity livingEntity) {
             if (bagusModelEvent.isSupportedAnimateModel()) {
-                NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
+                ActionAttachment actionHolder = livingEntity.getData(ModAttachments.ACTION);
                 BaguAnimationController animationController = AnimationUtil.getAnimationController(bagusModelEvent.getEntity());
 
                 if (actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
@@ -113,25 +112,26 @@ public class ClientEvents {
     public static void rotation(BagusModelEvent.Scale bagusModelEvent) {
         Entity entity = bagusModelEvent.getEntity();
         if (entity instanceof LivingEntity livingEntity) {
-            NinjaActionAttachment actionHolder = NinjaActionUtils.getActionData(livingEntity);
+            ActionAttachment actionHolder = livingEntity.getData(ModAttachments.ACTION);
             if (actionHolder.getCurrentAction().value() == NinjaActions.SPIN.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees((bagusModelEvent.getPartialTick() + entity.tickCount) * 60F));
             }
+            ActionStatesAttachment state = livingEntity.getData(ModAttachments.STATES);
             if (actionHolder.getCurrentAction().value() == NinjaActions.AIR_ROCKET.value()) {
                 bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(livingEntity.getXRot()));
 
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
-                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(actionHolder.getActionYRot()));
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(state.getActionYRot()));
                 bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(-livingEntity.getXRot()));
-                bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(actionHolder.getActionXRot()));
+                bagusModelEvent.getPoseStack().mulPose(Axis.XP.rotationDegrees(state.getActionXRot()));
             }
 
 
             if (actionHolder.getCurrentAction().value() == NinjaActions.SLIDE.value()) {
                 float f = Mth.rotLerp(bagusModelEvent.getPartialTick(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
                 bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(-f));
-                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(actionHolder.getActionYRot()));
+                bagusModelEvent.getPoseStack().mulPose(Axis.YP.rotationDegrees(state.getActionYRot()));
             }
 
             if (actionHolder.getCurrentAction().value() == NinjaActions.WALL_SLIDE.value()) {

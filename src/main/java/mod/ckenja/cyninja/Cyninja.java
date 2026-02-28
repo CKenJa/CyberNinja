@@ -1,10 +1,10 @@
 package mod.ckenja.cyninja;
 
 import com.mojang.logging.LogUtils;
-import mod.ckenja.cyninja.network.ResetFallServerPacket;
-import mod.ckenja.cyninja.network.SetActionToClientPacket;
-import mod.ckenja.cyninja.network.SetActionToServerPacket;
-import mod.ckenja.cyninja.registry.*;
+import mod.ckenja.cyninja.infrastructure.network.ResetFallServerPacket;
+import mod.ckenja.cyninja.infrastructure.network.SetActionToClientPacket;
+import mod.ckenja.cyninja.infrastructure.network.SetActionToServerPacket;
+import mod.ckenja.cyninja.infrastructure.registry.*;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;

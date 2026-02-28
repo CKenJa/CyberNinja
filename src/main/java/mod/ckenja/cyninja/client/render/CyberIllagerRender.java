@@ -4,7 +4,7 @@ import bagu_chan.bagus_lib.client.layer.CustomArmorLayer;
 import mod.ckenja.cyninja.Cyninja;
 import mod.ckenja.cyninja.client.ModModelLayers;
 import mod.ckenja.cyninja.client.model.CyberIllagerModel;
-import mod.ckenja.cyninja.entity.CyberIllager;
+import mod.ckenja.cyninja.content.entity.CyberIllager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
